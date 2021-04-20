@@ -1,0 +1,71 @@
+stages:
+    - build
+    - test
+    - push
+    - clean
+    - deploy
+
+build_image:
+    stage: build
+    script:
+        - docker build -t $CI_PROJECT_NAME:$CI_PIPELINE_ID .
+
+test:
+    stage: test
+    image: $CI_PROJECT_NAME:$CI_PIPELINE_ID
+    before_script:
+        # http://stackoverflow.com/questions/18136746/npm-install-failed-with-cannot-run-in-wd
+        - npm ci --unsafe-perm
+    script:
+        - npm test
+
+push_latest:
+    stage: push
+    only:
+        - master
+    script:
+        - docker tag $CI_PROJECT_NAME:$CI_PIPELINE_ID registry.axiom/$CI_PROJECT_NAME:latest
+        - docker push registry.axiom/$CI_PROJECT_NAME:latest
+
+push_tag:
+    stage: push
+    only:
+        - tags
+    script:
+        - docker tag $CI_PROJECT_NAME:$CI_PIPELINE_ID registry.axiom/$CI_PROJECT_NAME:$CI_BUILD_TAG
+        - docker push registry.axiom/$CI_PROJECT_NAME:$CI_BUILD_TAG
+        - docker tag $CI_PROJECT_NAME:$CI_PIPELINE_ID registry.axiom/$CI_PROJECT_NAME:prod
+        - docker push registry.axiom/$CI_PROJECT_NAME:prod
+
+clean_latest:
+    stage: clean
+    only:
+        - master
+    script:
+        - docker rmi --no-prune $CI_PROJECT_NAME:$CI_PIPELINE_ID
+        - docker rmi --no-prune registry.axiom/$CI_PROJECT_NAME:latest
+
+clean_tag:
+    stage: clean
+    only:
+        - tags
+    script:
+        - docker rmi --no-prune $CI_PROJECT_NAME:$CI_PIPELINE_ID
+        - docker rmi --no-prune registry.axiom/$CI_PROJECT_NAME:$CI_BUILD_TAG
+        - docker rmi --no-prune registry.axiom/$CI_PROJECT_NAME:prod
+
+deploy_stage:
+    stage: deploy
+    environment: staging
+    only:
+        - master
+    script:
+        - docker run --rm registry.axiom/ansible ap apps-stage $CI_PROJECT_NAME --tags deploy
+
+deploy_prod:
+    stage: deploy
+    environment: production
+    only:
+        - tags
+    script:
+        - docker run --rm registry.axiom/ansible ap apps-prod $CI_PROJECT_NAME -e $CI_PROJECT_NAME_version=$CI_BUILD_TAG --tags deploy

@@ -1,0 +1,25 @@
+sections:
+    hero:
+        image: /hero.png
+        imageAltText:
+        title: Example content
+        subtitle: This sample text comes from home.yaml. Reaplce or remove it as needed.
+        buttons:
+            - label: Button 1
+              to: /#
+              primary: true
+            - label: Button 2
+              to: /#
+    partners:
+        - name: One
+          image: /partner-1.png
+        - name: Two
+          image: /partner-2.png
+        - name: Three
+          image: /partner-3.png
+        - name: Four
+          image: /partner-4.png
+        - name: Five
+          image: /partner-5.png
+        - name: Six
+          image: /partner-6.png

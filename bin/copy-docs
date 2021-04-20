@@ -1,0 +1,28 @@
+#!/usr/bin/env node
+
+const fs = require('fs-extra');
+const path = require('path');
+
+const args = process.argv.slice(2);
+const srcDir = args[0];
+const destDir = args[1];
+
+(async function doCopy() {
+    // copy regular .fjson files and non-underscore directories
+    await fs.copy(srcDir, path.join(process.cwd(), destDir), {
+        overwrite: true,
+        filter: (src) => {
+            const f = path.parse(src)
+            return (
+                (f.ext === '.fjson' && f.name !== 'genindex' && f.name !== 'search') ||
+                (f.ext === '' && !f.name.startsWith('_') && !f.name.startsWith('.') && f.name !== 'last_build')
+            )
+        }
+    })
+
+    // copy special directories to a subdirectory in public
+    const special = ['_downloads', '_images']
+    for (let specialDir of special) {
+        await fs.copy(path.join(srcDir, specialDir), path.join(process.cwd(), 'public', destDir, specialDir))
+    }
+})();

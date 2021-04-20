@@ -1,0 +1,45 @@
+exampleSharedList: &shared
+    - label: Quisque nec
+      to: https://www.example.com/quisque-nec
+    - label: In malesuada mauris
+      to: https://www.example.com/in-malesuada-mauris
+    - label: Aenean porta
+      to: https://www.example.com/aenean-porta
+
+site:
+    title: webcoos-project-site
+    description: The project website for WebCOOS
+helpEmail:
+header:
+    logoImage: /header-logo.png
+    logoAltText: webcoos-project-site logo
+    bannerText: WebCOOS
+    menus:
+        - label: Menu 1
+          to: /#
+        - label: Menu 2
+          to: /#
+        - label: Menu 3
+          to: /#
+        - label: With Submenu
+          submenu: *shared
+footer:
+    logoImage: /footer-logo.png
+    logoAltText: webcoos-project-site logo
+    contact:
+        name: webcoos-project-site
+        address: |
+            123 Example St
+            Example, AK
+            99999
+        tel: (555) 555-1234
+        email: info@example.com
+    linkLists:
+        - title: List 1
+          links: *shared
+        - title: List 2
+          links:
+              - label: Suspendisse eu quam
+                to: https://www.example.com/suspendisse-eu-quam
+              - label: Morbi porttitor
+                to: https://www.example.com/morbi-porttitor
