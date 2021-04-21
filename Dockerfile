@@ -6,6 +6,8 @@ RUN npm ci
 
 # Rebuild the source code only when needed
 FROM node:alpine AS builder
+ARG DOCS_URL
+ENV DOCS_URL=${DOCS_URL}
 WORKDIR /app
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
