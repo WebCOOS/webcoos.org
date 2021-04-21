@@ -7,9 +7,7 @@ RUN npm ci
 # Rebuild the source code only when needed
 FROM node:alpine AS builder
 
-RUN apt-get update \
-    && apt-get install -y curl unzip \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk --no-cache add curl
 
 ARG DOCS_URL
 ENV DOCS_URL=${DOCS_URL}
