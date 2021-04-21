@@ -5,6 +5,9 @@ if [ -z "${DOCS_URL}" ]; then
   exit 0;
 fi
 
+# try sleeping to make sure that the docs site is up
+sleep 60
+
 curl --request GET -sL \
      --url "${DOCS_URL}/json_bundle.zip" \
      --remote-name
