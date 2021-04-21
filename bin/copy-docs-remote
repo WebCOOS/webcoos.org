@@ -9,7 +9,10 @@ curl --request GET -sL \
      --url "${DOCS_URL}/json_bundle.zip" \
      --remote-name
 
+mkdir ./.tmp
 unzip -o json_bundle.zip -d ./.tmp
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 $DIR/copy-docs ./.tmp docs
+
+rm -rf ./.tmp
