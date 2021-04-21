@@ -39,3 +39,6 @@ yalc.lock
 
 # IDEs
 .idea
+
+.tmp
+json_bundle.zip

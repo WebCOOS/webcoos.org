@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+if [ -z "${DOCS_URL}" ]; then
+  echo "DOCS_URL is not defined. Exiting."
+  exit 0;
+fi
+
+curl --request GET -sL \
+     --url "${DOCS_URL}/json_bundle.zip" \
+     --remote-name
+
+unzip -o json_bundle.zip -d ./.tmp
+
+DIR="$(cd "$(dirname "$0")" && pwd)"
+$DIR/copy-docs ./.tmp docs

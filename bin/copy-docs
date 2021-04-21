@@ -7,13 +7,18 @@ const args = process.argv.slice(2);
 const srcDir = args[0];
 const destDir = args[1];
 
+const SRC_DIR = path.resolve(path.join(process.cwd(), srcDir));
+const CONTENT_DEST = path.resolve(path.join(process.cwd(), destDir));
+const PUBLIC_DEST = path.resolve(path.join(process.cwd(), 'public', destDir));
+
 (async function doCopy() {
     // copy regular .fjson files and non-underscore directories
-    await fs.copy(srcDir, path.join(process.cwd(), destDir), {
+    await fs.copy(SRC_DIR, CONTENT_DEST, {
         overwrite: true,
         filter: (src) => {
             const f = path.parse(src)
             return (
+                src === SRC_DIR ||
                 (f.ext === '.fjson' && f.name !== 'genindex' && f.name !== 'search') ||
                 (f.ext === '' && !f.name.startsWith('_') && !f.name.startsWith('.') && f.name !== 'last_build')
             )
@@ -23,6 +28,11 @@ const destDir = args[1];
     // copy special directories to a subdirectory in public
     const special = ['_downloads', '_images']
     for (let specialDir of special) {
-        await fs.copy(path.join(srcDir, specialDir), path.join(process.cwd(), 'public', destDir, specialDir))
+        const src = path.join(srcDir, specialDir)
+        const exists = await fs.exists(src)
+        if (!exists) {
+            continue
+        }
+        await fs.copy(src, path.join(PUBLIC_DEST, specialDir))
     }
 })();
