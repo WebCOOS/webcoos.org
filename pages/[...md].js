@@ -32,7 +32,12 @@ export async function getStaticProps({ params }) {
 }
 
 export async function getStaticPaths() {
-    const files = await recursive(MD_DIR);
+    let files
+    try {
+        files = await recursive(MD_DIR);
+    } catch {
+        files = []
+    }
     const paths = files.map((file) => file.replace(MD_DIR, '').replace('.md', '').substring(1).split(path.sep));
     return {
         paths: paths.map((path) => ({
