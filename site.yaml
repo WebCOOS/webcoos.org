@@ -1,45 +1,31 @@
-exampleSharedList: &shared
-    - label: Quisque nec
-      to: https://www.example.com/quisque-nec
-    - label: In malesuada mauris
-      to: https://www.example.com/in-malesuada-mauris
-    - label: Aenean porta
-      to: https://www.example.com/aenean-porta
-
 site:
-    title: webcoos-project-site
+    title: WebCOOS
     description: The project website for WebCOOS
 helpEmail:
 header:
-    logoImage: /header-logo.png
-    logoAltText: webcoos-project-site logo
+#    logoImage: /header-logo.png
+#    logoAltText: webcoos-project-site logo
     bannerText: WebCOOS
     menus:
-        - label: Menu 1
-          to: /#
-        - label: Menu 2
-          to: /#
-        - label: Menu 3
-          to: /#
-        - label: With Submenu
-          submenu: *shared
+        - label: About
+          to: /about
+        - label: Documentation
+          to: /docs
 footer:
-    logoImage: /footer-logo.png
-    logoAltText: webcoos-project-site logo
+    logoImage: /SECOORA_logo.png
+    logoAltText: SECOORA logo
     contact:
-        name: webcoos-project-site
+        name: SECOORA
         address: |
-            123 Example St
-            Example, AK
-            99999
-        tel: (555) 555-1234
-        email: info@example.com
-    linkLists:
-        - title: List 1
-          links: *shared
-        - title: List 2
-          links:
-              - label: Suspendisse eu quam
-                to: https://www.example.com/suspendisse-eu-quam
-              - label: Morbi porttitor
-                to: https://www.example.com/morbi-porttitor
+          PO Box 13856
+          Charleston, SC
+          29422
+#        tel: (555) 555-1234
+        email: communications@secoora.org
+#    linkLists:
+#        - title: About
+#          links:
+#              - label: WebCOOS
+#                to: /about
+#              - label: SECOORA
+#                to: https://secoora.org/about

@@ -1,25 +1,36 @@
 sections:
     hero:
-        image: /hero.png
+        image: /hero.jpg
         imageAltText:
-        title: Example content
-        subtitle: This sample text comes from home.yaml. Reaplce or remove it as needed.
+        title: Webcams for Coastal Observations and Operational Support
+        subtitle: >
+          WebCOOS is developing a webcam coastal observing network for quantitative scientific
+          analysis, public safety, and resource management for coastal municipalities.
         buttons:
-            - label: Button 1
-              to: /#
+            - label: Learn More
+              to: /about
               primary: true
-            - label: Button 2
-              to: /#
+            - label: View Docs
+              to: /docs
     partners:
-        - name: One
-          image: /partner-1.png
-        - name: Two
-          image: /partner-2.png
-        - name: Three
-          image: /partner-3.png
-        - name: Four
-          image: /partner-4.png
-        - name: Five
-          image: /partner-5.png
-        - name: Six
-          image: /partner-6.png
+        - name: University of South Carolina
+          image: /UofSC_Monogram_Stack_RGB_K.png
+          link: https://www.sc.edu/
+        - name: University of North Carolina Wilmington
+          image: /uncw-logo-university-of-north-carolina-wilmington.png
+          link: https://uncw.edu/
+        - name: University of California Santa Cruz
+          image: /2021 UC Santa Cruz Logo - Blue RGB.png
+          link: https://www.ucsc.edu/
+        - name: Axiom Data Science
+          image: /axiom_logo_vert.png
+          link: https://www.axiomdatascience.com/
+        - name: NOAA (CO-OPS)
+          image: /NOAA_logo.svg
+          link: https://tidesandcurrents.noaa.gov/
+        - name: U.S. Geological Survey
+          image: /USGS_logo.png
+          link: https://www.usgs.gov/
+        - name: U.S. Army Corps of Engineers
+          image: /gsb-03.gif
+          link: https://www.usace.army.mil/

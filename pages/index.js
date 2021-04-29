@@ -16,14 +16,25 @@ export default function Home({ content, metadata }) {
              */}
             <div className='bg-primary-lighter'>
                 <section className='container mx-auto p-4 py-12'>
-                    <h2 className='text-2xl font-bold mb-4'>Example custom section</h2>
-                    <div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4'>
+                    <h2 className='text-2xl font-bold mb-8'>Project Partners</h2>
+                    <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-8'>
                         {content.sections.partners.map((partner) => (
-                            <img key={partner.name} alt={partner.name} className='rounded-xl' src={partner.image} />
+                            <a key={partner.name} href={partner.link} className='flex flex-col justify-between bg-white shadow-sm border rounded p-4'>
+                                <img alt={partner.name} className='flex-grow object-contain mx-auto max-h-24 mb-2' src={partner.image} />
+                                {partner.name}
+                            </a>
                         ))}
                     </div>
                 </section>
             </div>
+
+            <section className='container mx-auto p-4 py-12'>
+                <h2 className='text-2xl font-bold mb-8'>Project Funding</h2>
+                <p>
+                    This project is funded by the NOAA U.S. Integrated Ocean Observing System’s
+                    (IOOS®) Ocean Technology Transition grant.
+                </p>
+            </section>
         </Page>
     );
 }
