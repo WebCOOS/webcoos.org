@@ -69,7 +69,8 @@ deploy_stage:
     only:
         - master
     script:
-        - docker run --rm registry.axiom/ansible ap apps-stage $CI_PROJECT_NAME --tags deploy
+        - docker pull registry.axiom/ansible:latest
+        - docker run --rm registry.axiom/ansible:latest ap apps-stage $CI_PROJECT_NAME --tags deploy
 
 deploy_prod:
     stage: deploy
@@ -77,4 +78,5 @@ deploy_prod:
     only:
         - tags
     script:
-        - docker run --rm registry.axiom/ansible ap apps-prod $CI_PROJECT_NAME -e $CI_PROJECT_NAME_version=$CI_BUILD_TAG --tags deploy
+        - docker pull registry.axiom/ansible:latest
+        - docker run --rm registry.axiom/ansible:latest ap apps-prod $CI_PROJECT_NAME -e axds_project_site_version=$CI_BUILD_TAG --tags deploy
