@@ -16,7 +16,7 @@
         "test": "echo 'no tests yet!' && exit 0"
     },
     "dependencies": {
-        "@axds/landing-page-components": "^0.1.0",
+        "@axds/landing-page-components": "^0.2.0",
         "@tailwindcss/typography": "^0.4.0",
         "gray-matter": "^4.0.2",
         "js-yaml": "^4.1.0",
