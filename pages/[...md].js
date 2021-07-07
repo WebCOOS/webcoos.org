@@ -5,12 +5,22 @@ import recursive from 'recursive-readdir';
 import { readFile } from 'fs/promises';
 import matter from 'gray-matter';
 import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import rehypeKatex from 'rehype-katex';
+import remarkMath from 'remark-math';
 import { getSiteMetadata } from '../utils';
+import 'katex/dist/katex.min.css'
 
 export default function MarkdownPage({ content, data, metadata }) {
     return (
         <Page metadata={metadata} title={data.title}>
-            <ReactMarkdown className='mx-auto prose p-4 pb-12'>{content}</ReactMarkdown>
+            <ReactMarkdown
+                remarkPlugins={[remarkMath]}
+                rehypePlugins={[rehypeRaw, rehypeKatex]}
+                className='mx-auto prose p-4 pb-12'
+            >
+                {content}
+            </ReactMarkdown>
         </Page>
     );
 }
