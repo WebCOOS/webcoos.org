@@ -26,9 +26,14 @@ observational and operational needs. A webcam video database will provide centra
 historical and real time video data that can be accessed to benefit various applications and
 organizations.
 
-# Current Scientific Applications
+## Current Scientific Applications
 
 Project partners and scientists will be utilizing this data to develop algorithms and tools to
 identify shoreline water levels (tides, surge, wave run-up) and rip currents from webcam imagery.
 The data will also be used to develop a situational awareness tool that aims to provide data on
 various beach activities and hazards to support a broad range of stakeholders.
+
+## Submit Camera Information
+
+If you operate a camera and would like to be part of the WebCOOS project, please fille out our
+[sign up form](/sign-up).
