@@ -7,6 +7,13 @@ The project website for WebCOOS
 
 ## Development
 
+### Requirements
+
+This project requires Node.js &geq; v14.0.0. It is recommended to use [nvm](https://github.com/nvm-sh/nvm)
+to manage multiple Node.js versions.
+
+### Running
+
 To run the development server:
 
 ```shell
