@@ -47,13 +47,16 @@ push_tag:
         - docker tag $CI_PROJECT_NAME:$CI_PIPELINE_ID registry.axiom/$CI_PROJECT_NAME:prod
         - docker push registry.axiom/$CI_PROJECT_NAME:prod
 
+clean_base:
+    stage: clean
+    script:
+        - docker rmi --no-prune $CI_PROJECT_NAME:$CI_PIPELINE_ID
+
 clean_latest:
     stage: clean
     only:
         - master
-        - branches
     script:
-        - docker rmi --no-prune $CI_PROJECT_NAME:$CI_PIPELINE_ID
         - docker rmi --no-prune registry.axiom/$CI_PROJECT_NAME:latest
 
 clean_tag:
@@ -61,7 +64,6 @@ clean_tag:
     only:
         - tags
     script:
-        - docker rmi --no-prune $CI_PROJECT_NAME:$CI_PIPELINE_ID
         - docker rmi --no-prune registry.axiom/$CI_PROJECT_NAME:$CI_BUILD_TAG
         - docker rmi --no-prune registry.axiom/$CI_PROJECT_NAME:prod
 
