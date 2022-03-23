@@ -9,6 +9,7 @@ build_image_latest:
     stage: build
     only:
         - master
+        - branches
     script:
         - docker build --build-arg DOCS_URL=https://stage-webcoos-docs.srv.axds.co/ --build-arg MAPBOX_TOKEN=$MAPBOX_TOKEN -t $CI_PROJECT_NAME:$CI_PIPELINE_ID .
 
@@ -50,6 +51,7 @@ clean_latest:
     stage: clean
     only:
         - master
+        - branches
     script:
         - docker rmi --no-prune $CI_PROJECT_NAME:$CI_PIPELINE_ID
         - docker rmi --no-prune registry.axiom/$CI_PROJECT_NAME:latest
