@@ -11,6 +11,8 @@ RUN apk --no-cache add curl
 
 ARG DOCS_URL
 ENV DOCS_URL=${DOCS_URL}
+ARG MAPBOX_TOKEN
+ENV NEXT_PUBLIC_MAPBOX_TOKEN=${MAPBOX_TOKEN}
 WORKDIR /app
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
