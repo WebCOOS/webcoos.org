@@ -19,6 +19,10 @@ module.exports = {
                     darker: '#001133',
                 },
             },
+            gridTemplateColumns: {
+                // camera layout
+                camera: '2.5fr 4.5fr 2.5fr',
+            },
         },
     },
     variants: {

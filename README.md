@@ -5,6 +5,12 @@ generator. To make improvements this starter site, please contribute to that pro
 
 The project website for WebCOOS
 
+## Configuration
+
+You'll need a Mapbox token to see the camera map components. Export `NEXT_PUBLIC_MAPBOX_TOKEN` in your 
+shell before starting the development server or building the static site. Consider setting this in `.envrc` 
+and using direnv.
+
 ## Development
 
 To run the development server:

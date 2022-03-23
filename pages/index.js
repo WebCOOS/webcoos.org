@@ -29,6 +29,7 @@ export default function Home({ content, metadata }) {
                     apiVersion="v1"
                     token="219ec2bd77f37ce8bbb12e4c08a7b62bd506a7d3"
                     source="webcoos"
+                    mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
                 />
             </Section>
 
