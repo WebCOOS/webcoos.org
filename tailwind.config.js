@@ -23,10 +23,15 @@ module.exports = {
                 // camera layout
                 camera: '2.5fr 4.5fr 2.5fr',
             },
+            maxWidth: {
+                '75w': '75vw',
+            },
         },
     },
     variants: {
-        extend: {},
+        extend: {
+            borderRadius: ['hover'],
+        },
     },
     plugins: [require('@tailwindcss/typography')],
 };
