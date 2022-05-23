@@ -35,5 +35,5 @@ various beach activities and hazards to support a broad range of stakeholders.
 
 ## Submit Camera Information
 
-If you operate a camera and would like to be part of the WebCOOS project, please fille out our
+If you operate a camera and would like to be part of the WebCOOS project, please fill out our
 [sign up form](/sign-up).

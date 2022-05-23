@@ -7,10 +7,18 @@ header:
 #    logoAltText: webcoos-project-site logo
     bannerText: WebCOOS
     menus:
-        - label: About
-          to: /about
+        - label: Get Involved
+          to: /get-involved
+        - label: Cameras
+          to: /cameras
+        - label: Communities
+          to: /communities
+        - label: Products
+          to: /products
         - label: Documentation
           to: /docs
+        - label: About
+          to: /about
 footer:
     logoImage: /SECOORA_logo.png
     logoAltText: SECOORA logo
