@@ -17,6 +17,10 @@ function Page({ children, metadata, title }) {
                     {metadata.site.title}
                 </title>
                 <meta httpEquiv='x-ua-compatible' content='ie=edge' />
+                <link
+                    href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.css'
+                    rel='stylesheet'
+                />
                 {metadata.site.description && <meta name='description' content={metadata.site.description} />}
             </Head>
 
