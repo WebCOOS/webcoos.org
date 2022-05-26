@@ -12,10 +12,8 @@ import dynamic from 'next/dynamic';
 
 const CameraLandingSection = dynamic(
     () => (
-        import('@axds/landing-page-components/build/es/no-ssr')
-            .then(mod => mod.CameraLandingSection)
+        import('../components/CameraLandingSection')
     ), { ssr: false })
-
 
 export default function Home({ content, metadata }) {
     return (
