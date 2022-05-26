@@ -1,8 +1,9 @@
-import { HeroSection, NarrativeSection, PartnerLogos, Section, SectionHeader, parseWebCOOSAsset } from '@axds/landing-page-components';
+import { HeroSection, NarrativeSection, PartnerLogos, Section, SectionHeader } from '@axds/landing-page-components';
 import Page from '../../components/Page';
 
 // import { getSiteMetadata, getYaml } from '../../utils';
 import { getSiteMetadata } from '../../utils';
+import { parseWebCOOSAsset } from '../../components/utils/webCOOSHelpers';
 
 import dynamic from 'next/dynamic';
 

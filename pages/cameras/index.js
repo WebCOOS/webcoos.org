@@ -1,11 +1,11 @@
-import { HeroSection, NarrativeSection, PartnerLogos, Section, SectionHeader, StaticMap } from '@axds/landing-page-components';
+import { HeroSection, NarrativeSection, PartnerLogos, Section, SectionHeader } from '@axds/landing-page-components';
 import Page from '../../components/Page';
 import { getSiteMetadata, getYaml } from '../../utils';
 
 import dynamic from 'next/dynamic';
 
 const WebCOOSMap = dynamic(
-    () => import('@axds/landing-page-components/build/es/no-ssr').then((mod) => mod.WebCOOSMap),
+    () => import('../../components/WebCOOSMap'),
     { ssr: false }
 );
 
