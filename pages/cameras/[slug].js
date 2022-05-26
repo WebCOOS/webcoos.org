@@ -7,7 +7,7 @@ import { getSiteMetadata } from '../../utils';
 import dynamic from 'next/dynamic';
 
 const CameraSummary = dynamic(
-    () => import('@axds/landing-page-components/build/es/no-ssr').then((mod) => mod.CameraSummary),
+    () => import('../../components/CameraSummary'),
     { ssr: false }
 );
 
