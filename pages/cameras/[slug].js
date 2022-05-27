@@ -41,12 +41,14 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                 <CameraSummary {...parsedMetadata} mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN} />
 
                 {serviceUuid && (
-                    <StillsGallery
-                        apiUrl={apiUrl}
-                        apiVersion={apiVersion}
-                        token={process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}
-                        serviceUuid={serviceUuid}
-                    />
+                    <div className='my-4'>
+                        <StillsGallery
+                            apiUrl={apiUrl}
+                            apiVersion={apiVersion}
+                            token={process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}
+                            serviceUuid={serviceUuid}
+                        />
+                    </div>
                 )}
             </Section>
         </Page>
