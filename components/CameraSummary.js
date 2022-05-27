@@ -80,7 +80,7 @@ export default function CameraSummary({
                 </p>
 
                 <div className="hidden md:block bg-white p-4 border border-gray-200 text-center justify-self-end">
-                    Future Data Access Area
+                    Data Access
                 </div>
             </div>
             <div className="md:self-center md:justify-self-center">
