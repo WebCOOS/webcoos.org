@@ -11,7 +11,7 @@ const WebCOOSMap = dynamic(
 
 export default function Cameras({ cameras, metadata }) {
     return (
-        <Page metadata={metadata}>
+        <Page metadata={metadata} title="Cameras">
             <Section>
                 <SectionHeader>Cameras</SectionHeader>
                 <WebCOOSMap

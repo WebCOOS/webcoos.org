@@ -21,10 +21,16 @@ cameras:
         - currituck_sailfish
       content:
         hero:
-          image: /hero.jpg
+          image: https://s3.axds.co/static-assets/webcoos/backend/stage/media/uploads/camera/currituck_hampton_inn/currituck_hampton_inn_highlight.jpg
           imageAltText:
-          title: Webcams for Coastal Observations and Operational Support
+          title: Currituck Community
     surfline:
       cameras:
         - twinpier
         - miami40th 
+        - staugustinepier
+        - buxton
+        - cherrypier_north
+        - cherrypier_south
+        - follypier_north
+        - follypier_south
