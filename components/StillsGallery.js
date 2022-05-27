@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import KeyboardEventHandler from 'react-keyboard-event-handler';
 
 export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, perPage = 100, galleryClasses = ''}) {
     
@@ -22,10 +23,25 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
         }
 
         // set the curelements array each time
+        const dtFormatter = new Intl.DateTimeFormat(undefined, {
+            dateStyle: 'medium',
+            timeStyle: 'medium'
+        });
         results.forEach((result) => {
+            const parsedResults = result.results.map(r => {
+                const dt = new Date(Date.parse(r.data.extents.temporal.min));
+                return {
+                    uuid: r.uuid,
+                    data: {
+                        ...r.data,
+                        dateTime: dt,
+                        dateTimeStr: dtFormatter.format(dt)
+                    }
+                }
+            })
             curElements = [
                 ...curElements.slice(0, result.pagination.start_index - 1),
-                ...result.results,
+                ...parsedResults,
                 ...curElements.slice(result.pagination.end_index),
             ];
         });
@@ -160,9 +176,19 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
         })
     }
 
+    const onKey = (key, e) => {
+        if (key === 'esc') {
+            setZoomedIdx(null);
+        } else if (key === 'left') {
+            incZoomIdx(-1);
+        } else if (key === 'right') {
+            incZoomIdx(1)
+        }
+    }
+
     return (
         <>
-            <nav className='relative z-0 inline-flex rounded-md shadow-sm -space-x-px' aria-label='Pagination'>
+            <nav className='relative z-0 flex justify-center rounded-md -space-x-px' aria-label='Pagination'>
                 <button
                     className={classNames(
                         'relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium',
@@ -221,72 +247,92 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
                 </button>
             </nav>
 
-            <div className={classNames('flex gap-1 mt-4 sm:gap-4 flex-wrap overflow-y-auto', galleryClasses)}>
+            <div
+                className={classNames(
+                    'flex gap-1 mt-4 sm:gap-4 flex-wrap overflow-y-auto justify-center',
+                    galleryClasses
+                )}
+            >
                 {visible.map((still, i) => {
                     return (
-                        <img
-                            key={still.uuid}
-                            className='sm:rounded cursor-pointer'
-                            src={still.data.properties.url}
-                            alt={still.data.extents.temporal.min}
-                            width='300'
-                            height='200'
-                            onClick={() => setZoomedIdx(i + viewPage * perPage)}
-                        />
+                        <div className='relative'>
+                            <img
+                                key={still.uuid}
+                                className='sm:rounded cursor-pointer'
+                                src={still.data.properties.url}
+                                alt={still.data.dateTimeStr}
+                                width='300'
+                                height='200'
+                                onClick={() => setZoomedIdx(i + viewPage * perPage)}
+                            />
+
+                            <div className='absolute bg-primary text-white border border-primary-darker p-1 bottom-1 right-1 text-xs bg-opacity-60 rounded'>
+                                {still.data.dateTimeStr}
+                            </div>
+                        </div>
                     );
                 })}
             </div>
 
             {zoomed && (
-                <div className='fixed z-10 inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center overflow-hidden transition'>
-                    <div className='bg-white sm:rounded-lg shadow-xl sm:max-w-75w flex flex-row items-stretch'>
-                        <div
-                            className={classNames('w-16 flex items-center justify-center', {
-                                'text-gray-600 hover:text-gray-700 hover:bg-gray-400 cursor-pointer hover:rounded-tl-lg hover:rounded-bl-lg':
-                                    zoomedIdx > 0,
-                                'text-gray-200 cursor-not-allowed': zoomedIdx === 0,
-                            })}
-                            onClick={() => incZoomIdx(-1)}
-                        >
-                            <svg
-                                xmlns='http://www.w3.org/2000/svg'
-                                className='h-6 w-6'
-                                fill='none'
-                                viewBox='0 0 24 24'
-                                stroke='currentColor'
-                                strokeWidth={2}
+                <>
+                    <KeyboardEventHandler handleKeys={['esc', 'left', 'right']} onKeyEvent={onKey} />
+                    <div className='fixed z-10 inset-0 bg-gray-500 bg-opacity-75 flex flex-col items-center justify-center overflow-hidden transition'>
+                        <div className='bg-white sm:rounded-lg shadow-xl sm:max-w-75w flex flex-row items-stretch'>
+                            <div
+                                className={classNames('w-16 flex items-center justify-center', {
+                                    'text-gray-600 hover:text-gray-700 hover:bg-gray-400 cursor-pointer hover:rounded-tl-lg hover:rounded-bl-lg':
+                                        zoomedIdx > 0,
+                                    'text-gray-200 cursor-not-allowed': zoomedIdx === 0,
+                                })}
+                                onClick={() => incZoomIdx(-1)}
                             >
-                                <path strokeLinecap='round' strokeLinejoin='round' d='M11 17l-5-5m0 0l5-5m-5 5h12' />
-                            </svg>
-                        </div>
-                        <div>
-                            <img
-                                className='sm:py-8 object-contain'
-                                src={zoomed.data.properties.url}
-                                alt={zoomed.data.extents.temporal.min}
-                                onClick={() => setZoomedIdx(null)}
-                            />
-                        </div>
-                        <div
-                            className={classNames('w-16 flex items-center justify-center', {
-                                'text-gray-600 hover:text-gray-700 hover:bg-gray-400 cursor-pointer hover:rounded-tr-lg hover:rounded-br-lg': canZoomNext(),
-                                'text-gray-200 cursor-not-allowed': canZoomNext(),
-                            })}
-                            onClick={() => incZoomIdx(1)}
-                        >
-                            <svg
-                                xmlns='http://www.w3.org/2000/svg'
-                                className='h-6 w-6'
-                                fill='none'
-                                viewBox='0 0 24 24'
-                                stroke='currentColor'
-                                strokeWidth={2}
+                                <svg
+                                    xmlns='http://www.w3.org/2000/svg'
+                                    className='h-6 w-6'
+                                    fill='none'
+                                    viewBox='0 0 24 24'
+                                    stroke='currentColor'
+                                    strokeWidth={2}
+                                >
+                                    <path
+                                        strokeLinecap='round'
+                                        strokeLinejoin='round'
+                                        d='M11 17l-5-5m0 0l5-5m-5 5h12'
+                                    />
+                                </svg>
+                            </div>
+                            <div className='flex flex-col sm:pt-6 sm:pb-2'>
+                                <img
+                                    className='object-contain'
+                                    src={zoomed.data.properties.url}
+                                    alt={zoomed.data.dateTimeStr}
+                                    onClick={() => setZoomedIdx(null)}
+                                />
+
+                                <div className='pt-4'>{zoomed.data.dateTimeStr}</div>
+                            </div>
+                            <div
+                                className={classNames('w-16 flex items-center justify-center', {
+                                    'text-gray-600 hover:text-gray-700 hover:bg-gray-400 cursor-pointer hover:rounded-tr-lg hover:rounded-br-lg': canZoomNext(),
+                                    'text-gray-200 cursor-not-allowed': !canZoomNext(),
+                                })}
+                                onClick={() => incZoomIdx(1)}
                             >
-                                <path strokeLinecap='round' strokeLinejoin='round' d='M13 7l5 5m0 0l-5 5m5-5H6' />
-                            </svg>
+                                <svg
+                                    xmlns='http://www.w3.org/2000/svg'
+                                    className='h-6 w-6'
+                                    fill='none'
+                                    viewBox='0 0 24 24'
+                                    stroke='currentColor'
+                                    strokeWidth={2}
+                                >
+                                    <path strokeLinecap='round' strokeLinejoin='round' d='M13 7l5 5m0 0l-5 5m5-5H6' />
+                                </svg>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </>
             )}
         </>
     );
