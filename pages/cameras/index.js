@@ -9,7 +9,7 @@ const WebCOOSMap = dynamic(
     { ssr: false }
 );
 
-export default function Cameras({ content, metadata }) {
+export default function Cameras({ cameras, metadata }) {
     return (
         <Page metadata={metadata}>
             <Section>
@@ -20,21 +20,7 @@ export default function Cameras({ content, metadata }) {
                     mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
                     apiUrl='https://app.stage.webcoos.org/webcoos/api'
                     token='219ec2bd77f37ce8bbb12e4c08a7b62bd506a7d3'
-                    stationSlugs={[
-                        'buxton',
-                        'cherrypier_north',
-                        'cherrypier_south',
-                        'currituck_hampton_inn',
-                        'currituck_sailfish',
-                        'follypier_north',
-                        'follypier_south',
-                        'miami40th',
-                        'northinlet',
-                        'oakisland_east',
-                        'oakisland_west',
-                        'staugustinepier',
-                        'twinpier',
-                    ]}
+                    stationSlugs={cameras.cameras.active}
                 />
             </Section>
         </Page>
@@ -45,7 +31,7 @@ export async function getStaticProps() {
     return {
         props: {
             metadata: await getSiteMetadata(),
-            content: await getYaml('home.yaml'),
+            cameras: await getYaml('cameras.yaml'),
         },
     };
 }

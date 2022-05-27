@@ -7,6 +7,7 @@ export default function CameraLandingSection({
     apiVersion,
     token,
     source,
+    stations = [],
     mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || process.env.REACT_APP_MAPBOX_TOKEN || process.env.STORYBOOK_MAPBOX_TOKEN
 }) {
 
@@ -23,15 +24,24 @@ export default function CameraLandingSection({
             })
             .then(response => response.json())
             .then(result => {
-                const parsedCams = result.results.map(item => {
+                const parsedCams = result.results.map((item) => {
                     const parsedItem = parseWebCOOSAsset(item);
-                    if (!parsedItem) { return null; }
+                    if (!parsedItem) {
+                        return null;
+                    }
                     return {
                         ...parsedItem,
-                        mapboxAccessToken: mapboxAccessToken
-                    }
-                });
-                setCameras(parsedCams.filter(pc => pc !== null));
+                        mapboxAccessToken: mapboxAccessToken,
+                    };
+                }),
+                    filteredCams = parsedCams.filter((pc) => pc !== null);
+
+                if (stations.length) {
+                    const stationSet = new Set(stations);
+                    setCameras(filteredCams.filter(fc => stationSet.has(fc.slug)));
+                } else {
+                    setCameras(filteredCams);
+                }
           })
     }, []);
 

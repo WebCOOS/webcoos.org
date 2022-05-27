@@ -108,6 +108,7 @@ export default function CameraSummary({
                                 mapboxAccessToken={mapboxAccessToken}
                                 extraClasses={"border"}
                                 extraStyle={{borderColor: borderColor}}
+                                decimalPlaces={3}
                             />
                         )}
                     </AutoSizer>

@@ -15,7 +15,7 @@ const CameraLandingSection = dynamic(
         import('../components/CameraLandingSection')
     ), { ssr: false })
 
-export default function Home({ content, metadata }) {
+export default function Home({ content, metadata, cameras }) {
     return (
         <Page metadata={metadata}>
             <HeroSection {...content.sections.hero} />
@@ -28,6 +28,7 @@ export default function Home({ content, metadata }) {
                     token="219ec2bd77f37ce8bbb12e4c08a7b62bd506a7d3"
                     source="webcoos"
                     mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+                    stations={cameras.cameras.active}
                 />
             </Section>
 
@@ -50,6 +51,7 @@ export async function getStaticProps() {
         props: {
             metadata: await getSiteMetadata(),
             content: await getYaml('home.yaml'),
+            cameras: await getYaml('cameras.yaml')
         },
     };
 }
