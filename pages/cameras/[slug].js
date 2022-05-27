@@ -4,11 +4,11 @@ import Page from '../../components/Page';
 
 import { getSiteMetadata, getYaml } from '../../utils';
 import { parseWebCOOSAsset } from '../../components/utils/webCOOSHelpers';
-import StillsGallery from '../../components/StillsGallery';
 
 import dynamic from 'next/dynamic';
 
 const CameraSummary = dynamic(() => import('../../components/CameraSummary'), { ssr: false });
+const StillsGallery = dynamic(() => import('../../components/StillsGallery'), { ssr: false });
 
 const apiUrl = 'https://app.stage.webcoos.org/webcoos/api',
     apiVersion = 'v1',
