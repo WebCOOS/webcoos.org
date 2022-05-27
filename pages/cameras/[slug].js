@@ -2,8 +2,7 @@ import { useMemo } from 'react';
 import { HeroSection, NarrativeSection, PartnerLogos, Section, SectionHeader } from '@axds/landing-page-components';
 import Page from '../../components/Page';
 
-// import { getSiteMetadata, getYaml } from '../../utils';
-import { getSiteMetadata } from '../../utils';
+import { getSiteMetadata, getYaml } from '../../utils';
 import { parseWebCOOSAsset } from '../../components/utils/webCOOSHelpers';
 import StillsGallery from '../../components/StillsGallery';
 
@@ -55,24 +54,8 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
 }
 
 export async function getStaticPaths() {
-    // if wanted: pull this from the asset api
-
-    // @TODO: pull from site.yaml?
-    const cameraSlugs = [
-        'buxton',
-        'cherrypier_north',
-        'cherrypier_south',
-        'currituck_hampton_inn',
-        'currituck_sailfish',
-        'follypier_north',
-        'follypier_south',
-        'miami40th',
-        'northinlet',
-        'oakisland_east',
-        'oakisland_west',
-        'staugustinepier',
-        'twinpier',
-    ];
+    const cameraData = await getYaml('cameras.yaml'),
+        cameraSlugs = cameraData.cameras.active;
 
     return {
         paths: cameraSlugs.map((slug) => ({

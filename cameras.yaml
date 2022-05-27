@@ -1,0 +1,30 @@
+cameras:
+  active:
+    - buxton
+    - cherrypier_north
+    - cherrypier_south
+    - currituck_hampton_inn
+    - currituck_sailfish
+    - follypier_north
+    - follypier_south
+    - miami40th
+    - northinlet
+    - oakisland_east
+    - oakisland_west
+    - staugustinepier
+    - twinpier
+
+  communities:
+    currituck:
+      cameras:
+        - currituck_hampton_inn
+        - currituck_sailfish
+      content:
+        hero:
+          image: /hero.jpg
+          imageAltText:
+          title: Webcams for Coastal Observations and Operational Support
+    surfline:
+      cameras:
+        - twinpier
+        - miami40th 

@@ -7,7 +7,7 @@ export default function CameraLandingSection({
     apiVersion,
     token,
     source,
-    mapboxAccessToken = process.env.REACT_APP_MAPBOX_TOKEN || process.env.STORYBOOK_MAPBOX_TOKEN
+    mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || process.env.REACT_APP_MAPBOX_TOKEN || process.env.STORYBOOK_MAPBOX_TOKEN
 }) {
 
     const [cameras, setCameras] = React.useState([]);
