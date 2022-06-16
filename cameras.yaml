@@ -37,3 +37,12 @@ cameras:
         - cherrypiersouthcam
         - follypiernorthcam
         - follypiersouthcam
+    isle_of_palm:
+      cameras:
+        - iop_palm_blvd
+        - iop_rifle_range_rd
+      content:
+        hero:
+          image: https://s3.axds.co/static-assets/webcoos/backend/stage/media/uploads/camera/iop_palm_blvd/iop_palm_blvd_highlight.jpg
+          imageAltText:
+          title: Isle of Palm
