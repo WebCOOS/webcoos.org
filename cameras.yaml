@@ -1,18 +1,21 @@
 cameras:
   active:
-    - buxton
-    - cherrypier_north
-    - cherrypier_south
+    - buxtoncoastalcam
+    - cherrypiernorthcam
+    - cherrypiersouthcam
     - currituck_hampton_inn
     - currituck_sailfish
-    - follypier_north
-    - follypier_south
-    - miami40th
+    - follypiernorthcam
+    - follypiersouthcam
+    - iop_palm_blvd
+    - iop_rifle_range_rd
+    - miami40thcam
     - northinlet
     - oakisland_east
     - oakisland_west
-    - staugustinepier
-    - twinpier
+    - staugustinecam
+    - twinpierscam
+    - waikiki_sheraton
 
   communities:
     currituck:
@@ -26,11 +29,11 @@ cameras:
           title: Currituck Community
     surfline:
       cameras:
-        - twinpier
-        - miami40th 
-        - staugustinepier
-        - buxton
-        - cherrypier_north
-        - cherrypier_south
-        - follypier_north
-        - follypier_south
+        - twinpierscan
+        - miami40thcam
+        - staugustinecam
+        - buxtoncoastalcam
+        - cherrypiernorthcam
+        - cherrypiersouthcam
+        - follypiernorthcam
+        - follypiersouthcam
