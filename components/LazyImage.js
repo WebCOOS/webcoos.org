@@ -2,7 +2,7 @@
  * Adapted from https://hangindev.com/blog/create-a-lazy-loading-image-component-with-react-hooks
  */
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
@@ -16,10 +16,16 @@ export default function LazyImage({ className, styles={}, src, alt, lqip, aspect
             setLoaded(true);
         }
     }, []);
+    const lqipData = useMemo(() => {
+        if (!lqip.startsWith('data:')) {
+            return `data:image/png;base64,${lqip}`;
+        }
+        return lqip;
+    }, [lqip]);
     return (
         <div className={classNames('relative overflow-hidden', className)} style={styles}>
             {/* <div style={{ paddingBottom: `${100 / aspectRatio}%` }} /> */}
-            <img src={lqip} aria-hidden='true' className={classNames(imgStyle)} onClick={onClick} />
+            <img src={lqipData} aria-hidden='true' className={classNames(imgStyle)} onClick={onClick} />
             <img
                 loading='lazy'
                 className={classNames(imgStyle, 'transition-opacity duration-1000', {

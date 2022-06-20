@@ -3,6 +3,8 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import KeyboardEventHandler from 'react-keyboard-event-handler';
 
+import LazyImage from "./LazyImage";
+
 export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, perPage = 100, galleryClasses = ''}) {
     
     // data from api state
@@ -256,13 +258,16 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
                 {visible.map((still, i) => {
                     return (
                         <div className='relative'>
-                            <img
+                            <LazyImage
                                 key={still.uuid}
                                 className='sm:rounded cursor-pointer'
-                                src={still.data.properties.url}
+                                src={still.data.properties.thumbnails.base.rect_medium}
+                                lqip={still.data.properties.thumbnails.base.lqip}
                                 alt={still.data.dateTimeStr}
-                                width='300'
-                                height='200'
+                                styles={{
+                                    width: '300px',
+                                    height: '200px'
+                                }}
                                 onClick={() => setZoomedIdx(i + viewPage * perPage)}
                             />
 

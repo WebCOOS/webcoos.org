@@ -262,7 +262,7 @@ export default function VideoGallery({ apiUrl, apiVersion, token, serviceUuid, p
                                 className='sm:rounded cursor-pointer'
                                 src={still.data.properties.thumbnails.base.rect_medium}
                                 alt={still.data.dateTimeStr}
-                                lqip={`data:image/png;base64,${still.data.properties.thumbnails.base.lqip}`}
+                                lqip={still.data.properties.thumbnails.base.lqip}
                                 styles={{
                                     width: '350px',
                                     height: '200px'
