@@ -1,9 +1,12 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
+
 import { HeroSection, NarrativeSection, PartnerLogos, Section, SectionHeader } from '@axds/landing-page-components';
 import Page from '../../components/Page';
 
 import { getSiteMetadata, getYaml } from '../../utils';
 import { parseWebCOOSAsset } from '../../components/utils/webCOOSHelpers';
+import { IconCamera, IconVideoCamera } from '../../components/Icon';
 
 import dynamic from 'next/dynamic';
 
@@ -16,6 +19,8 @@ const apiUrl = 'https://app.stage.webcoos.org/webcoos/api',
     source = 'webcoos';
 
 export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata, ...props }) {
+    const [curTab, setCurTab] = useState('stills');
+
     const serviceUuid = useMemo(() => {
         // find the compatable feed
         const products = rawMetadata.feeds.flatMap((feed) => {
@@ -42,6 +47,36 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
         }
     }, [rawMetadata]);
 
+    useEffect(() => {
+        if (!serviceUuid && videoServiceUuid) {
+            setCurTab('videos');
+        }
+    }, [videoServiceUuid, serviceUuid])
+
+    const availTabs = useMemo(() => {
+        const at = [];
+
+        if (serviceUuid) {
+            at.push({
+                key: 'stills',
+                icon: <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />,
+            });
+        }
+
+        if (videoServiceUuid) {
+            at.push({
+                key: 'videos',
+                icon: <IconVideoCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />,
+            });
+        }
+        return at;
+    }, [serviceUuid, videoServiceUuid]);
+
+    const selectTab = (e, at) => {
+        setCurTab(at);
+        e.preventDefault();
+    }
+
     return (
         <Page metadata={metadata} title={parsedMetadata.label}>
             <Section>
@@ -52,12 +87,45 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                     | {parsedMetadata.label}
                 </SectionHeader>
                 <CameraSummary {...parsedMetadata} mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN} />
-                <div className='my-4 flex'>
+
+                <ul
+                    className='nav nav-tabs flex flex-col md:flex-row flex-wrap list-none border-b-0 pl-0 mb-4'
+                    id='tabs-tab'
+                    role='tablist'
+                >
+                    {availTabs.map((at) => {
+                        return (
+                            <li key={at.key} className='nav-item' role='presentation'>
+                                <a
+                                    href='#tabs-home'
+                                    className={classNames(
+                                        'nav-link block font-medium text-xs leading-tight uppercase border-x-0 border-t-0 border-b-2 border-transparent px-6 py-3 my-2 hover:border-transparent hover:bg-gray-100',
+                                        {
+                                            'text-primary border-primary hover:border-primary-darker hover:text-primary-darker':
+                                                at.key === curTab,
+                                        }
+                                    )}
+                                    id={`tabs-${at.key}-tab`}
+                                    role='tab'
+                                    aria-controls={`tabs-${at.key}`}
+                                    aria-selected={at.key === curTab ? 'true' : 'false'}
+                                    onClick={(e) => selectTab(e, at.key)}
+                                >
+                                    {at.icon}
+                                    {at.key}
+                                </a>
+                            </li>
+                        );
+                    })}
+                </ul>
+                <div className='tab-content' id='tabs-tabContent'>
                     {serviceUuid && (
-                        <div className='' style={{ minWidth: '50%' }}>
-                            <div className='text-xs font-semibold inline-block py-1 px-2 rounded text-white bg-primary uppercase last:mr-0 mr-1'>
-                                Stills
-                            </div>
+                        <div
+                            className={classNames('tab-pane fade', {'visible': curTab === 'stills', 'hidden': curTab !== 'stills'})}
+                            id='tabs-stills'
+                            role='tabpanel'
+                            aria-labelledby='tabs-stills-tab'
+                        >
                             <StillsGallery
                                 apiUrl={apiUrl}
                                 apiVersion={apiVersion}
@@ -66,12 +134,13 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                             />
                         </div>
                     )}
-
                     {videoServiceUuid && (
-                        <div className='' style={{ minWidth: '50%' }}>
-                            <div className='text-xs font-semibold inline-block py-1 px-2 rounded text-white bg-primary uppercase last:mr-0 mr-1'>
-                                Video
-                            </div>
+                        <div
+                            className={classNames('tab-pane fade', {'visible': curTab === 'videos', 'hidden': curTab !== 'videos'})}
+                            id='tabs-videos'
+                            role='tabpanel'
+                            aria-labelledby='tabs-videos-tab'
+                        >
                             <VideoGallery
                                 apiUrl={apiUrl}
                                 apiVersion={apiVersion}
@@ -81,6 +150,7 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                         </div>
                     )}
                 </div>
+                <div className='my-4 flex'></div>
             </Section>
         </Page>
     );

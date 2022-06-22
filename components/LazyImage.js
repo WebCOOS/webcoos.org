@@ -17,7 +17,7 @@ export default function LazyImage({ className, styles={}, src, alt, lqip, aspect
         }
     }, []);
     const lqipData = useMemo(() => {
-        if (!lqip.startsWith('data:')) {
+        if (lqip && !lqip.startsWith('data:')) {
             return `data:image/png;base64,${lqip}`;
         }
         return lqip;

@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import KeyboardEventHandler from 'react-keyboard-event-handler';
 
 import LazyImage from './LazyImage';
+import { IconVideoCamera } from './Icon';
 
 export default function VideoGallery({ apiUrl, apiVersion, token, serviceUuid, perPage = 100, galleryClasses = '' }) {
     // data from api state
@@ -256,22 +257,22 @@ export default function VideoGallery({ apiUrl, apiVersion, token, serviceUuid, p
             >
                 {visible.map((still, i) => {
                     return (
-                        <div className='relative'>
+                        <div className='relative' key={still.uuid}>
                             <LazyImage
-                                key={still.uuid}
                                 className='sm:rounded cursor-pointer'
-                                src={still.data.properties.thumbnails.base.rect_medium}
+                                src={still.data.properties.thumbnails.base?.rect_medium}
                                 alt={still.data.dateTimeStr}
-                                lqip={still.data.properties.thumbnails.base.lqip}
+                                lqip={still.data.properties.thumbnails.base?.lqip}
                                 styles={{
                                     width: '350px',
-                                    height: '200px'
+                                    height: '200px',
                                 }}
                                 onClick={() => setZoomedIdx(i + viewPage * perPage)}
                             />
 
                             <div className='absolute bg-primary text-white border border-primary-darker p-1 bottom-1 right-1 text-xs bg-opacity-60 rounded'>
-                                {still.data.dateTimeStr}
+                                <IconVideoCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
+                                <span>{still.data.dateTimeStr}</span>
                             </div>
                         </div>
                     );
