@@ -10,9 +10,9 @@ import { getSiteMetadata, getYaml } from '../utils';
 
 import dynamic from 'next/dynamic';
 
-const CameraLandingSection = dynamic(
+const WebCOOSMap = dynamic(
     () => (
-        import('../components/CameraLandingSection')
+        import('../components/WebCOOSMap')
     ), { ssr: false })
 
 export default function Home({ content, metadata, cameras }) {
@@ -22,23 +22,19 @@ export default function Home({ content, metadata, cameras }) {
 
             <Section shaded={true}>
                 <SectionHeader>Cameras</SectionHeader>
-                <CameraLandingSection
-                    apiUrl="https://app.stage.webcoos.org/webcoos/api"
-                    apiVersion="v1"
-                    token="219ec2bd77f37ce8bbb12e4c08a7b62bd506a7d3"
-                    source="webcoos"
+                <WebCOOSMap
+                    longitude={-75.8139}
+                    latitude={36.3388}
                     mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-                    stations={cameras.cameras.active}
+                    apiUrl='https://app.stage.webcoos.org/webcoos/api'
+                    token='219ec2bd77f37ce8bbb12e4c08a7b62bd506a7d3'
+                    stationSlugs={cameras.cameras.active}
                 />
             </Section>
 
             <Section>
                 <SectionHeader>Project Partners</SectionHeader>
-                <PartnerLogos
-                    partners={content.sections.partners}
-                    maxBoxesPerRow={7}
-                    imageHeight='sm'
-                />
+                <PartnerLogos partners={content.sections.partners} maxBoxesPerRow={7} imageHeight='sm' />
             </Section>
 
             <NarrativeSection shaded={true} {...content.sections.funding} />

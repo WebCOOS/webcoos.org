@@ -3,15 +3,22 @@ sections:
         image: /hero.jpg
         imageAltText:
         title: Webcams for Coastal Observations and Operational Support
-        subtitle: >
-          WebCOOS is developing a webcam coastal observing network for quantitative scientific
-          analysis, public safety, and resource management for coastal municipalities.
+        markdownContent: >
+            Web cameras are a low cost coastal observing platform transforming how environmental monitoring is conducted. Web camera data has demonstrated value to address significant gaps in the nation’s ability to monitor and accurately forecast various weather, ocean, ecological and public health hazards.  This project promotes low cost webcams to:</p>
+            
+            - identify rip currents
+
+            - study beach erosion
+
+            - monitor beach usage
+
+            - flood monitoring
+
         buttons:
-            - label: Learn More
-              to: /about
-              primary: true
-            - label: View Docs
-              to: /docs
+            - label: How can my community or business be involved?
+              to: /get-involved
+            - label: How is the data being used or applied?
+              to: /products
     funding:
         title: Project Funding
         rows:

@@ -24,7 +24,7 @@
     "tailwindcss": "*"
   },
   "dependencies": {
-    "@axds/landing-page-components": "^0.6.2",
+    "@axds/landing-page-components": "^0.6.3",
     "@tailwindcss/typography": "^0.4.*",
     "gray-matter": "^4.0.2",
     "js-yaml": "^4.1.0",
