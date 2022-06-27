@@ -1,0 +1,40 @@
+sections:
+    main:
+        title: About
+        rows:
+            - content: The Webcams for Coastal Observations and Operational Support (WebCOOS) project is being implemented by SECOORA and its partners with funding from NOAA.  The team is developing a webcam coastal observing network for quantitative scientific analysis, public safety, and resource management for coastal municipalities, scientists, and local communities. To accomplish this, standardized data processing and management methodology will be established to provide stakeholders with actionable information from webcam videos.  SECOORA is working to transfer this methodology nationwide across all 11 IOOS regional associations.
+            - content: >
+                ### Resources
+
+                - [Report from Web Cameras for Environmental Monitoring Workshop – November 14-15, 2018](https://secoora.org/webcams-for-environmental-monitoring-workshop-2018/)
+
+                - [Scientific Paper: Automated Rip Current Detection with Region based Convolutional Neural Networks](https://secoora.org/wp-content/uploads/2021/04/Automated-Rip-Current-Detection-with-Region-based-Convolutional-Neural-Networks.pdf)
+
+    contact:
+        title: Contact
+        rows:
+            - content: >
+                 Contact the team for more information: webcoos@secoora.org
+
+    partners:
+        - name: University of South Carolina
+          image: /UofSC_Monogram_Stack_RGB_K.png
+          link: https://www.sc.edu/
+        - name: University of North Carolina Wilmington
+          image: /uncw-logo-university-of-north-carolina-wilmington.png
+          link: https://uncw.edu/
+        - name: University of California Santa Cruz
+          image: /2021 UC Santa Cruz Logo - Blue RGB.png
+          link: https://www.ucsc.edu/
+        - name: Axiom Data Science
+          image: /axiom_logo_vert.png
+          link: https://www.axiomdatascience.com/
+        - name: NOAA (CO-OPS)
+          image: /NOAA_logo.svg
+          link: https://tidesandcurrents.noaa.gov/
+        - name: U.S. Geological Survey
+          image: /USGS_logo.png
+          link: https://www.usgs.gov/
+        - name: U.S. Army Corps of Engineers
+          image: /gsb-03.gif
+          link: https://www.usace.army.mil/
