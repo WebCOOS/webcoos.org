@@ -1,0 +1,24 @@
+sections:
+    main:
+        title: Using the Data and Images
+        rows:
+            - content: >
+                Multiple cameras continuously collect data and images which are then analyzed for applications such as identifying rip currents, beach usage, and studying beach erosion. The observations and data can be used by environmental resource managers, public safety and health officials, tourism officials, and local weather forecast offices. The stories below are examples of how various communities and researchers are using the images from the cameras for research and management purposes.
+
+    products:
+        - label: Rip Current Detection
+          image:
+          content: Used to inform public of rip current dangers and issue alerts to lifeguards.
+          link: 
+        - label: Shoreline change
+          image:
+          content: Used to identify potential dune erosion or overwash events, infrastructure risk, and limitations to beach access.
+          link: 
+        - label: Automated Beach Usage Detection
+          image: 
+          content: Provides information to coastal managers on how busy a location is during different times of the day, season, or year for planning purposes.
+          link:
+        - label: Flood Monitoring
+          image:
+          content:
+          link:
