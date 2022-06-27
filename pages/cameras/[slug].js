@@ -173,16 +173,14 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
     // pull live metadata from API
 
-    // FIXME: no filter for slug? have to filter it client-side
-    const allMetadataResponse = await fetch(`${apiUrl}/${apiVersion}/assets/?source=${source}&_nocache=true`, {
+    const cameraMetadataResponse = await fetch(`${apiUrl}/${apiVersion}/assets/${params.slug}?source=${source}&_nocache=true`, {
             headers: {
                 Authorization: `Token ${process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}`,
                 Accept: 'application/json',
             },
         }),
-        allMetadataResult = await allMetadataResponse.json(),
-        cameraMetadata = allMetadataResult.results.find((cr) => cr.data.common.slug === params.slug),
-        parsedMetadata = parseWebCOOSAsset(cameraMetadata),
+        cameraMetadataResult = await cameraMetadataResponse.json(),
+        parsedMetadata = parseWebCOOSAsset(cameraMetadataResult),
         sanitized = Object.fromEntries(
             Object.entries(parsedMetadata).map((p) => {
                 return [p[0], p[1] === undefined ? null : p[1]];
@@ -193,7 +191,7 @@ export async function getStaticProps({ params }) {
         props: {
             metadata: await getSiteMetadata(),
             slug: params.slug,
-            rawMetadata: cameraMetadata,
+            rawMetadata: cameraMetadataResult,
             parsedMetadata: sanitized,
         },
     };
