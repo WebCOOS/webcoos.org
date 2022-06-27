@@ -11,8 +11,6 @@ header:
           to: /get-involved
         - label: Cameras
           to: /cameras
-        - label: Communities
-          to: /communities
         - label: Products
           to: /products
         - label: Documentation

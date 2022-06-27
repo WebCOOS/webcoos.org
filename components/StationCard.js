@@ -74,10 +74,6 @@ export default function StationCard({
                     </svg>
                     More Info and Data
                 </a>
-                <div className="">Community Pages</div>
-                <ul>
-                    <li>Coming soon...</li>
-                </ul>
             </div>
         </div>
     );
