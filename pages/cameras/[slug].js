@@ -19,7 +19,6 @@ const apiUrl = 'https://app.stage.webcoos.org/webcoos/api',
     source = 'webcoos';
 
 export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata, ...props }) {
-    const [curTab, setCurTab] = useState('stills');
 
     const serviceUuid = useMemo(() => {
         // find the compatable feed
@@ -72,10 +71,6 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
         return at;
     }, [serviceUuid, videoServiceUuid]);
 
-    const selectTab = (e, at) => {
-        setCurTab(at);
-        e.preventDefault();
-    }
 
     return (
         <Page metadata={metadata} title={parsedMetadata.label}>
