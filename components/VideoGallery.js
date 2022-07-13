@@ -2,11 +2,20 @@ import React, { useEffect, useMemo, useState, useRef } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import KeyboardEventHandler from 'react-keyboard-event-handler';
+import { formatISO, startOfDay, endOfDay } from 'date-fns';
 
 import LazyImage from './LazyImage';
 import { IconVideoCamera } from './Icon';
 
-export default function VideoGallery({ apiUrl, apiVersion, token, serviceUuid, perPage = 100, galleryClasses = '' }) {
+export default function VideoGallery({
+    apiUrl,
+    apiVersion,
+    token,
+    serviceUuid,
+    perPage = 100,
+    galleryClasses = '',
+    selectedDate,
+}) {
     // data from api state
     const elements = useRef();
     const [apiCount, setApiCount] = useState(0); // count of total number of elements of the API collection, set when first retrieved
@@ -51,16 +60,35 @@ export default function VideoGallery({ apiUrl, apiVersion, token, serviceUuid, p
         return curElements;
     };
 
+    // clear elements cache/perpage cache if the date changes
+    useEffect(() => {
+        elements.current = [];
+        apiPerPage.current = undefined;
+    }, [selectedDate]);
+
     useEffect(() => {
         // @property    pageNum     0-based API page number.
         // @return                  A promise (from fetch).
         const getElements = (pageNum = 0) => {
-            return fetch(`${apiUrl}/${apiVersion}/elements/?service=${serviceUuid}&page=${pageNum + 1}`, {
-                headers: {
-                    Authorization: `Token ${token}`,
-                    Accept: 'application/json',
-                },
-            });
+            return fetch(
+                `${apiUrl}/${apiVersion}/elements/?` +
+                    new URLSearchParams({
+                        service: serviceUuid,
+                        page: pageNum + 1,
+                        ...(selectedDate
+                            ? {
+                                  starting_after: formatISO(startOfDay(selectedDate)),
+                                  starting_before: formatISO(endOfDay(selectedDate)),
+                              }
+                            : {}),
+                    }),
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                        Accept: 'application/json',
+                    },
+                }
+            );
         };
 
         const maybeFetch = async () => {
@@ -130,7 +158,7 @@ export default function VideoGallery({ apiUrl, apiVersion, token, serviceUuid, p
         };
 
         maybeFetch();
-    }, [elements, viewPage, perPage, apiCount, apiUrl, apiVersion, serviceUuid, token]);
+    }, [elements, viewPage, perPage, apiCount, apiUrl, apiVersion, serviceUuid, token, selectedDate]);
 
     // calculate visible page count based on visible perpage/api count
     const visiblePageCount = useMemo(() => {
@@ -347,4 +375,5 @@ VideoGallery.propTypes = {
     serviceUuid: PropTypes.string,
     perPage: PropTypes.number,
     galleryClasses: PropTypes.string,
+   selectedDate: PropTypes.object
 };

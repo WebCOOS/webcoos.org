@@ -60,9 +60,10 @@ export default function StillsGallery({
         return curElements;
     };
 
-    // clear elements cache if the date changes
+    // clear elements cache/perpage cache if the date changes
     useEffect(() => {
         elements.current = [];
+        apiPerPage.current = undefined;
     }, [selectedDate]);
 
     useEffect(() => {
@@ -244,7 +245,7 @@ export default function StillsGallery({
                     </svg>
                 </button>
                 <div className='relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700'>
-                    <span className='font-semibold w-6 text-right'>{viewPage + 1}</span>
+                    <span className='font-semibold w-6 text-right'>{visiblePageCount ? viewPage + 1 : '-'}</span>
                     <span className='mx-1'>of</span>
                     <span className='font-semibold w-6 text-left'>{visiblePageCount}</span>
                 </div>

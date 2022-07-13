@@ -3,28 +3,39 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 import { DatePicker } from '@axds/landing-page-components';
+import { parseISO, startOfMonth, endOfMonth, clamp } from 'date-fns';
 
 export default function TabbedGallery({
   selectedTab,
-  availTabs = [],    // [{ key, icon, label, galleryComponent (date) => JSX }]
+  availTabs = [],    // [{ key, icon, label, galleryComponent (date) => JSX }, inventory]
 }) {
-    const [curTab, setCurTab] = useState(selectedTab);
+    const [curTab, setCurTab] = useState(selectedTab || availTabs.length && availTabs[0].key);
     const [curDate, setCurDate] = useState(new Date());
 
-    // set default tab on initial load if none set
+    const dateExtents = useMemo(() => {
+        const tabData = availTabs.find((at) => at.key === curTab);
+        if (tabData && tabData.inventory) {
+            const daily = tabData.inventory.find((i) => i.name === 'daily');
+            if (daily) {
+                const firstDate = parseISO(daily.values[0][0]);
+                const lastDate = parseISO(daily.values[daily.values.length - 1][0]);
+                return { start: firstDate, end: lastDate }
+            }
+        }
+    }, [availTabs, curTab]);
+
+    const curTabData = useMemo(() => {
+        const tabData = availTabs.find((at) => at.key === curTab);
+        return tabData;
+    }, [availTabs, curTab])
+    
     useEffect(() => {
-      if (!selectedTab && availTabs.length) {
-        setCurTab(availTabs[0].key)
-      }
-    }, []);
-
-    // // gallery components have to be redone when the date changes
-    // const galleries = useMemo(() => {
-    //   return availTabs.map(at => {
-    //     return at.galleryComponent(curDate);
-    //   })
-
-    // }, [availTabs, curDate]);
+        if (dateExtents && dateExtents.start && dateExtents.end) {
+            // clamp the current date to the current range
+            const cur = clamp(curDate, dateExtents);
+            setCurDate(cur);
+        }
+    }, [dateExtents]);
 
     // event handlers
     const selectTab = (e, at) => {
@@ -69,28 +80,32 @@ export default function TabbedGallery({
                 })}
 
                 <li className='ml-auto my-2'>
-                  <DatePicker 
-                    initialDate={curDate}
-                    onDateSelected={onDateSelected}
-                  />
+                    <DatePicker
+                        key={`${curDate.toISOString()}-${curTab}`}
+                        initialDate={curDate}
+                        minDate={dateExtents && dateExtents.start && startOfMonth(dateExtents.start)}
+                        maxDate={dateExtents && dateExtents.end && endOfMonth(dateExtents.end)}
+                        inventory={curTabData && curTabData.inventory}
+                        onDateSelected={onDateSelected}
+                    />
                 </li>
             </ul>
             <div>
                 {availTabs.map((at, atIdx) => {
-                  return (
-                      <div
-                          key={`tab-${at.key}`}
-                          className={classNames('fade', {
-                              visible: curTab === at.key,
-                              hidden: curTab !== at.key,
-                          })}
-                          id={`tabs-${at.key}`}
-                          role='tabpanel'
-                          aria-labelledby={`tabs-${at.key}-tab`}
-                      >
-                          {at.galleryComponent(curDate)}
-                      </div>
-                  );
+                    return (
+                        <div
+                            key={`tab-${at.key}`}
+                            className={classNames('fade', {
+                                visible: curTab === at.key,
+                                hidden: curTab !== at.key,
+                            })}
+                            id={`tabs-${at.key}`}
+                            role='tabpanel'
+                            aria-labelledby={`tabs-${at.key}-tab`}
+                        >
+                            {at.galleryComponent(curDate)}
+                        </div>
+                    );
                 })}
             </div>
         </div>
