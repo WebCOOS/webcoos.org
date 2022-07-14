@@ -9,8 +9,8 @@ import { IconVideoCamera } from './Icon';
 
 export default function VideoGallery({
     apiUrl,
-    apiVersion,
-    token,
+    apiVersion = 'v1',
+    token = process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN || process.env.STORYBOOK_WEBCOOS_API_TOKEN,
     serviceUuid,
     perPage = 100,
     galleryClasses = '',

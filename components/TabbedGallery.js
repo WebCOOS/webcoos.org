@@ -73,7 +73,7 @@ export default function TabbedGallery({
                                 onClick={(e) => selectTab(e, at.key)}
                             >
                                 {at.icon}
-                                {at.key}
+                                {at.label || at.key}
                             </a>
                         </li>
                     );

@@ -5,7 +5,7 @@ import { parseWebCOOSAsset } from './utils/webCOOSHelpers';
 export default function CameraLandingSection({
     apiUrl,
     apiVersion,
-    token,
+    token = process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN || process.env.STORYBOOK_WEBCOOS_API_TOKEN,
     source,
     stations = [],
     mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || process.env.REACT_APP_MAPBOX_TOKEN || process.env.STORYBOOK_MAPBOX_TOKEN

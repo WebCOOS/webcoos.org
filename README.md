@@ -11,6 +11,10 @@ You'll need a Mapbox token to see the camera map components. Export `NEXT_PUBLIC
 shell before starting the development server or building the static site. Consider setting this in `.envrc` 
 and using direnv.
 
+Set the same value to `STORYBOOK_MAPBOX_TOKEN` if you want to see map compontents in Storybook.
+
+You'll also need a WebCOOS API token.  Set this in `NEXT_PUBLIC_WEBCOOS_API_TOKEN` and `STORYBOOK_WEBCOOS_API_TOKEN`.
+
 ## Development
 
 ### Requirements

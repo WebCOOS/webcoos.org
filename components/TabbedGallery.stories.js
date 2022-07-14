@@ -22,14 +22,13 @@ Default.args = {
     availTabs: [
         {
             key: 'stills',
+            label: "Imagery",
             icon: <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />,
             galleryComponent: (date) => {
                 return (
                     <StillsGallery
                         key={`${date.toISOString()}-b7114ae2-b2cb-40fe-af33-820db2db7755`}
                         apiUrl='https://app.stage.webcoos.org/webcoos/api'
-                        apiVersion='v1'
-                        token='219ec2bd77f37ce8bbb12e4c08a7b62bd506a7d3'
                         serviceUuid='b7114ae2-b2cb-40fe-af33-820db2db7755' // currituck hampton inn one minute stills
                         selectedDate={date}
                     />
@@ -195,8 +194,6 @@ Default.args = {
                     <VideoGallery
                         key={`${date.toISOString()}-1d130de0-f99b-436d-b96a-c3929904b3355`}
                         apiUrl='https://app.stage.webcoos.org/webcoos/api'
-                        apiVersion='v1'
-                        token='219ec2bd77f37ce8bbb12e4c08a7b62bd506a7d3'
                         serviceUuid='1d130de0-f99b-436d-b96a-c3929904b335' // currituck sailfish video archive
                         selectedDate={date}
                     />

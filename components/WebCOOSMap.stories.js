@@ -34,7 +34,6 @@ Default.args = {
     ],
     apiUrl: 'https://app.stage.webcoos.org/webcoos/api',
     apiVersion: 'v1',
-    token: '219ec2bd77f37ce8bbb12e4c08a7b62bd506a7d3',
     source: 'webcoos',
 };
 
@@ -45,6 +44,5 @@ Select.args = {
     stationSlugs: ['currituck_hampton_inn', 'northinlet', 'oakisland_east'],
     apiUrl: 'https://app.stage.webcoos.org/webcoos/api',
     apiVersion: 'v1',
-    token: '219ec2bd77f37ce8bbb12e4c08a7b62bd506a7d3',
     source: 'webcoos',
 };
