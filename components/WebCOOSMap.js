@@ -12,7 +12,7 @@ export default function WebCOOSMap({
   stationSlugs,
   apiUrl,
   apiVersion = 'v1',
-  token,
+  token = process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN || process.env.STORYBOOK_WEBCOOS_API_TOKEN,
   source = 'webcoos',
   ...props
 }) {

@@ -2,16 +2,26 @@ import React, { useEffect, useMemo, useState, useRef } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import KeyboardEventHandler from 'react-keyboard-event-handler';
+import { formatISO, startOfDay, endOfDay } from 'date-fns';
 
-import LazyImage from "./LazyImage";
-import {IconCamera} from "./Icon";
+import LazyImage from './LazyImage';
 
-export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, perPage = 100, galleryClasses = ''}) {
-    
+export default function MediaGallery({
+    apiUrl,
+    apiVersion = 'v1',
+    token = process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN || process.env.STORYBOOK_WEBCOOS_API_TOKEN,
+    serviceUuid,
+    perPage = 100,
+    galleryClasses = '',
+    selectedDate,
+    iconComponent,
+    zoomedComponent,
+}) {
     // data from api state
     const elements = useRef();
     const [apiCount, setApiCount] = useState(0); // count of total number of elements of the API collection, set when first retrieved
     const apiPerPage = useRef();
+    const [isLoading, setIsLoading] = useState(false);
 
     // view state
     const [viewPage, setViewPage] = useState(0); // current page being viewed
@@ -28,20 +38,20 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
         // set the curelements array each time
         const dtFormatter = new Intl.DateTimeFormat(undefined, {
             dateStyle: 'medium',
-            timeStyle: 'medium'
+            timeStyle: 'medium',
         });
         results.forEach((result) => {
-            const parsedResults = result.results.map(r => {
+            const parsedResults = result.results.map((r) => {
                 const dt = new Date(Date.parse(r.data.extents.temporal.min));
                 return {
                     uuid: r.uuid,
                     data: {
                         ...r.data,
                         dateTime: dt,
-                        dateTimeStr: dtFormatter.format(dt)
-                    }
-                }
-            })
+                        dateTimeStr: dtFormatter.format(dt),
+                    },
+                };
+            });
             curElements = [
                 ...curElements.slice(0, result.pagination.start_index - 1),
                 ...parsedResults,
@@ -52,16 +62,35 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
         return curElements;
     };
 
+    // clear elements cache/perpage cache if the date changes
+    useEffect(() => {
+        elements.current = [];
+        apiPerPage.current = undefined;
+    }, [selectedDate]);
+
     useEffect(() => {
         // @property    pageNum     0-based API page number.
         // @return                  A promise (from fetch).
         const getElements = (pageNum = 0) => {
-            return fetch(`${apiUrl}/${apiVersion}/elements/?service=${serviceUuid}&page=${pageNum + 1}`, {
-                headers: {
-                    Authorization: `Token ${token}`,
-                    Accept: 'application/json',
-                },
-            });
+            return fetch(
+                `${apiUrl}/${apiVersion}/elements/?` +
+                    new URLSearchParams({
+                        service: serviceUuid,
+                        page: pageNum + 1,
+                        ...(selectedDate
+                            ? {
+                                  starting_after: formatISO(startOfDay(selectedDate)),
+                                  starting_before: formatISO(endOfDay(selectedDate)),
+                              }
+                            : {}),
+                    }),
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                        Accept: 'application/json',
+                    },
+                }
+            );
         };
 
         const maybeFetch = async () => {
@@ -74,8 +103,11 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
             // have we had a response from the API yet?  if not, we don't know how many items per page.
             // we need this to figure out which backend pages to get.
             if (!apiPerPage.current) {
+                setIsLoading(true);
                 const response = await getElements(0),
                     result = await response.json();
+
+                setIsLoading(false);
 
                 curApiCount = result.pagination.count;
 
@@ -103,6 +135,7 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
                 );
 
             if (pagesNeeded.size > 0) {
+                setIsLoading(true);
                 const allResultsProm = Promise.all(
                     Array.from(pagesNeeded).map(async (pageNum) => {
                         const response = await getElements(pageNum);
@@ -111,6 +144,8 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
                 );
 
                 const allResults = await allResultsProm;
+                setIsLoading(false);
+
                 // extend newElemResults with anything new fetched
                 newElemResults = [...newElemResults, ...allResults];
             }
@@ -131,7 +166,7 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
         };
 
         maybeFetch();
-    }, [elements, viewPage, perPage, apiCount, apiUrl, apiVersion, serviceUuid, token]);
+    }, [elements, viewPage, perPage, apiCount, apiUrl, apiVersion, serviceUuid, token, selectedDate]);
 
     // calculate visible page count based on visible perpage/api count
     const visiblePageCount = useMemo(() => {
@@ -167,7 +202,7 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
 
     const canZoomNext = () => {
         return elements.current && zoomedIdx !== null && zoomedIdx < elements.current.length - 1;
-    }
+    };
 
     const incViewPage = (direction) => {
         setViewPage((cur) => {
@@ -176,8 +211,8 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
                 return cur;
             }
             return newPage;
-        })
-    }
+        });
+    };
 
     const onKey = (key, e) => {
         if (key === 'esc') {
@@ -185,9 +220,9 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
         } else if (key === 'left') {
             incZoomIdx(-1);
         } else if (key === 'right') {
-            incZoomIdx(1)
+            incZoomIdx(1);
         }
-    }
+    };
 
     return (
         <>
@@ -218,9 +253,39 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
                     </svg>
                 </button>
                 <div className='relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700'>
-                    <span className='font-semibold w-6 text-right'>{viewPage + 1}</span>
-                    <span className='mx-1'>of</span>
-                    <span className='font-semibold w-6 text-left'>{visiblePageCount}</span>
+                    {isLoading && (
+                        <svg
+                            className='w-4 h-4 animate-spin absolute left-2'
+                            xmlns='http://www.w3.org/2000/svg'
+                            fill='none'
+                            viewBox='0 0 24 24'
+                        >
+                            <circle
+                                className='opacity-25'
+                                cx='12'
+                                cy='12'
+                                r='10'
+                                stroke='currentColor'
+                                strokeWidth='4'
+                            ></circle>
+                            <path
+                                className='opacity-75'
+                                fill='currentColor'
+                                d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                            ></path>
+                        </svg>
+                    )}
+                    {!visiblePageCount && isLoading ? (
+                        <span className='px-4'>Loading</span>
+                    ) : (
+                        <>
+                            <span className='font-semibold w-6 text-right'>
+                                {visiblePageCount ? viewPage + 1 : '-'}
+                            </span>
+                            <span className='mx-1'>of</span>
+                            <span className='font-semibold w-6 text-left'>{visiblePageCount}</span>
+                        </>
+                    )}
                 </div>
 
                 <button
@@ -261,8 +326,8 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
                         <div className='relative' key={still.uuid}>
                             <LazyImage
                                 className='sm:rounded cursor-pointer'
-                                src={still.data.properties.thumbnails.base?.rect_medium}
-                                lqip={still.data.properties.thumbnails.base?.lqip}
+                                src={still.data.properties.thumbnails?.base?.rect_medium}
+                                lqip={still.data.properties.thumbnails?.base?.lqip}
                                 alt={still.data.dateTimeStr}
                                 styles={{
                                     width: '350px',
@@ -272,7 +337,8 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
                             />
 
                             <div className='absolute bg-primary text-white border border-primary-darker p-1 bottom-1 right-1 text-xs bg-opacity-60 rounded'>
-                                <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
+                                {iconComponent}
+
                                 <span>{still.data.dateTimeStr}</span>
                             </div>
                         </div>
@@ -283,7 +349,15 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
             {zoomed && (
                 <>
                     <KeyboardEventHandler handleKeys={['esc', 'left', 'right']} onKeyEvent={onKey} />
-                    <div className='fixed z-10 inset-0 bg-gray-500 bg-opacity-75 flex flex-col items-center justify-center overflow-hidden transition'>
+                    <div
+                        className='fixed z-10 inset-0 bg-gray-500 bg-opacity-75 flex flex-col items-center justify-center overflow-hidden transition'
+                        onClick={(e) => {
+                            // only close modal if the click was actually in the shadow background layer
+                            if (e.currentTarget === e.target) {
+                                setZoomedIdx(null);
+                            }
+                        }}
+                    >
                         <div className='bg-white sm:rounded-lg shadow-xl sm:max-w-75w flex flex-row items-stretch'>
                             <div
                                 className={classNames('w-16 flex items-center justify-center', {
@@ -309,12 +383,7 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
                                 </svg>
                             </div>
                             <div className='flex flex-col sm:pt-6 sm:pb-2'>
-                                <img
-                                    className='object-contain'
-                                    src={zoomed.data.properties.url}
-                                    alt={zoomed.data.dateTimeStr}
-                                    onClick={() => setZoomedIdx(null)}
-                                />
+                                {zoomedComponent(zoomed, () => setZoomedIdx(null))}
 
                                 <div className='pt-4'>{zoomed.data.dateTimeStr}</div>
                             </div>
@@ -344,11 +413,14 @@ export default function StillsGallery({ apiUrl, apiVersion, token, serviceUuid, 
     );
 }
 
-StillsGallery.propTypes = {
-   apiUrl: PropTypes.string,
-   apiVersion: PropTypes.string,
-   token: PropTypes.string,
-   serviceUuid: PropTypes.string,
-   perPage: PropTypes.number,
-   galleryClasses: PropTypes.string
-}
+MediaGallery.propTypes = {
+    apiUrl: PropTypes.string,
+    apiVersion: PropTypes.string,
+    token: PropTypes.string,
+    serviceUuid: PropTypes.string,
+    perPage: PropTypes.number,
+    galleryClasses: PropTypes.string,
+    selectedDate: PropTypes.object,
+    iconComponent: PropTypes.object,
+    zoomedComponent: PropTypes.func,
+};
