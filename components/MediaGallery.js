@@ -21,6 +21,7 @@ export default function MediaGallery({
     const elements = useRef();
     const [apiCount, setApiCount] = useState(0); // count of total number of elements of the API collection, set when first retrieved
     const apiPerPage = useRef();
+    const [isLoading, setIsLoading] = useState(false);
 
     // view state
     const [viewPage, setViewPage] = useState(0); // current page being viewed
@@ -102,8 +103,11 @@ export default function MediaGallery({
             // have we had a response from the API yet?  if not, we don't know how many items per page.
             // we need this to figure out which backend pages to get.
             if (!apiPerPage.current) {
+                setIsLoading(true);
                 const response = await getElements(0),
                     result = await response.json();
+
+                setIsLoading(false);
 
                 curApiCount = result.pagination.count;
 
@@ -131,6 +135,7 @@ export default function MediaGallery({
                 );
 
             if (pagesNeeded.size > 0) {
+                setIsLoading(true);
                 const allResultsProm = Promise.all(
                     Array.from(pagesNeeded).map(async (pageNum) => {
                         const response = await getElements(pageNum);
@@ -139,6 +144,8 @@ export default function MediaGallery({
                 );
 
                 const allResults = await allResultsProm;
+                setIsLoading(false);
+
                 // extend newElemResults with anything new fetched
                 newElemResults = [...newElemResults, ...allResults];
             }
@@ -246,9 +253,39 @@ export default function MediaGallery({
                     </svg>
                 </button>
                 <div className='relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700'>
-                    <span className='font-semibold w-6 text-right'>{visiblePageCount ? viewPage + 1 : '-'}</span>
-                    <span className='mx-1'>of</span>
-                    <span className='font-semibold w-6 text-left'>{visiblePageCount}</span>
+                    {isLoading && (
+                        <svg
+                            className='w-4 h-4 animate-spin absolute left-2'
+                            xmlns='http://www.w3.org/2000/svg'
+                            fill='none'
+                            viewBox='0 0 24 24'
+                        >
+                            <circle
+                                className='opacity-25'
+                                cx='12'
+                                cy='12'
+                                r='10'
+                                stroke='currentColor'
+                                strokeWidth='4'
+                            ></circle>
+                            <path
+                                className='opacity-75'
+                                fill='currentColor'
+                                d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                            ></path>
+                        </svg>
+                    )}
+                    {!visiblePageCount && isLoading ? (
+                        <span className='px-4'>Loading</span>
+                    ) : (
+                        <>
+                            <span className='font-semibold w-6 text-right'>
+                                {visiblePageCount ? viewPage + 1 : '-'}
+                            </span>
+                            <span className='mx-1'>of</span>
+                            <span className='font-semibold w-6 text-left'>{visiblePageCount}</span>
+                        </>
+                    )}
                 </div>
 
                 <button
