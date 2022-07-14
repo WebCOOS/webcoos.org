@@ -5,9 +5,8 @@ import KeyboardEventHandler from 'react-keyboard-event-handler';
 import { formatISO, startOfDay, endOfDay } from 'date-fns';
 
 import LazyImage from './LazyImage';
-import { IconVideoCamera } from './Icon';
 
-export default function VideoGallery({
+export default function MediaGallery({
     apiUrl,
     apiVersion = 'v1',
     token = process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN || process.env.STORYBOOK_WEBCOOS_API_TOKEN,
@@ -15,6 +14,8 @@ export default function VideoGallery({
     perPage = 100,
     galleryClasses = '',
     selectedDate,
+    iconComponent,
+    zoomedComponent,
 }) {
     // data from api state
     const elements = useRef();
@@ -245,7 +246,7 @@ export default function VideoGallery({
                     </svg>
                 </button>
                 <div className='relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700'>
-                    <span className='font-semibold w-6 text-right'>{viewPage + 1}</span>
+                    <span className='font-semibold w-6 text-right'>{visiblePageCount ? viewPage + 1 : '-'}</span>
                     <span className='mx-1'>of</span>
                     <span className='font-semibold w-6 text-left'>{visiblePageCount}</span>
                 </div>
@@ -288,9 +289,9 @@ export default function VideoGallery({
                         <div className='relative' key={still.uuid}>
                             <LazyImage
                                 className='sm:rounded cursor-pointer'
-                                src={still.data.properties.thumbnails.base?.rect_medium}
+                                src={still.data.properties.thumbnails?.base?.rect_medium}
+                                lqip={still.data.properties.thumbnails?.base?.lqip}
                                 alt={still.data.dateTimeStr}
-                                lqip={still.data.properties.thumbnails.base?.lqip}
                                 styles={{
                                     width: '350px',
                                     height: '200px',
@@ -299,7 +300,8 @@ export default function VideoGallery({
                             />
 
                             <div className='absolute bg-primary text-white border border-primary-darker p-1 bottom-1 right-1 text-xs bg-opacity-60 rounded'>
-                                <IconVideoCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
+                                {iconComponent}
+
                                 <span>{still.data.dateTimeStr}</span>
                             </div>
                         </div>
@@ -310,10 +312,18 @@ export default function VideoGallery({
             {zoomed && (
                 <>
                     <KeyboardEventHandler handleKeys={['esc', 'left', 'right']} onKeyEvent={onKey} />
-                    <div className='fixed z-10 inset-0 bg-gray-500 bg-opacity-75 flex flex-col items-center justify-center overflow-hidden transition'>
+                    <div
+                        className='fixed z-10 inset-0 bg-gray-500 bg-opacity-75 flex flex-col items-center justify-center overflow-hidden transition'
+                        onClick={(e) => {
+                            // only close modal if the click was actually in the shadow background layer
+                            if (e.currentTarget === e.target) {
+                                setZoomedIdx(null);
+                            }
+                        }}
+                    >
                         <div className='bg-white sm:rounded-lg shadow-xl sm:max-w-75w flex flex-row items-stretch'>
                             <div
-                                className={classNames('w-6 flex items-center justify-center', {
+                                className={classNames('w-16 flex items-center justify-center', {
                                     'text-gray-600 hover:text-gray-700 hover:bg-gray-400 cursor-pointer hover:rounded-tl-lg hover:rounded-bl-lg':
                                         zoomedIdx > 0,
                                     'text-gray-200 cursor-not-allowed': zoomedIdx === 0,
@@ -336,14 +346,12 @@ export default function VideoGallery({
                                 </svg>
                             </div>
                             <div className='flex flex-col sm:pt-6 sm:pb-2'>
-                                <video className='object-contain' controls onClick={() => setZoomedIdx(null)}>
-                                    <source src={zoomed.data.properties.url} type='video/mp4' />
-                                </video>
+                                {zoomedComponent(zoomed, () => setZoomedIdx(null))}
 
                                 <div className='pt-4'>{zoomed.data.dateTimeStr}</div>
                             </div>
                             <div
-                                className={classNames('w-6 flex items-center justify-center', {
+                                className={classNames('w-16 flex items-center justify-center', {
                                     'text-gray-600 hover:text-gray-700 hover:bg-gray-400 cursor-pointer hover:rounded-tr-lg hover:rounded-br-lg': canZoomNext(),
                                     'text-gray-200 cursor-not-allowed': !canZoomNext(),
                                 })}
@@ -368,12 +376,14 @@ export default function VideoGallery({
     );
 }
 
-VideoGallery.propTypes = {
+MediaGallery.propTypes = {
     apiUrl: PropTypes.string,
     apiVersion: PropTypes.string,
     token: PropTypes.string,
     serviceUuid: PropTypes.string,
     perPage: PropTypes.number,
     galleryClasses: PropTypes.string,
-   selectedDate: PropTypes.object
+    selectedDate: PropTypes.object,
+    iconComponent: PropTypes.object,
+    zoomedComponent: PropTypes.func,
 };

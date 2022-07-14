@@ -11,8 +11,7 @@ import { IconCamera, IconVideoCamera } from '../../components/Icon';
 import dynamic from 'next/dynamic';
 
 const CameraSummary = dynamic(() => import('../../components/CameraSummary'), { ssr: false });
-const StillsGallery = dynamic(() => import('../../components/StillsGallery'), { ssr: false });
-const VideoGallery = dynamic(() => import('../../components/VideoGallery'), { ssr: false });
+const MediaGallery = dynamic(() => import('../../components/MediaGallery'), { ssr: false });
 const TabbedGallery = dynamic(() => import('../../components/TabbedGallery'), { ssr: false });
 
 const apiUrl = 'https://app.stage.webcoos.org/webcoos/api',
@@ -33,29 +32,41 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                         <IconVideoCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
                     ),
                 galleryComponent: (date) => {
-                    if (service.svcType === 'img') {
-                        return (
-                            <StillsGallery
-                                key={`${slug}-${date.toISOString()}-${service.uuid}`}
-                                apiUrl='https://app.stage.webcoos.org/webcoos/api'
-                                apiVersion='v1'
-                                token={process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}
-                                serviceUuid={service.uuid}
-                                selectedDate={date}
-                            />
-                        );
-                    } else if (service.svcType === 'video') {
-                        return (
-                            <VideoGallery
-                                key={`${slug}-${date.toISOString()}-${service.uuid}`}
-                                apiUrl='https://app.stage.webcoos.org/webcoos/api'
-                                apiVersion='v1'
-                                token={process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}
-                                serviceUuid={service.uuid}
-                                selectedDate={date}
-                            />
-                        );
-                    }
+                    return (
+                        <MediaGallery
+                            key={`${slug}-${date.toISOString()}-${service.uuid}`}
+                            apiUrl='https://app.stage.webcoos.org/webcoos/api'
+                            apiVersion='v1'
+                            token={process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}
+                            serviceUuid={service.uuid}
+                            selectedDate={date}
+                            iconComponent={
+                                service.svcType === 'img' ? (
+                                    <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
+                                ) : (
+                                    <IconVideoCamera
+                                        size={4}
+                                        extraClasses='inline-block pr-1 align-bottom'
+                                        paddingx={0}
+                                    />
+                                )
+                            }
+                            zoomedComponent={(zoomed, onClick) =>
+                                service.svcType === 'img' ? (
+                                    <img
+                                        className='object-contain'
+                                        src={zoomed.data.properties.url}
+                                        alt={zoomed.data.dateTimeStr}
+                                        onClick={onClick}
+                                    />
+                                ) : (
+                                    <video className='object-contain' controls onClick={onClick}>
+                                        <source src={zoomed.data.properties.url} type='video/mp4' />
+                                    </video>
+                                )
+                            }
+                        />
+                    );
                 },
             };
         });

@@ -1,10 +1,8 @@
 import React from 'react';
 
 import TabbedGallery from './TabbedGallery';
-import { IconCamera, IconVideoCamera } from './Icon';
-
-import StillsGallery from './StillsGallery';
-import VideoGallery from './VideoGallery';
+import MediaGallery from './MediaGallery';
+import {IconCamera, IconVideoCamera} from "./Icon";
 
 export default {
     component: TabbedGallery,
@@ -26,11 +24,22 @@ Default.args = {
             icon: <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />,
             galleryComponent: (date) => {
                 return (
-                    <StillsGallery
+                    <MediaGallery
                         key={`${date.toISOString()}-b7114ae2-b2cb-40fe-af33-820db2db7755`}
                         apiUrl='https://app.stage.webcoos.org/webcoos/api'
                         serviceUuid='b7114ae2-b2cb-40fe-af33-820db2db7755' // currituck hampton inn one minute stills
                         selectedDate={date}
+                        iconComponent={
+                            <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
+                        }
+                        zoomedComponent={(zoomed, onClick) => (
+                            <img
+                                className='object-contain'
+                                src={zoomed.data.properties.url}
+                                alt={zoomed.data.dateTimeStr}
+                                onClick={onClick}
+                            />
+                        )}
                     />
                 );
             },
@@ -191,11 +200,19 @@ Default.args = {
             icon: <IconVideoCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />,
             galleryComponent: (date) => {
                 return (
-                    <VideoGallery
+                    <MediaGallery
                         key={`${date.toISOString()}-1d130de0-f99b-436d-b96a-c3929904b3355`}
                         apiUrl='https://app.stage.webcoos.org/webcoos/api'
                         serviceUuid='1d130de0-f99b-436d-b96a-c3929904b335' // currituck sailfish video archive
                         selectedDate={date}
+                        iconComponent={
+                            <IconVideoCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
+                        }
+                        zoomedComponent={(zoomed, onClick) => (
+                            <video className='object-contain' controls onClick={onClick}>
+                                <source src={zoomed.data.properties.url} type='video/mp4' />
+                            </video>
+                        )}
                     />
                 );
             },
