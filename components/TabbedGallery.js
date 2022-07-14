@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 import { DatePicker } from '@axds/landing-page-components';
-import { parseISO, startOfMonth, endOfMonth, clamp } from 'date-fns';
+import { parseISO, startOfMonth, endOfMonth, clamp, differenceInDays } from 'date-fns';
 
 export default function TabbedGallery({
   selectedTab,
@@ -12,30 +12,46 @@ export default function TabbedGallery({
     const [curTab, setCurTab] = useState(selectedTab || availTabs.length && availTabs[0].key);
     const [curDate, setCurDate] = useState(new Date());
 
-    const dateExtents = useMemo(() => {
+    const curTabData = useMemo(() => {
         const tabData = availTabs.find((at) => at.key === curTab);
-        if (tabData && tabData.inventory) {
-            const daily = tabData.inventory.find((i) => i.name === 'daily');
+        return tabData;
+    }, [availTabs, curTab])
+    
+    const dateExtents = useMemo(() => {
+        if (curTabData && curTabData.inventory) {
+            const daily = curTabData.inventory.find((i) => i.name === 'daily');
             if (daily) {
                 const firstDate = parseISO(daily.values[0][0]);
                 const lastDate = parseISO(daily.values[daily.values.length - 1][0]);
                 return { start: firstDate, end: lastDate }
             }
         }
-    }, [availTabs, curTab]);
+    }, [curTabData]);
 
-    const curTabData = useMemo(() => {
-        const tabData = availTabs.find((at) => at.key === curTab);
-        return tabData;
-    }, [availTabs, curTab])
-    
+    // when tab changes, inventory likely changes too.  make sure the new date is
+    // one that has data.
     useEffect(() => {
-        if (dateExtents && dateExtents.start && dateExtents.end) {
-            // clamp the current date to the current range
-            const cur = clamp(curDate, dateExtents);
-            setCurDate(cur);
+        if (!(curTabData && curTabData.inventory)) {
+            return;
         }
-    }, [dateExtents]);
+
+        const daily = curTabData.inventory.find(i => i.name === 'daily');
+        if (daily) {
+            // filter it into ones that have data then then take distance from the current date
+            const withData = daily.values
+                .filter(v => v[1] === 1)
+                .map(v => {
+                    const vDate = parseISO(v[0]);
+                    return [
+                        vDate,
+                        Math.abs(differenceInDays(vDate, curDate))
+                    ]
+                });
+
+            withData.sort((a, b) => (a[1] - b[1]));
+            setCurDate(withData[0][0]);
+        }
+    }, [curTabData]);
 
     // event handlers
     const selectTab = (e, at) => {
@@ -111,3 +127,31 @@ export default function TabbedGallery({
         </div>
     );
 }
+
+TabbedGallery.propTypes = {
+    selectedTab: PropTypes.string,
+    availTabs: PropTypes.arrayOf(
+        PropTypes.shape({
+            key: PropTypes.string.isRequired,
+            label: PropTypes.string,
+            icon: PropTypes.object,
+            galleryComponent: PropTypes.func,
+            inventory: PropTypes.arrayOf(
+                PropTypes.shape({
+                    type: PropTypes.string.isRequired,
+                    meta: PropTypes.shape({
+                        fields: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                name: PropTypes.string.isRequired,
+                                type: PropTypes.string.isRequired,
+                                label: PropTypes.string.isRequired,
+                            })
+                        ),
+                    }),
+                    name: PropTypes.string.isRequired,
+                    values: PropTypes.arrayOf(PropTypes.array),
+                })
+            ),
+        })
+    ),
+};
