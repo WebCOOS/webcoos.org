@@ -69,7 +69,6 @@ clean_tag:
 
 deploy_stage:
     stage: deploy
-    environment: staging
     only:
         - master
     script:
@@ -81,9 +80,11 @@ deploy_stage:
 
 deploy_prod:
     stage: deploy
-    environment: production
     only:
         - tags
     script:
         - docker pull registry.axiom/ansible:latest
         - docker run --rm registry.axiom/ansible:latest ap apps-prod $CI_PROJECT_NAME -e axds_project_site_version=$CI_BUILD_TAG --tags deploy
+    environment:
+        name: production
+        url: https://www.webcoos.org/
