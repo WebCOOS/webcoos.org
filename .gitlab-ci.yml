@@ -75,6 +75,9 @@ deploy_stage:
     script:
         - docker pull registry.axiom/ansible:latest
         - docker run --rm registry.axiom/ansible:latest ap apps-stage $CI_PROJECT_NAME --tags deploy
+    environment:
+        name: staging
+        url: https://stage.webcoos.org/
 
 deploy_prod:
     stage: deploy
