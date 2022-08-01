@@ -30,6 +30,7 @@ test:
         - npm test
 
 push_latest:
+    needs: ["build_image_latest"]
     stage: push
     only:
         - master
@@ -38,6 +39,7 @@ push_latest:
         - docker push registry.axiom/$CI_PROJECT_NAME:latest
 
 push_tag:
+    needs: ["build_image_tag"]
     stage: push
     only:
         - tags
@@ -53,6 +55,7 @@ clean_base:
         - docker rmi --no-prune $CI_PROJECT_NAME:$CI_PIPELINE_ID
 
 clean_latest:
+    needs: ["push_latest"]
     stage: clean
     only:
         - master
@@ -60,6 +63,7 @@ clean_latest:
         - docker rmi --no-prune registry.axiom/$CI_PROJECT_NAME:latest
 
 clean_tag:
+    needs: ["push_tag"]
     stage: clean
     only:
         - tags
@@ -68,6 +72,7 @@ clean_tag:
         - docker rmi --no-prune registry.axiom/$CI_PROJECT_NAME:prod
 
 deploy_stage:
+    needs: ["push_latest"]
     stage: deploy
     only:
         - master
@@ -79,6 +84,7 @@ deploy_stage:
         url: https://stage.webcoos.org/
 
 deploy_prod:
+    needs: ["push_tag"]
     stage: deploy
     only:
         - tags
