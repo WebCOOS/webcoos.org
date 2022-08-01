@@ -8,15 +8,15 @@ const CameraLandingSection = dynamic(() => import('../../components/CameraLandin
 
 export default function Cameras({ cameras, metadata }) {
     return (
-        <Page metadata={metadata} title="Cameras">
+        <Page metadata={metadata} title='Cameras'>
             <Section>
                 <SectionHeader>Cameras</SectionHeader>
                 <CameraLandingSection
                     mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-                    apiUrl='https://app.stage.webcoos.org/webcoos/api'
+                    apiUrl={process.env.NEXT_PUBLIC_WEBCOOS_API_URL || 'https://app.stage.webcoos.org/webcoos/api'}
                     token={process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}
-                    apiVersion="v1"
-                    source="webcoos"
+                    apiVersion='v1'
+                    source='webcoos'
                     stations={cameras.cameras.active}
                 />
             </Section>
