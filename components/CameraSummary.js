@@ -106,19 +106,22 @@ export default function CameraSummary({
             >
                 <div className='md:flex-grow' style={{ minHeight: '90px' }}>
                     <AutoSizer>
-                        {({ height, width }) => (
-                            <StaticMap
-                                width={width}
-                                height={height}
-                                latitude={latitude}
-                                longitude={longitude}
-                                markerSymbol='attraction'
-                                mapboxAccessToken={mapboxAccessToken}
-                                extraClasses={'border'}
-                                extraStyle={{ borderColor: borderColor }}
-                                decimalPlaces={3}
-                            />
-                        )}
+                        {({ height, width }) =>
+                            latitude &&
+                            longitude && (
+                                <StaticMap
+                                    width={width}
+                                    height={height}
+                                    latitude={latitude}
+                                    longitude={longitude}
+                                    markerSymbol='attraction'
+                                    mapboxAccessToken={mapboxAccessToken}
+                                    extraClasses={'border'}
+                                    extraStyle={{ borderColor: borderColor }}
+                                    decimalPlaces={3}
+                                />
+                            )
+                        }
                     </AutoSizer>
                 </div>
                 {hls_url ? (

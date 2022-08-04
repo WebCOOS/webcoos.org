@@ -13,7 +13,7 @@ function parseWebCOOSAsset(item) {
     const streams = streamingService?.data.properties.connections || [];
     const dash = streams.find((stream) => stream.protocol === 'dash')?.url;
     const hls = streams.find((stream) => stream.protocol === 'hls')?.url;
-    const thumbnails = item.data.properties.thumbnails.base;
+    const thumbnails = item.data.properties?.thumbnails?.base;
 
     // Extracted from GeoJSON
     const longitude = item.data.properties.location?.coordinates[0];
@@ -21,14 +21,14 @@ function parseWebCOOSAsset(item) {
 
     return {
         uuid: item.uuid,
-        slug: item.data.common.slug,
-        label: item.data.common.label,
-        description: item.data.common.description,
-        source: item.data.properties.source,
-        group: item.data.properties.group,
+        slug: item.data?.common?.slug,
+        label: item.data?.common?.label,
+        description: item.data?.common?.description,
+        source: item.data?.properties?.source,
+        group: item.data?.properties?.group,
         longitude: longitude,
         latitude: latitude,
-        thumbnail: thumbnails.rect_large,
+        thumbnail: thumbnails?.rect_large,
         thumbnails: thumbnails,
         hls_url: hls,
         dash_url: dash
