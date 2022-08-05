@@ -5,6 +5,7 @@ cameras:
     - cherrypiersouthcam
     - currituck_hampton_inn
     - currituck_sailfish
+    - folly6thavenue
     - follypiernorthcam
     - follypiersouthcam
     - iop_palm_blvd
@@ -13,6 +14,7 @@ cameras:
     - northinlet
     - oakisland_east
     - oakisland_west
+    - rosemontpeace
     - staugustinecam
     - twinpierscam
     - waikiki_sheraton
