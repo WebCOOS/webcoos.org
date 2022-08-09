@@ -22,7 +22,7 @@ export default function WebCOOSMap({
   useEffect(() => {
     const getMeta = async () => {
       const response = await fetch(
-              `${apiUrl}/${apiVersion}/assets/?source=${source}&_nocache=true&type=webcoos.camera`,
+              `${apiUrl}/${apiVersion}/assets/?source=${source}&type=webcoos.camera`,
               {
                   headers: {
                       Authorization: `Token ${token}`,

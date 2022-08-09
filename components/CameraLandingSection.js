@@ -15,7 +15,7 @@ export default function CameraLandingSection({
 
     useEffect(() => {
         fetch(
-            `${apiUrl}/${apiVersion}/assets/?source=${source}&_nocache=true`,
+            `${apiUrl}/${apiVersion}/assets/?source=${source}`,
             {
                 headers: {
                     Authorization: `Token ${token}`,
