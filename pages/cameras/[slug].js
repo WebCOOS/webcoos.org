@@ -25,6 +25,7 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                 key: service.common.slug,
                 label: service.common.label,
                 inventory: service.inventory,
+                serviceUuid: service.uuid,
                 icon:
                     service.svcType === 'img' ? (
                         <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
@@ -83,7 +84,10 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                 </SectionHeader>
                 <CameraSummary {...parsedMetadata} mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN} />
 
-                <TabbedGallery availTabs={availTabs} />
+                <TabbedGallery
+                    availTabs={availTabs}
+                    apiUrl={process.env.NEXT_PUBLIC_WEBCOOS_API_URL || 'https://app.stage.webcoos.org/webcoos/api'}
+                />
 
                 <div className='my-4 flex'></div>
             </Section>
@@ -109,7 +113,7 @@ export async function getStaticProps({ params }) {
     // pull live metadata from API
 
     const cameraMetadataResponse = await fetch(
-            `${apiUrl}/${apiVersion}/assets/${params.slug}?source=${source}&_nocache=true`,
+            `${apiUrl}/${apiVersion}/assets/${params.slug}?source=${source}`,
             {
                 headers: {
                     Authorization: `Token ${process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}`,
@@ -137,29 +141,14 @@ export async function getStaticProps({ params }) {
                     });
             });
         }),
-        services = await Promise.all(
-            rawServices.map(async (service) => {
-                // retrieve inventory for this service
-                const dataInventoryResponse = await fetch(
-                        `${apiUrl}/${apiVersion}/services/${service.uuid}/inventory/?_nocache=true`,
-                        {
-                            headers: {
-                                Authorization: `Token ${process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}`,
-                                Accept: 'application/json',
-                            },
-                        }
-                    ),
-                    inventory = (await dataInventoryResponse.json()).results;
+        services = rawServices.map(service => {
+            const svcType = service.common.slug.indexOf('-stills') !== -1 ? 'img' : 'video';
 
-                const svcType = service.common.slug.indexOf('-stills') !== -1 ? 'img' : 'video';
-
-                return {
-                    ...service,
-                    inventory: inventory,
-                    svcType: svcType,
-                };
-            })
-        );
+            return {
+                ...service,
+                svcType: svcType,
+            };
+        })
 
     return {
         props: {

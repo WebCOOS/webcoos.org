@@ -6,36 +6,65 @@ import { DatePicker } from '@axds/landing-page-components';
 import { parseISO, startOfMonth, endOfMonth, clamp, differenceInDays } from 'date-fns';
 
 export default function TabbedGallery({
-  selectedTab,
-  availTabs = [],    // [{ key, icon, label, galleryComponent (date) => JSX }, inventory]
+    apiUrl,
+    apiVersion = 'v1',
+    token = process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN || process.env.STORYBOOK_WEBCOOS_API_TOKEN,
+    selectedTab,
+    availTabs = [],    // [{ key, icon, label, serviceUuid, galleryComponent (date) => JSX }, inventory?]
 }) {
     const [curTab, setCurTab] = useState(selectedTab || availTabs.length && availTabs[0].key);
     const [curDate, setCurDate] = useState(new Date());
+    const [curInventory, setCurInventory] = useState([]);
 
     const curTabData = useMemo(() => {
         const tabData = availTabs.find((at) => at.key === curTab);
         return tabData;
     }, [availTabs, curTab])
-    
-    const dateExtents = useMemo(() => {
+
+    useEffect(() => {
+        // if inventory set statically, set it and don't do anything else here
         if (curTabData && curTabData.inventory) {
-            const daily = curTabData.inventory.find((i) => i.name === 'daily');
-            if (daily) {
-                const firstDate = parseISO(daily.values[0][0]);
-                const lastDate = parseISO(daily.values[daily.values.length - 1][0]);
-                return { start: firstDate, end: lastDate }
-            }
+            setCurInventory(curTabData.inventory);
+            return;
         }
-    }, [curTabData]);
+
+        let active = true;
+
+        const loadInventory = async () => {
+            // retrieve inventory for this service
+            const dataInventoryResponse = await fetch(
+                    `${apiUrl}/${apiVersion}/services/${curTabData.serviceUuid}/inventory/`,
+                    {
+                        headers: {
+                            Authorization: `Token ${token}`,
+                            Accept: 'application/json',
+                        },
+                    }
+                );
+
+            // short circuit if cancelled
+            if (!active) { return; }
+            setCurInventory((await dataInventoryResponse.json()).results);
+        }
+
+        loadInventory();
+
+        return () => { active = false; }    // "cancellable"
+    }, [curTabData])
+
+    const dateExtents = useMemo(() => {
+        const daily = curInventory.find((i) => i.name === 'daily');
+        if (daily) {
+            const firstDate = parseISO(daily.values[0][0]);
+            const lastDate = parseISO(daily.values[daily.values.length - 1][0]);
+            return { start: firstDate, end: lastDate }
+        }
+    }, [curInventory]);
 
     // when tab changes, inventory likely changes too.  make sure the new date is
     // one that has data.
     useEffect(() => {
-        if (!(curTabData && curTabData.inventory)) {
-            return;
-        }
-
-        const daily = curTabData.inventory.find(i => i.name === 'daily');
+        const daily = curInventory.find(i => i.name === 'daily');
         if (daily) {
             // filter it into ones that have data then then take distance from the current date
             const withData = daily.values
@@ -51,7 +80,7 @@ export default function TabbedGallery({
             withData.sort((a, b) => (a[1] - b[1]));
             setCurDate(withData[0][0]);
         }
-    }, [curTabData]);
+    }, [curInventory]);
 
     // event handlers
     const selectTab = (e, at) => {
@@ -101,7 +130,7 @@ export default function TabbedGallery({
                         initialDate={curDate}
                         minDate={dateExtents && dateExtents.start && startOfMonth(dateExtents.start)}
                         maxDate={dateExtents && dateExtents.end && endOfMonth(dateExtents.end)}
-                        inventory={curTabData && curTabData.inventory}
+                        inventory={curInventory}
                         onDateSelected={onDateSelected}
                     />
                 </li>
@@ -129,12 +158,16 @@ export default function TabbedGallery({
 }
 
 TabbedGallery.propTypes = {
+    apiUrl: PropTypes.string,
+    apiVersion: PropTypes.string,
+    token: PropTypes.string,
     selectedTab: PropTypes.string,
     availTabs: PropTypes.arrayOf(
         PropTypes.shape({
             key: PropTypes.string.isRequired,
             label: PropTypes.string,
             icon: PropTypes.object,
+            serviceUuid: PropTypes.string,
             galleryComponent: PropTypes.func,
             inventory: PropTypes.arrayOf(
                 PropTypes.shape({
