@@ -3,23 +3,74 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 import { DatePicker } from '@axds/landing-page-components';
-import { parseISO, startOfMonth, endOfMonth, clamp, differenceInDays } from 'date-fns';
+import { parseISO, startOfMonth, endOfMonth, startOfDay, differenceInDays, fmtDate, addMinutes } from 'date-fns';
+import { utcToZonedTime, zonedTimeToUtc, format } from 'date-fns-tz';
+
+
+// format dates
+// https://stackoverflow.com/a/63227335/84732
+const formatInTimeZone = (date, fmt, tz) => format(utcToZonedTime(date, tz), fmt, { timeZone: tz });
+
+// extract dates from inventory
+const getDates = (inv, tz) => {
+    let endTransform = (d) => d,
+        availIdx = inv.meta.fields.findIndex((f) => f.name === 'has_data'),
+        startIdx = inv.meta.fields.findIndex((f) => f.name === 'data_starting'),
+        endIdx = inv.meta.fields.findIndex((f) => f.name === 'data_ending');
+    if (startIdx === -1) {
+        startIdx = inv.meta.fields.findIndex((f) => f.name == 'starting');
+    }
+    if (endIdx === -1) {
+        endIdx = inv.meta.fields.findIndex((f) => f.name == 'ending');
+        // if using "ending" the date is exclusive so have to subtract a minute off of it
+        endTransform = (d) => addMinutes(d, -1);
+    }
+
+    if (!(availIdx !== -1 && startIdx !== -1 && endIdx !== -1)) {
+        console.warn('Column search failed:', availIdx, startIdx, endIdx);
+        return null;
+    }
+
+    // have to convert to string and back because set doesn't think same dates are the same.
+    // inside the set everything is in the given timezone.
+    const allDates = Array.from(
+        new Set(
+            inv.values
+                // filter to available only
+                .filter((dv) => dv[availIdx] === 1)
+                // use the actual data boundaries as a beginning and ending, falling back to day boundaries
+                .flatMap((dv) => {
+                    return [
+                        format(startOfDay(utcToZonedTime(parseISO(dv[startIdx]), tz)), 'yyyy-MM-dd', { timezone: tz }),
+                        format(startOfDay(utcToZonedTime(endTransform(parseISO(dv[endIdx])), tz)), 'yyyy-MM-dd', {
+                            timezone: tz,
+                        }),
+                    ];
+                })
+        )
+    ).map((t) => zonedTimeToUtc(t, tz));
+    allDates.sort((a, b) => a.getTime() - b.getTime());
+
+    return allDates;
+}
+
 
 export default function TabbedGallery({
     apiUrl,
     apiVersion = 'v1',
     token = process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN || process.env.STORYBOOK_WEBCOOS_API_TOKEN,
+    timezone,   // named, ie "America/New_York" - if none, will use browser's timezone. will be problem on server side rendering.
     selectedTab,
     availTabs = [],    // [{ key, icon, label, serviceUuid, galleryComponent (date) => JSX }, inventory?]
 }) {
-    const [curTab, setCurTab] = useState(selectedTab || availTabs.length && availTabs[0].key);
+    const [curTab, setCurTab] = useState(selectedTab || (availTabs.length && availTabs[0].key));
     const [curDate, setCurDate] = useState(new Date());
     const [curInventory, setCurInventory] = useState([]);
 
     const curTabData = useMemo(() => {
         const tabData = availTabs.find((at) => at.key === curTab);
         return tabData;
-    }, [availTabs, curTab])
+    }, [availTabs, curTab]);
 
     useEffect(() => {
         // if inventory set statically, set it and don't do anything else here
@@ -33,54 +84,66 @@ export default function TabbedGallery({
         const loadInventory = async () => {
             // retrieve inventory for this service
             const dataInventoryResponse = await fetch(
-                    `${apiUrl}/${apiVersion}/services/${curTabData.serviceUuid}/inventory/`,
-                    {
-                        headers: {
-                            Authorization: `Token ${token}`,
-                            Accept: 'application/json',
-                        },
-                    }
-                );
+                `${apiUrl}/${apiVersion}/services/${curTabData.serviceUuid}/inventory/`,
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                        Accept: 'application/json',
+                    },
+                }
+            );
 
             // short circuit if cancelled
-            if (!active) { return; }
+            if (!active) {
+                return;
+            }
             setCurInventory((await dataInventoryResponse.json()).results);
-        }
+        };
 
         loadInventory();
 
-        return () => { active = false; }    // "cancellable"
-    }, [curTabData])
+        return () => {
+            active = false;
+        }; // "cancellable"
+    }, [curTabData]);
+
+    // figure out timezone
+    const tz = useMemo(() => {
+        if (timezone) {
+            return timezone;
+        }
+
+        return Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
+    }, [timezone]);
+
+    // memoize format helper method
+    const fmtDate = useMemo(() => {
+        return (date) => formatInTimeZone(date, 'yyyy-MM-dd', tz);
+    }, [tz]);
 
     const dateExtents = useMemo(() => {
         const daily = curInventory.find((i) => i.name === 'daily');
         if (daily) {
-            const firstDate = parseISO(daily.values[0][0]);
-            const lastDate = parseISO(daily.values[daily.values.length - 1][0]);
-            return { start: firstDate, end: lastDate }
+            // instead of relying on magic index numbers, search for the column indexes by name
+            const allDates = getDates(daily, tz);
+            return { start: allDates[0], end: allDates[allDates.length - 1] };
         }
-    }, [curInventory]);
+    }, [curInventory, tz]);
 
     // when tab changes, inventory likely changes too.  make sure the new date is
     // one that has data.
     useEffect(() => {
-        const daily = curInventory.find(i => i.name === 'daily');
+        const daily = curInventory.find((i) => i.name === 'daily');
         if (daily) {
-            // filter it into ones that have data then then take distance from the current date
-            const withData = daily.values
-                .filter(v => v[1] === 1)
-                .map(v => {
-                    const vDate = parseISO(v[0]);
-                    return [
-                        vDate,
-                        Math.abs(differenceInDays(vDate, curDate))
-                    ]
+            const allDates = getDates(daily, tz),
+                withData = allDates.map((v) => {
+                    return [v, Math.abs(differenceInDays(v, curDate))];
                 });
 
-            withData.sort((a, b) => (a[1] - b[1]));
+            withData.sort((a, b) => a[1] - b[1]);
             setCurDate(withData[0][0]);
         }
-    }, [curInventory]);
+    }, [curInventory, tz]);
 
     // event handlers
     const selectTab = (e, at) => {
@@ -89,8 +152,8 @@ export default function TabbedGallery({
     };
 
     const onDateSelected = (date) => {
-      setCurDate(date);
-    }
+        setCurDate(date);
+    };
 
     return (
         <div>
@@ -161,6 +224,7 @@ TabbedGallery.propTypes = {
     apiUrl: PropTypes.string,
     apiVersion: PropTypes.string,
     token: PropTypes.string,
+    timezone: PropTypes.string,
     selectedTab: PropTypes.string,
     availTabs: PropTypes.arrayOf(
         PropTypes.shape({
