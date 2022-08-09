@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import KeyboardEventHandler from 'react-keyboard-event-handler';
 import { formatISO, startOfDay, endOfDay } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 
 import LazyImage from './LazyImage';
 
@@ -11,6 +12,7 @@ export default function MediaGallery({
     apiVersion = 'v1',
     token = process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN || process.env.STORYBOOK_WEBCOOS_API_TOKEN,
     serviceUuid,
+    timezone,
     perPage = 100,
     galleryClasses = '',
     selectedDate,
@@ -35,11 +37,9 @@ export default function MediaGallery({
             curElements = new Array(results[0].pagination.count).fill(null);
         }
 
-        // set the curelements array each time
-        const dtFormatter = new Intl.DateTimeFormat(undefined, {
-            dateStyle: 'medium',
-            timeStyle: 'medium',
-        });
+        const tz = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York',
+            dtFormat = (date, fmt) => formatInTimeZone(date, tz, fmt || 'HH:mm:ss zzz');
+
         results.forEach((result) => {
             const parsedResults = result.results.map((r) => {
                 const dt = new Date(Date.parse(r.data.extents.temporal.min));
@@ -48,7 +48,8 @@ export default function MediaGallery({
                     data: {
                         ...r.data,
                         dateTime: dt,
-                        dateTimeStr: dtFormatter.format(dt),
+                        dateTimeStr: dtFormat(dt),
+                        dateTimeStrLong: dtFormat(dt, 'yyyy-MM-dd HH:mm:ss zzz')
                     },
                 };
             });
@@ -328,7 +329,7 @@ export default function MediaGallery({
                                 className='sm:rounded cursor-pointer'
                                 src={still.data.properties.thumbnails?.base?.rect_medium}
                                 lqip={still.data.properties.thumbnails?.base?.lqip}
-                                alt={still.data.dateTimeStr}
+                                alt={still.data.dateTimeStrLong}
                                 styles={{
                                     width: '350px',
                                     height: '200px',
@@ -385,7 +386,7 @@ export default function MediaGallery({
                             <div className='flex flex-col sm:pt-6 sm:pb-2'>
                                 {zoomedComponent(zoomed, () => setZoomedIdx(null))}
 
-                                <div className='pt-4'>{zoomed.data.dateTimeStr}</div>
+                                <div className='pt-4'>{zoomed.data.dateTimeStrLong}</div>
                             </div>
                             <div
                                 className={classNames('w-16 flex items-center justify-center', {
@@ -418,6 +419,7 @@ MediaGallery.propTypes = {
     apiVersion: PropTypes.string,
     token: PropTypes.string,
     serviceUuid: PropTypes.string,
+    timezone: PropTypes.string,
     perPage: PropTypes.number,
     galleryClasses: PropTypes.string,
     selectedDate: PropTypes.object,

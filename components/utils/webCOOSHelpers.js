@@ -24,6 +24,7 @@ function parseWebCOOSAsset(item) {
         slug: item.data?.common?.slug,
         label: item.data?.common?.label,
         description: item.data?.common?.description,
+        timezone: item.data?.properties?.timezone,
         source: item.data?.properties?.source,
         group: item.data?.properties?.group,
         longitude: longitude,

@@ -1,15 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-
 import { DatePicker } from '@axds/landing-page-components';
 import { parseISO, startOfMonth, endOfMonth, startOfDay, differenceInDays, fmtDate, addMinutes } from 'date-fns';
-import { utcToZonedTime, zonedTimeToUtc, format } from 'date-fns-tz';
+import { utcToZonedTime, zonedTimeToUtc, format, formatInTimeZone } from 'date-fns-tz';
 
-
-// format dates
-// https://stackoverflow.com/a/63227335/84732
-const formatInTimeZone = (date, fmt, tz) => format(utcToZonedTime(date, tz), fmt, { timeZone: tz });
 
 // extract dates from inventory
 const getDates = (inv, tz) => {
@@ -118,7 +113,7 @@ export default function TabbedGallery({
 
     // memoize format helper method
     const fmtDate = useMemo(() => {
-        return (date) => formatInTimeZone(date, 'yyyy-MM-dd', tz);
+        return (date) => formatInTimeZone(date, tz, 'yyyy-MM-dd');
     }, [tz]);
 
     const dateExtents = useMemo(() => {

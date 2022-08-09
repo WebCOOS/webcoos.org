@@ -41,6 +41,7 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                             token={process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}
                             serviceUuid={service.uuid}
                             selectedDate={date}
+                            timezone={parsedMetadata.timezone}
                             iconComponent={
                                 service.svcType === 'img' ? (
                                     <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
@@ -86,6 +87,7 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
 
                 <TabbedGallery
                     availTabs={availTabs}
+                    timezone={parsedMetadata.timezone}
                     apiUrl={process.env.NEXT_PUBLIC_WEBCOOS_API_URL || 'https://app.stage.webcoos.org/webcoos/api'}
                 />
 
