@@ -3,13 +3,13 @@ cameras:
     - buxtoncoastalcam
     - cherrypiernorthcam
     - cherrypiersouthcam
+    - cms_dock_north
+    - cms_dock_south
     - currituck_hampton_inn
     - currituck_sailfish
     - folly6thavenue
     - follypiernorthcam
     - follypiersouthcam
-    - iop_palm_blvd
-    - iop_rifle_range_rd
     - miami40thcam
     - northinlet
     - oakisland_east
@@ -39,12 +39,3 @@ cameras:
         - cherrypiersouthcam
         - follypiernorthcam
         - follypiersouthcam
-    isle_of_palm:
-      cameras:
-        - iop_palm_blvd
-        - iop_rifle_range_rd
-      content:
-        hero:
-          image: https://s3.axds.co/static-assets/webcoos/backend/stage/media/uploads/camera/iop_palm_blvd/iop_palm_blvd_highlight.jpg
-          imageAltText:
-          title: Isle of Palm
