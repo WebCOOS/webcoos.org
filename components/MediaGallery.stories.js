@@ -65,3 +65,8 @@ VideoDefault.args = {
     perPage: 8,
     serviceUuid: '1c49de59-0195-4222-ae98-76693c99b745', // currituck hampton inn video
 };
+
+export const EmptyGallery = ImgTemplate.bind({});
+EmptyGallery.args = {
+    empty: true
+};

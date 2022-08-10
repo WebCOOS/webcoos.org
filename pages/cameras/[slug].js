@@ -24,7 +24,6 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
             return {
                 key: service.common.slug,
                 label: service.common.label,
-                inventory: service.inventory,
                 serviceUuid: service.uuid,
                 icon:
                     service.svcType === 'img' ? (
@@ -32,7 +31,7 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                     ) : (
                         <IconVideoCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
                     ),
-                galleryComponent: (date) => {
+                galleryComponent: (date, empty) => {
                     return (
                         <MediaGallery
                             key={`${slug}-${date.toISOString()}-${service.uuid}`}
@@ -42,6 +41,7 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                             serviceUuid={service.uuid}
                             selectedDate={date}
                             timezone={parsedMetadata.timezone}
+                            empty={empty}
                             iconComponent={
                                 service.svcType === 'img' ? (
                                     <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />

@@ -18,6 +18,7 @@ export default function MediaGallery({
     selectedDate,
     iconComponent,
     zoomedComponent,
+    empty = false,
 }) {
     // data from api state
     const elements = useRef();
@@ -166,8 +167,10 @@ export default function MediaGallery({
             }
         };
 
-        maybeFetch();
-    }, [elements, viewPage, perPage, apiCount, apiUrl, apiVersion, serviceUuid, token, selectedDate]);
+        if (!empty) {
+            maybeFetch();
+        }
+    }, [elements, viewPage, perPage, apiCount, apiUrl, apiVersion, serviceUuid, token, selectedDate, empty]);
 
     // calculate visible page count based on visible perpage/api count
     const visiblePageCount = useMemo(() => {
@@ -280,11 +283,20 @@ export default function MediaGallery({
                         <span className='px-4'>Loading</span>
                     ) : (
                         <>
-                            <span className='font-semibold w-6 text-right'>
+                            <span
+                                className={classNames('font-semibold w-6', {
+                                    'text-right': !empty,
+                                    'text-center': empty,
+                                })}
+                            >
                                 {visiblePageCount ? viewPage + 1 : '-'}
                             </span>
-                            <span className='mx-1'>of</span>
-                            <span className='font-semibold w-6 text-left'>{visiblePageCount}</span>
+                            {!empty && (
+                                <>
+                                    <span className='mx-1'>of</span>
+                                    <span className='font-semibold w-6 text-left'>{visiblePageCount}</span>
+                                </>
+                            )}
                         </>
                     )}
                 </div>
@@ -322,6 +334,17 @@ export default function MediaGallery({
                     galleryClasses
                 )}
             >
+                {empty && (
+                    <div
+                        className='border-2 border-dotted border-gray-300 text-gray-400 text-center text-xs uppercase pt-2 rounded-md'
+                        style={{
+                            width: '350px',
+                            height: '200px',
+                        }}
+                    >
+                        No Elements
+                    </div>
+                )}
                 {visible.map((still, i) => {
                     return (
                         <div className='relative' key={still.uuid}>
@@ -425,4 +448,5 @@ MediaGallery.propTypes = {
     selectedDate: PropTypes.object,
     iconComponent: PropTypes.object,
     zoomedComponent: PropTypes.func,
+    empty: PropTypes.bool
 };

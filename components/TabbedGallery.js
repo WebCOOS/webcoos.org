@@ -205,7 +205,7 @@ export default function TabbedGallery({
                             role='tabpanel'
                             aria-labelledby={`tabs-${at.key}-tab`}
                         >
-                            {at.galleryComponent(curDate)}
+                            {at.galleryComponent(curDate, availDays && availDays.length === 0)}
                         </div>
                     );
                 })}
