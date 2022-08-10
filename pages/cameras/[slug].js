@@ -114,16 +114,21 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
     // pull live metadata from API
 
-    const cameraMetadataResponse = await fetch(
-            `${apiUrl}/${apiVersion}/assets/${params.slug}?source=${source}`,
-            {
-                headers: {
-                    Authorization: `Token ${process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}`,
-                    Accept: 'application/json',
-                },
-            }
-        ),
-        cameraMetadataResult = await cameraMetadataResponse.json(),
+    const cameraMetadataResponse = await fetch(`${apiUrl}/${apiVersion}/assets/${params.slug}?source=${source}`, {
+        headers: {
+            Authorization: `Token ${process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}`,
+            Accept: 'application/json',
+        },
+    });
+
+    // https://nextjs.org/docs/api-reference/data-fetching/get-static-props#notfound
+    if (!cameraMetadataResponse.ok) {
+        return {
+            notFound: true
+        }
+    }
+
+    const cameraMetadataResult = await cameraMetadataResponse.json(),
         parsedMetadata = parseWebCOOSAsset(cameraMetadataResult),
         sanitized = Object.fromEntries(
             Object.entries(parsedMetadata).map((p) => {
