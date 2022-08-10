@@ -615,3 +615,38 @@ NorthInletDayBoundary.args = {
         },
     ],
 };
+
+export const EmptyInventory = Template.bind({});
+EmptyInventory.args = {
+    availTabs: [
+        {
+            key: 'northinlet-one-minute-stills-s3',
+            label: 'northinlet-one-minute-stills-s3',
+            serviceUuid: '70714572-3436-45ef-b4f9-1df59e5c293f',
+            icon: <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />,
+            galleryComponent: (date) => {
+                return (
+                    <MediaGallery
+                        key={`${date.toISOString()}`}
+                        apiUrl='https://app.stage.webcoos.org/webcoos/api'
+                        serviceUuid='70714572-3436-45ef-b4f9-1df59e5c293f'
+                        selectedDate={date}
+                        iconComponent={
+                            <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
+                        }
+                        zoomedComponent={(zoomed, onClick) => (
+                            <img
+                                className='object-contain'
+                                src={zoomed.data.properties.url}
+                                alt={zoomed.data.dateTimeStr}
+                                onClick={onClick}
+                            />
+                        )}
+                    />
+                );
+            },
+            inventory: [
+            ]
+        }
+    ]
+}

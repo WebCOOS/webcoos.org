@@ -116,13 +116,13 @@ export default function TabbedGallery({
         return (date) => formatInTimeZone(date, tz, 'yyyy-MM-dd');
     }, [tz]);
 
-    const dateExtents = useMemo(() => {
-        const daily = curInventory.find((i) => i.name === 'daily');
-        if (daily) {
-            // instead of relying on magic index numbers, search for the column indexes by name
-            const allDates = getDates(daily, tz);
-            return { start: allDates[0], end: allDates[allDates.length - 1] };
+    // parse inventory into available days, in local timezone
+    const availDays = useMemo(() => {
+        const daily = (curInventory || []).find((i) => i.name === 'daily');
+        if (!daily) {
+            return [];      // empty array means no available days
         }
+        return getDates(daily, tz);
     }, [curInventory, tz]);
 
     // when tab changes, inventory likely changes too.  make sure the new date is
@@ -186,10 +186,9 @@ export default function TabbedGallery({
                     <DatePicker
                         key={`${curDate.toISOString()}-${curTab}`}
                         initialDate={curDate}
-                        minDate={dateExtents && dateExtents.start && startOfMonth(dateExtents.start)}
-                        maxDate={dateExtents && dateExtents.end && endOfMonth(dateExtents.end)}
-                        inventory={curInventory}
+                        availableDays={availDays}
                         onDateSelected={onDateSelected}
+                        timezone={timezone}
                     />
                 </li>
             </ul>
