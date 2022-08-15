@@ -13,10 +13,6 @@ export default function Cameras({ cameras, metadata }) {
                 <SectionHeader>Cameras</SectionHeader>
                 <CameraLandingSection
                     mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-                    apiUrl={process.env.NEXT_PUBLIC_WEBCOOS_API_URL || 'https://app.stage.webcoos.org/webcoos/api'}
-                    token={process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}
-                    apiVersion='v1'
-                    source='webcoos'
                     stations={cameras.cameras.active}
                 />
             </Section>

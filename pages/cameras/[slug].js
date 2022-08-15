@@ -14,10 +14,6 @@ const CameraSummary = dynamic(() => import('../../components/CameraSummary'), { 
 const MediaGallery = dynamic(() => import('../../components/MediaGallery'), { ssr: false });
 const TabbedGallery = dynamic(() => import('../../components/TabbedGallery'), { ssr: false });
 
-const apiUrl = process.env.NEXT_PUBLIC_WEBCOOS_API_URL || 'https://app.stage.webcoos.org/webcoos/api',
-    apiVersion = 'v1',
-    source = 'webcoos';
-
 export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata, services, ...props }) {
     const availTabs = useMemo(() => {
         return services.map((service) => {
@@ -35,9 +31,6 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                     return (
                         <MediaGallery
                             key={`${slug}-${date.toISOString()}-${service.uuid}`}
-                            apiUrl={process.env.NEXT_PUBLIC_WEBCOOS_API_URL || 'https://app.stage.webcoos.org/webcoos/api'}
-                            apiVersion='v1'
-                            token={process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}
                             serviceUuid={service.uuid}
                             selectedDate={date}
                             timezone={parsedMetadata.timezone}
@@ -113,6 +106,9 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
     // pull live metadata from API
+    const apiUrl = process.env.NEXT_PUBLIC_WEBCOOS_API_URL || 'https://app.stage.webcoos.org/webcoos/api',
+        apiVersion = 'v1',
+        source = 'webcoos';
 
     const cameraMetadataResponse = await fetch(`${apiUrl}/${apiVersion}/assets/${params.slug}?source=${source}`, {
         headers: {

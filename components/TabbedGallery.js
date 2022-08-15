@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { DatePicker } from '@axds/landing-page-components';
 import { parseISO, startOfMonth, endOfMonth, startOfDay, differenceInDays, fmtDate, addMinutes } from 'date-fns';
 import { utcToZonedTime, zonedTimeToUtc, format, formatInTimeZone } from 'date-fns-tz';
+import { useAPIContext } from './contexts/ApiContext';
 
 
 // extract dates from inventory
@@ -51,13 +52,13 @@ const getDates = (inv, tz) => {
 
 
 export default function TabbedGallery({
-    apiUrl,
-    apiVersion = 'v1',
-    token = process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN || process.env.STORYBOOK_WEBCOOS_API_TOKEN,
     timezone,   // named, ie "America/New_York" - if none, will use browser's timezone. will be problem on server side rendering.
     selectedTab,
     availTabs = [],    // [{ key, icon, label, serviceUuid, galleryComponent (date) => JSX }, inventory?]
 }) {
+
+    const { apiUrl, apiVersion, token } = useAPIContext();
+
     const [curTab, setCurTab] = useState(selectedTab || (availTabs.length && availTabs[0].key));
     const [curDate, setCurDate] = useState(new Date());
     const [curInventory, setCurInventory] = useState([]);
@@ -215,9 +216,6 @@ export default function TabbedGallery({
 }
 
 TabbedGallery.propTypes = {
-    apiUrl: PropTypes.string,
-    apiVersion: PropTypes.string,
-    token: PropTypes.string,
     timezone: PropTypes.string,
     selectedTab: PropTypes.string,
     availTabs: PropTypes.arrayOf(

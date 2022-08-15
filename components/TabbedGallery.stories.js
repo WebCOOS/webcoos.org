@@ -1,4 +1,6 @@
 import React from 'react';
+import { withReactContext } from 'storybook-react-context';
+import ApiContext from './contexts/ApiContext';
 
 import TabbedGallery from './TabbedGallery';
 import MediaGallery from './MediaGallery';
@@ -7,6 +9,17 @@ import { IconCamera, IconVideoCamera } from './Icon';
 export default {
     component: TabbedGallery,
     title: 'TabbedGallery',
+    decorators: [
+        withReactContext({
+            Context: ApiContext,
+            initialState: {
+                apiUrl: 'https://app.stage.webcoos.org/webcoos/api',
+                apiVersion: 'v1',
+                token: process.env.STORYBOOK_WEBCOOS_API_TOKEN,
+                source: 'webcoos',
+            },
+        }),
+    ],
 };
 
 const Template = (args) => (
@@ -17,7 +30,6 @@ const Template = (args) => (
 
 export const Default = Template.bind({});
 Default.args = {
-    apiUrl: 'https://app.stage.webcoos.org/webcoos/api',
     availTabs: [
         {
             key: 'stills',
@@ -28,7 +40,6 @@ Default.args = {
                 return (
                     <MediaGallery
                         key={`${date.toISOString()}-b7114ae2-b2cb-40fe-af33-820db2db7755`}
-                        apiUrl='https://app.stage.webcoos.org/webcoos/api'
                         serviceUuid='b7114ae2-b2cb-40fe-af33-820db2db7755' // currituck hampton inn one minute stills
                         selectedDate={date}
                         iconComponent={
@@ -54,7 +65,6 @@ Default.args = {
                 return (
                     <MediaGallery
                         key={`${date.toISOString()}-1d130de0-f99b-436d-b96a-c3929904b3355`}
-                        apiUrl='https://app.stage.webcoos.org/webcoos/api'
                         serviceUuid='1d130de0-f99b-436d-b96a-c3929904b335' // currituck sailfish video archive
                         selectedDate={date}
                         iconComponent={
@@ -84,7 +94,6 @@ StaticInventory.args = {
                 return (
                     <MediaGallery
                         key={`${date.toISOString()}-b7114ae2-b2cb-40fe-af33-820db2db7755`}
-                        apiUrl='https://app.stage.webcoos.org/webcoos/api'
                         serviceUuid='b7114ae2-b2cb-40fe-af33-820db2db7755' // currituck hampton inn one minute stills
                         selectedDate={date}
                         iconComponent={
@@ -261,7 +270,6 @@ StaticInventory.args = {
                 return (
                     <MediaGallery
                         key={`${date.toISOString()}-1d130de0-f99b-436d-b96a-c3929904b3355`}
-                        apiUrl='https://app.stage.webcoos.org/webcoos/api'
                         serviceUuid='1d130de0-f99b-436d-b96a-c3929904b335' // currituck sailfish video archive
                         selectedDate={date}
                         iconComponent={
@@ -506,7 +514,6 @@ NorthInletDayBoundary.args = {
                 return (
                     <MediaGallery
                         key={`${date.toISOString()}`}
-                        apiUrl='https://app.stage.webcoos.org/webcoos/api'
                         serviceUuid='70714572-3436-45ef-b4f9-1df59e5c293f'
                         selectedDate={date}
                         iconComponent={
@@ -628,7 +635,6 @@ EmptyInventory.args = {
                 return (
                     <MediaGallery
                         key={`${date.toISOString()}`}
-                        apiUrl='https://app.stage.webcoos.org/webcoos/api'
                         serviceUuid='70714572-3436-45ef-b4f9-1df59e5c293f'
                         selectedDate={date}
                         empty={empty}

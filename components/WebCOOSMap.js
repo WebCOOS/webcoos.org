@@ -5,17 +5,16 @@ import StationCard from './StationCard';
 import { parseWebCOOSAsset } from './utils/webCOOSHelpers';
 
 import dynamic from 'next/dynamic';
+import { useAPIContext } from './contexts/ApiContext';
 
 const GLMap = dynamic(() => import('./GLMap'), { ssr: false });
 
 export default function WebCOOSMap({
   stationSlugs,
-  apiUrl,
-  apiVersion = 'v1',
-  token = process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN || process.env.STORYBOOK_WEBCOOS_API_TOKEN,
-  source = 'webcoos',
   ...props
 }) {
+  const { apiUrl, apiVersion, token, source } = useAPIContext();
+
   const [stationMetadata, setStationMetadata] = useState({}); // station slug -> parsed asset
   const [selectedStation, setSelectedStation] = useState(null); // if set, slug of station, controls overlay
 

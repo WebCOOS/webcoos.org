@@ -26,8 +26,6 @@ export default function Home({ content, metadata, cameras }) {
                     longitude={-75.8139}
                     latitude={36.3388}
                     mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-                    apiUrl={process.env.NEXT_PUBLIC_WEBCOOS_API_URL || 'https://app.stage.webcoos.org/webcoos/api'}
-                    token={process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}
                     stationSlugs={cameras.cameras.active}
                 />
             </Section>

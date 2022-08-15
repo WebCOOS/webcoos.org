@@ -6,11 +6,9 @@ import { formatISO, startOfDay, endOfDay } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 
 import LazyImage from './LazyImage';
+import { useAPIContext } from './contexts/ApiContext';
 
 export default function MediaGallery({
-    apiUrl,
-    apiVersion = 'v1',
-    token = process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN || process.env.STORYBOOK_WEBCOOS_API_TOKEN,
     serviceUuid,
     timezone,
     perPage = 100,
@@ -20,6 +18,9 @@ export default function MediaGallery({
     zoomedComponent,
     empty = false,
 }) {
+    // api details from context
+    const { apiUrl, apiVersion, token } = useAPIContext();
+
     // data from api state
     const elements = useRef();
     const [apiCount, setApiCount] = useState(0); // count of total number of elements of the API collection, set when first retrieved
@@ -438,9 +439,6 @@ export default function MediaGallery({
 }
 
 MediaGallery.propTypes = {
-    apiUrl: PropTypes.string,
-    apiVersion: PropTypes.string,
-    token: PropTypes.string,
     serviceUuid: PropTypes.string,
     timezone: PropTypes.string,
     perPage: PropTypes.number,
