@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { StaticMap } from '@axds/landing-page-components';
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
+import { useMapboxContext } from './contexts/MapboxContext';
 
 import classNames from 'classnames';
 
@@ -26,8 +27,9 @@ export default function CameraSummary({
     dash_url,
     alt_bg,
     has_bottom = true,
-    mapboxAccessToken = process.env.REACT_APP_MAPBOX_TOKEN || process.env.STORYBOOK_MAPBOX_TOKEN
 }) {
+    const mapboxAccessToken = useMapboxContext();
+
     const thumbsProps = useMemo(() => {
         if (thumbnails) {
             const srcset = `${thumbnails.rect_small} 200w, ${thumbnails.rect_medium} 400w, ${thumbnails.rect_large} 800w`,
@@ -115,10 +117,10 @@ export default function CameraSummary({
                                     latitude={latitude}
                                     longitude={longitude}
                                     markerSymbol='attraction'
-                                    mapboxAccessToken={mapboxAccessToken}
                                     extraClasses={'border'}
                                     extraStyle={{ borderColor: borderColor }}
                                     decimalPlaces={3}
+                                    mapboxAccessToken={mapboxAccessToken}
                                 />
                             )
                         }

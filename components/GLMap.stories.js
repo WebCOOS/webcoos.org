@@ -1,10 +1,18 @@
 import React from 'react';
+import { withReactContext } from 'storybook-react-context';
 
 import GLMap from './GLMap';
+import MapboxContext from './contexts/MapboxContext';
 
 export default {
     component: GLMap,
     title: 'GLMap',
+    decorators: [
+        withReactContext({
+            Context: MapboxContext,
+            initialState: process.env.STORYBOOK_MAPBOX_TOKEN,
+        }),
+    ],
 };
 
 const Template = (args) => {

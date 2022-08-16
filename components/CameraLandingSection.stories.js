@@ -3,6 +3,7 @@ import { withReactContext } from 'storybook-react-context';
 
 import CameraLandingSection from './CameraLandingSection';
 import ApiContext from './contexts/ApiContext';
+import MapboxContext from './contexts/MapboxContext';
 
 export default {
     component: CameraLandingSection,
@@ -16,6 +17,10 @@ export default {
                 token: process.env.STORYBOOK_WEBCOOS_API_TOKEN,
                 source: 'webcoos',
             },
+        }),
+        withReactContext({
+            Context: MapboxContext,
+            initialState: process.env.STORYBOOK_MAPBOX_TOKEN,
         }),
     ],
 };

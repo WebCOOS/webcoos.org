@@ -25,7 +25,6 @@ export default function Home({ content, metadata, cameras }) {
                 <WebCOOSMap
                     longitude={-75.8139}
                     latitude={36.3388}
-                    mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
                     stationSlugs={cameras.cameras.active}
                 />
             </Section>

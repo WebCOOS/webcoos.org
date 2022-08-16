@@ -9,6 +9,8 @@ import ReactMapGL, {
     NavigationControl,
     ScaleControl,
 } from 'react-map-gl/dist/es5';
+import { useMapboxContext } from './contexts/MapboxContext';
+
 
 const scaleControlStyle = {
     left: 70,
@@ -26,7 +28,6 @@ export default function GLMap({
     longitude = -80.42,
     zoom = 4.25,
     mapStyle = 'mapbox://styles/mapbox/light-v10',
-    mapboxAccessToken = process.env.REACT_APP_MAPBOX_TOKEN || process.env.STORYBOOK_MAPBOX_TOKEN,
     zoomToPadding = { top: 40, left: 40, right: 40, bottom: 40 },
     maxZoom = 10,
     onHover = (lon, lat, layers) => {},
@@ -34,6 +35,8 @@ export default function GLMap({
     overlayComponents,
     ...props
 }) {
+    const mapboxAccessToken = useMapboxContext();
+
     const [viewport, setViewport] = useState({
         width: mapWidth,
         height: mapHeight,

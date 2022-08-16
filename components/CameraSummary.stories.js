@@ -1,10 +1,18 @@
 import React from 'react';
+import { withReactContext } from 'storybook-react-context';
 
 import CameraSummary from './CameraSummary';
+import MapboxContext from './contexts/MapboxContext';
 
 export default {
     component: CameraSummary,
     title: 'CameraSummary',
+    decorators: [
+        withReactContext({
+            Context: MapboxContext,
+            initialState: process.env.STORYBOOK_MAPBOX_TOKEN,
+        }),
+    ],
 };
 
 const Template = (args) => <CameraSummary {...args} />;

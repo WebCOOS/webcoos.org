@@ -11,10 +11,7 @@ export default function Cameras({ cameras, metadata }) {
         <Page metadata={metadata} title='Cameras'>
             <Section>
                 <SectionHeader>Cameras</SectionHeader>
-                <CameraLandingSection
-                    mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-                    stations={cameras.cameras.active}
-                />
+                <CameraLandingSection stations={cameras.cameras.active} />
             </Section>
         </Page>
     );

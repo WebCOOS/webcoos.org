@@ -5,7 +5,6 @@ import { parseWebCOOSAsset } from './utils/webCOOSHelpers';
 
 export default function CameraLandingSection({
     stations = [],
-    mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || process.env.REACT_APP_MAPBOX_TOKEN || process.env.STORYBOOK_MAPBOX_TOKEN
 }) {
     const { apiUrl, apiVersion, token, source } = useAPIContext();
     const [cameras, setCameras] = React.useState([]);
@@ -24,10 +23,7 @@ export default function CameraLandingSection({
                         if (!parsedItem) {
                             return null;
                         }
-                        return {
-                            ...parsedItem,
-                            mapboxAccessToken: mapboxAccessToken,
-                        };
+                        return parsedItem;
                     }),
                     filteredCams = parsedCams.filter((pc) => pc !== null);
 

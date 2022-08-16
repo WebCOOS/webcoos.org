@@ -76,7 +76,7 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                     </a>{' '}
                     | {parsedMetadata.label}
                 </SectionHeader>
-                <CameraSummary {...parsedMetadata} mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN} />
+                <CameraSummary {...parsedMetadata} />
 
                 <TabbedGallery
                     availTabs={availTabs}
