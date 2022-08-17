@@ -54,14 +54,16 @@ const getDates = (inv, tz) => {
 export default function TabbedGallery({
     timezone,   // named, ie "America/New_York" - if none, will use browser's timezone. will be problem on server side rendering.
     selectedTab,
+    onTabChanged,
     availTabs = [],    // [{ key, icon, label, serviceUuid, galleryComponent (date) => JSX }, inventory?]
 }) {
-
     const { apiUrl, apiVersion, token } = useAPIContext();
 
     const [curTab, setCurTab] = useState(selectedTab || (availTabs.length && availTabs[0].key));
     const [curDate, setCurDate] = useState(new Date());
     const [curInventory, setCurInventory] = useState([]);
+
+    // console.info("TAB GAL SEL TAB", selectedTab, "CUR TAB", curTab);
 
     const curTabData = useMemo(() => {
         const tabData = availTabs.find((at) => at.key === curTab);
@@ -144,6 +146,9 @@ export default function TabbedGallery({
     // event handlers
     const selectTab = (e, at) => {
         setCurTab(at);
+        if (onTabChanged) {
+            onTabChanged(at);
+        }
         e.preventDefault();
     };
 
@@ -243,4 +248,20 @@ TabbedGallery.propTypes = {
             ),
         })
     ),
+};
+
+TabbedGallery.propTypes = {
+    timezone: PropTypes.string,
+    selectedTab: PropTypes.string,
+    onTabChanged: PropTypes.func,
+    availTabs: PropTypes.arrayOf(
+        PropTypes.shape({
+            key: PropTypes.string.isRequired,
+            icon: PropTypes.object,
+            label: PropTypes.string,
+            serviceUuid: PropTypes.string.isRequired,
+            galleryComponent: PropTypes.func,
+            inventory: PropTypes.arrayOf(PropTypes.object)
+        })
+    )
 };
