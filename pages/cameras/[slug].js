@@ -68,15 +68,17 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
 
     // BIG NOTE: this page will load twice (maybe only in dev mode?), and the first time through
     // the router is not "ready", which means the querystring params are not available. Because we
-    // want to set the selectedTab of the TabbedGallery component from here, and that's setting initial
-    // internal state from a passed in prop, we need to wait for it to be ready.  Docs warn us against
-    // conditional rendering from router.isReady (due to SSR, I guess?) and say to only use router.isReady
-    // in a useEffect, so we do that and set the startTab state.
+    // want to set the selectedTab of the TabbedGallery component from here, it means two things:
+    // we'll wait to render the TabbedGallery until we know if or not we have a gallery query arg,
+    // and we have to take full control over the changing of tabs in TabbedGallery (by specifying a
+    // onTabClick handler).  This page is considered a parent component and is responsible for the
+    // selected tab shown in the control.  This page can then add history entries to the browser
+    // so the back button will pick a previously selected tab, for instance.
 
     // see: https://github.com/vercel/next.js/discussions/11484
     //      https://github.com/vercel/next.js/discussions/11484#discussioncomment-1867578
 
-    const [startTab, setStartTab] = useState(undefined);
+    const [selectedTab, setSelectedTab] = useState(undefined);
 
     const router = useRouter();
 
@@ -85,7 +87,7 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
             if (router.query.gallery) {
                 const keys = new Set(availTabs.map(at => at.key));
                 if (keys.has(router.query.gallery)) {
-                    setStartTab(router.query.gallery);
+                    setSelectedTab(router.query.gallery);
                 } else {
                     // gallery queryarg exists but is invalid? remove it from the route
                     const { gallery, ...rest } = router.query;
@@ -94,18 +96,19 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                         query: rest,
                     })
 
-                    setStartTab(availTabs[0].key)
+                    setSelectedTab(availTabs[0].key)
                 }
             } else {
                 // no gallery slug, use the first available
-                setStartTab(availTabs[0].key)
+                setSelectedTab(availTabs[0].key)
             } 
         }
-    }, [router.query, availTabs])
+    }, [router.query, availTabs, selectedTab])
 
-
-    // event handler for when tabbed gallery active tab changes, update URL
-    const onTabChanged = (key) => {
+    // event handler for when tabbed gallery active tab wants to change
+    // pushes a new route onto the browser history stack and lets the useEffect handler
+    // update the tab.
+    const onTabClick = (key) => {
         router.push({
             pathname: router.pathname,
             query: {
@@ -120,8 +123,6 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
         })
     }
 
-    // console.info("PAGE GONNA RENDER", startTab);
-
     return (
         <Page metadata={metadata} title={parsedMetadata.label}>
             <Section>
@@ -133,13 +134,13 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                 </SectionHeader>
                 <CameraSummary {...parsedMetadata} />
 
-                {startTab && (
+                {selectedTab && (
                     <TabbedGallery
                         availTabs={availTabs}
                         timezone={parsedMetadata.timezone}
                         apiUrl={process.env.NEXT_PUBLIC_WEBCOOS_API_URL || 'https://app.stage.webcoos.org/webcoos/api'}
-                        selectedTab={startTab}
-                        onTabChanged={onTabChanged}
+                        selectedTab={selectedTab}
+                        onTabClick={onTabClick}
                     />
                 )}
 

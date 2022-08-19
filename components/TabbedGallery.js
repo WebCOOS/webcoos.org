@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { DatePicker } from '@axds/landing-page-components';
-import { parseISO, startOfMonth, endOfMonth, startOfDay, differenceInDays, fmtDate, addMinutes } from 'date-fns';
-import { utcToZonedTime, zonedTimeToUtc, format, formatInTimeZone } from 'date-fns-tz';
+import { parseISO, startOfDay, differenceInDays, addMinutes } from 'date-fns';
+import { utcToZonedTime, zonedTimeToUtc, format, } from 'date-fns-tz';
 import { useAPIContext } from './contexts/ApiContext';
 
 
@@ -52,23 +52,21 @@ const getDates = (inv, tz) => {
 
 
 export default function TabbedGallery({
+    availTabs = [],    // [{ key, icon, label, serviceUuid, galleryComponent (date) => JSX }, inventory?]
     timezone,   // named, ie "America/New_York" - if none, will use browser's timezone. will be problem on server side rendering.
     selectedTab,
-    onTabChanged,
-    availTabs = [],    // [{ key, icon, label, serviceUuid, galleryComponent (date) => JSX }, inventory?]
+    onTabClick,
 }) {
     const { apiUrl, apiVersion, token } = useAPIContext();
 
-    const [curTab, setCurTab] = useState(selectedTab || (availTabs.length && availTabs[0].key));
+    const [curTab, setCurTab] = useState(availTabs.length && availTabs[0].key);
     const [curDate, setCurDate] = useState(new Date());
     const [curInventory, setCurInventory] = useState([]);
 
-    // console.info("TAB GAL SEL TAB", selectedTab, "CUR TAB", curTab);
-
-    const curTabData = useMemo(() => {
-        const tabData = availTabs.find((at) => at.key === curTab);
-        return tabData;
-    }, [availTabs, curTab]);
+    // curtab is only used if selected tab/on tab click not set
+    const internalTabManaged = (onTabClick === undefined),
+        activeTab = internalTabManaged ? curTab : selectedTab,
+        curTabData = availTabs && availTabs.find((at) => at.key === activeTab);
 
     useEffect(() => {
         // if inventory set statically, set it and don't do anything else here
@@ -114,11 +112,6 @@ export default function TabbedGallery({
         return Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
     }, [timezone]);
 
-    // memoize format helper method
-    const fmtDate = useMemo(() => {
-        return (date) => formatInTimeZone(date, tz, 'yyyy-MM-dd');
-    }, [tz]);
-
     // parse inventory into available days, in local timezone
     const availDays = useMemo(() => {
         const daily = (curInventory || []).find((i) => i.name === 'daily');
@@ -145,11 +138,17 @@ export default function TabbedGallery({
 
     // event handlers
     const selectTab = (e, at) => {
-        setCurTab(at);
-        if (onTabChanged) {
-            onTabChanged(at);
-        }
         e.preventDefault();
+
+        if (internalTabManaged) {
+            setCurTab(at);
+            return;
+        }
+
+        if (onTabClick) {
+            onTabClick(at);
+            return;
+        }
     };
 
     const onDateSelected = (date) => {
@@ -167,18 +166,18 @@ export default function TabbedGallery({
                     return (
                         <li key={at.key} className='nav-item' role='presentation'>
                             <a
-                                href='#tabs-home'
+                                href={`#tabs-${at.key}`}
                                 className={classNames(
                                     'nav-link block font-medium text-xs leading-tight uppercase border-x-0 border-t-0 border-b-2 border-transparent px-6 py-3 my-2 hover:border-transparent hover:bg-gray-100',
                                     {
                                         'text-primary border-primary hover:border-primary-darker hover:text-primary-darker':
-                                            at.key === curTab,
+                                            at.key === activeTab,
                                     }
                                 )}
                                 id={`tabs-${at.key}-tab`}
                                 role='tab'
                                 aria-controls={`tabs-${at.key}`}
-                                aria-selected={at.key === curTab ? 'true' : 'false'}
+                                aria-selected={at.key === activeTab ? 'true' : 'false'}
                                 onClick={(e) => selectTab(e, at.key)}
                             >
                                 {at.icon}
@@ -190,7 +189,7 @@ export default function TabbedGallery({
 
                 <li className='ml-auto my-2'>
                     <DatePicker
-                        key={`${curDate.toISOString()}-${curTab}`}
+                        key={`${curDate.toISOString()}-${activeTab}`}
                         initialDate={curDate}
                         availableDays={availDays}
                         onDateSelected={onDateSelected}
@@ -204,8 +203,8 @@ export default function TabbedGallery({
                         <div
                             key={`tab-${at.key}`}
                             className={classNames('fade', {
-                                visible: curTab === at.key,
-                                hidden: curTab !== at.key,
+                                visible: activeTab === at.key,
+                                hidden: activeTab !== at.key,
                             })}
                             id={`tabs-${at.key}`}
                             role='tabpanel'
@@ -221,8 +220,6 @@ export default function TabbedGallery({
 }
 
 TabbedGallery.propTypes = {
-    timezone: PropTypes.string,
-    selectedTab: PropTypes.string,
     availTabs: PropTypes.arrayOf(
         PropTypes.shape({
             key: PropTypes.string.isRequired,
@@ -248,20 +245,7 @@ TabbedGallery.propTypes = {
             ),
         })
     ),
-};
-
-TabbedGallery.propTypes = {
     timezone: PropTypes.string,
     selectedTab: PropTypes.string,
-    onTabChanged: PropTypes.func,
-    availTabs: PropTypes.arrayOf(
-        PropTypes.shape({
-            key: PropTypes.string.isRequired,
-            icon: PropTypes.object,
-            label: PropTypes.string,
-            serviceUuid: PropTypes.string.isRequired,
-            galleryComponent: PropTypes.func,
-            inventory: PropTypes.arrayOf(PropTypes.object)
-        })
-    )
+    onTabClick: PropTypes.func,
 };
