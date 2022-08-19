@@ -25,6 +25,8 @@ export default function CameraSummary({
     thumbnails,
     hls_url,
     dash_url,
+    services,
+    cameraSvcDataLink,
     alt_bg,
     has_bottom = true,
 }) {
@@ -57,6 +59,16 @@ export default function CameraSummary({
         return '#ACB5B1';
     }, [alt_bg]);
 
+    const galleryServices = services
+        .filter((service) => service.data.type !== 'StreamingService')
+        .flatMap((service) => {
+            return {
+                uuid: service.uuid,
+                common: service.data.common,
+                elements: service.elements,
+            };
+        });
+
     return (
         <div
             className={classNames(
@@ -80,14 +92,14 @@ export default function CameraSummary({
                         <div>{latitude}</div>
                     </div>
                 </div>
-
                 <p className='hidden md:block md:flex-grow md:flex-shrink md:overflow-ellipsis md:overflow-hidden'>
                     {description}
                 </p>
-
-                <div className='hidden md:block bg-white p-4 border border-gray-200 text-center justify-self-end'>
-                    Data Access
-                </div>
+                {cameraSvcDataLink && (
+                    <div className='hidden md:flex text-center justify-self-end flex-col justify-end gap-y-1'>
+                        {galleryServices.map((s) => cameraSvcDataLink(slug, s))}
+                    </div>
+                )}
             </div>
             <div className='md:self-center md:justify-self-center'>
                 {hls_url ? (

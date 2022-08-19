@@ -5,6 +5,7 @@ import { parseWebCOOSAsset } from './utils/webCOOSHelpers';
 
 export default function CameraLandingSection({
     stations = [],
+    cameraSvcDataLink,
 }) {
     const { apiUrl, apiVersion, token, source } = useAPIContext();
     const [cameras, setCameras] = React.useState([]);
@@ -39,7 +40,13 @@ export default function CameraLandingSection({
     return (
         <div>
             {cameras.map((cam, idx) => (
-                <CameraSummary key={cam.uuid} {...cam} alt_bg={!!(idx % 2)} has_bottom={idx == cameras.length - 1} />
+                <CameraSummary
+                    key={cam.uuid}
+                    {...cam}
+                    alt_bg={!!(idx % 2)}
+                    has_bottom={idx == cameras.length - 1}
+                    cameraSvcDataLink={cameraSvcDataLink}
+                />
             ))}
         </div>
     );

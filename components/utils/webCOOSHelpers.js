@@ -32,7 +32,8 @@ function parseWebCOOSAsset(item) {
         thumbnail: thumbnails?.rect_large,
         thumbnails: thumbnails,
         hls_url: hls,
-        dash_url: dash
+        dash_url: dash,
+        services: services
     };
 }
 
