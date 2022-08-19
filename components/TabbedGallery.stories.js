@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { withReactContext } from 'storybook-react-context';
 import ApiContext from './contexts/ApiContext';
 
@@ -9,6 +9,18 @@ import { IconCamera, IconVideoCamera } from './Icon';
 export default {
     component: TabbedGallery,
     title: 'TabbedGallery',
+
+    // Yikes: storybook looks for any prop that starts with "on" and adds its own
+    // function, to do with "actions" from storybook.  This messes up tabbedgallery
+    // which wants onTabClick to be undefined if it's going to internally manage
+    // selected tab state. Options are add another boolean prop (ok, i guess?) or
+    // do this config below.
+    // https://github.com/storybookjs/addon-smart-knobs/issues/63#issuecomment-995798227
+
+    // override the default behavior of passing action-props for every prop that
+    // starts with 'on' (see the Storybook config 'preview.js')
+    parameters: { actions: { argTypesRegex: null } },
+
     decorators: [
         withReactContext({
             Context: ApiContext,
@@ -658,9 +670,25 @@ EmptyInventory.args = {
     ]
 }
 
-export const SecondTabSelected = Template.bind({});
-SecondTabSelected.args = {
-    selectedTab: 'videos',
+
+const Parent = ({
+    initialActiveTab,
+    ...args
+}) => {
+    const [activeTab, setActiveTab] = useState(initialActiveTab);
+
+    return <div className='max-w-4xl'>
+        <TabbedGallery selectedTab={activeTab} onTabClick={st => setActiveTab(st)} {...args} />
+    </div>
+};
+
+const ParentTemplate = (args) => (
+    <Parent {...args} />
+);
+
+export const ParentComponentTabControl = ParentTemplate.bind({});
+ParentComponentTabControl.args = {
+    initialActiveTab: 'videos',
     availTabs: [
         {
             key: 'stills',

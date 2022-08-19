@@ -96,7 +96,9 @@ export default function TabbedGallery({
             setCurInventory((await dataInventoryResponse.json()).results);
         };
 
-        loadInventory();
+        if (curTabData) {
+            loadInventory();
+        }
 
         return () => {
             active = false;
