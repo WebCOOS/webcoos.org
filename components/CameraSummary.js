@@ -59,7 +59,7 @@ export default function CameraSummary({
         return '#ACB5B1';
     }, [alt_bg]);
 
-    const galleryServices = services
+    const galleryServices = services ? services
         .filter((service) => service.data.type !== 'StreamingService')
         .flatMap((service) => {
             return {
@@ -67,7 +67,7 @@ export default function CameraSummary({
                 common: service.data.common,
                 elements: service.elements,
             };
-        });
+        }) : [];
 
     return (
         <div

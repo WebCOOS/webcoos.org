@@ -29,3 +29,14 @@ const Template = (args) => <CameraLandingSection {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {};
+
+export const WithServiceButtons = Template.bind({})
+WithServiceButtons.args = {
+    cameraSvcDataLink: (cameraSlug, serviceProps) => {
+        return (
+            <button key={cameraSlug} className='bg-white p-4 border-2 border-primary'>
+                {serviceProps.common.label}
+            </button>
+        );
+    }
+};
