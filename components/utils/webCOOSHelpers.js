@@ -19,6 +19,27 @@ function parseWebCOOSAsset(item) {
     const longitude = item.data.properties.location?.coordinates[0];
     const latitude = item.data.properties.location?.coordinates[1];
 
+    const serviceDates = services.flatMap((svc) => [svc.elements.first_starting, svc.elements.last_starting]).filter(d => d !== null);
+    serviceDates.sort();
+
+    const dateBounds = [
+        serviceDates.length > 0 ? serviceDates[0] : null,
+        serviceDates.length > 1 ? serviceDates[serviceDates.length - 1] : null
+    ]
+
+    const galleryServices = services
+        ? services
+              .filter((service) => service.data.type !== 'StreamingService')
+              .flatMap((service) => {
+                  return {
+                      uuid: service.uuid,
+                      common: service.data.common,
+                      elements: service.elements,
+                      svcType: service.data.common.slug.indexOf('-stills') !== -1 ? 'img' : 'video'
+                  };
+              })
+        : [];
+
     return {
         uuid: item.uuid,
         slug: item.data?.common?.slug,
@@ -33,7 +54,9 @@ function parseWebCOOSAsset(item) {
         thumbnails: thumbnails,
         hls_url: hls,
         dash_url: dash,
-        services: services
+        services: services,
+        dateBounds: dateBounds,
+        galleryServices: galleryServices
     };
 }
 
