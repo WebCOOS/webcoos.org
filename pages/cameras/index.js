@@ -107,7 +107,13 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
                                     <td className='py-3 lg:pl-3 pl-1 text-left whitespace-nowrap'>
                                         <Link href={`/cameras/${c.slug}`}>
                                             <a className='text-primary hover:text-primary-darker hover:underline'>
-                                                {c.label}
+                                                <span>{c.label}</span>
+
+                                                {(c.dash_url || c.hls_url) && (
+                                                    <span className='ml-2 text-xs uppercase bg-green-100 text-green-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-green-200 dark:text-green-900 animate-pulse'>
+                                                        Live
+                                                    </span>
+                                                )}
                                             </a>
                                         </Link>
 
