@@ -110,7 +110,7 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
                                                 <span>{c.label}</span>
 
                                                 {(c.dash_url || c.hls_url) && (
-                                                    <span className='ml-2 text-xs uppercase bg-green-100 text-green-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-green-200 dark:text-green-900 animate-pulse'>
+                                                    <span className='ml-2 text-xs uppercase bg-primary text-primary-lighter text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-green-200 dark:text-green-900 animate-pulse'>
                                                         Live
                                                     </span>
                                                 )}

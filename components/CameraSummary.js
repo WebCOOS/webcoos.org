@@ -26,6 +26,7 @@ export default function CameraSummary({
     hls_url,
     dash_url,
     services,
+    wedge,
     cameraSvcDataLink,
     alt_bg,
     has_bottom = true,
@@ -109,7 +110,12 @@ export default function CameraSummary({
                         style={{ borderColor: borderColor }}
                     />
                 ) : (
-                    <img {...thumbsProps} alt={label} className='w-full h-full object-fill' />
+                    <img
+                        {...thumbsProps}
+                        alt={label}
+                        className='w-full h-full object-fill shadow-lg border'
+                        style={{ borderColor: borderColor }}
+                    />
                 )}
             </div>
 
@@ -129,10 +135,12 @@ export default function CameraSummary({
                                     latitude={latitude}
                                     longitude={longitude}
                                     markerSymbol='attraction'
-                                    extraClasses={'border'}
+                                    extraClasses={'border shadow-sm'}
                                     extraStyle={{ borderColor: borderColor }}
                                     decimalPlaces={3}
+                                    zoom={10}
                                     mapboxAccessToken={mapboxAccessToken}
+                                    wedgePolygon={wedge}
                                 />
                             )
                         }

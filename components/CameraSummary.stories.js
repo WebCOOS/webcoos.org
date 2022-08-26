@@ -264,3 +264,53 @@ RealThumbnailsTallVideo.args = {
   "dash_url": "https://stage-ams.srv.axds.co/stream/adaptive/uncw/oakisland_west/manifest.mpd",
   "alt_bg": false
 }
+
+export const WithWedge = Template.bind({});
+WithWedge.args = {
+    uuid: '860f234c-f070-43f4-b115-ee535d5dd36f',
+    slug: 'oakisland_west',
+    label: 'oakisland_west',
+    description:
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum eget libero a dui molestie efficitur vitae vel nunc. Donec a ante turpis. Maecenas rutrum in nibh ut porttitor. Cras eleifend enim non magna fringilla pellentesque. Ut suscipit nisi ligula, quis auctor velit commodo nec. Nam sem diam, fermentum vitae leo eu, porttitor cursus libero. Nullam tincidunt ullamcorper orci in pellentesque.',
+    group: 'uncw',
+    source: 'webcoos',
+    longitude: -78.2243,
+    latitude: 33.9126,
+    thumbnail:
+        'https://s3.axds.co/static-assets/webcoos/backend/stage/media/cache/uploads/camera/oakisland_west/oakisland_west_highlight-crop-c0-5__0-5-800x400-70.jpg',
+    thumbnails: {
+        rect_large:
+            'https://s3.axds.co/static-assets/webcoos/backend/stage/media/cache/uploads/camera/oakisland_west/oakisland_west_highlight-crop-c0-5__0-5-800x400-70.jpg',
+        rect_small:
+            'https://s3.axds.co/static-assets/webcoos/backend/stage/media/cache/uploads/camera/oakisland_west/oakisland_west_highlight-crop-c0-5__0-5-200x100-70.jpg',
+        rect_medium:
+            'https://s3.axds.co/static-assets/webcoos/backend/stage/media/cache/uploads/camera/oakisland_west/oakisland_west_highlight-crop-c0-5__0-5-400x200-70.jpg',
+        square_large:
+            'https://s3.axds.co/static-assets/webcoos/backend/stage/media/cache/uploads/camera/oakisland_west/oakisland_west_highlight-crop-c0-5__0-5-800x800-70.jpg',
+        square_small:
+            'https://s3.axds.co/static-assets/webcoos/backend/stage/media/cache/uploads/camera/oakisland_west/oakisland_west_highlight-crop-c0-5__0-5-200x200-70.jpg',
+        square_medium:
+            'https://s3.axds.co/static-assets/webcoos/backend/stage/media/cache/uploads/camera/oakisland_west/oakisland_west_highlight-crop-c0-5__0-5-400x400-70.jpg',
+    },
+    wedge: {
+        type: 'Polygon',
+        coordinates: [
+            [
+                [-78.2243, 33.9126],
+                [-78.25661535992131, 33.91023851804379],
+                [-78.25661535992131, 33.91023851804379],
+                [-78.25624510839664, 33.90789931092975],
+                [-78.25563177530478, 33.90559590747116],
+                [-78.2547800468986, 33.9033458344184],
+                [-78.25369642198577, 33.90116621138485],
+                [-78.2523891619639, 33.899073620702325],
+                [-78.25086822751113, 33.897083981399405],
+                [-78.24914520242659, 33.89521242825621],
+                [-78.24723320521136, 33.893473196849726],
+                [-78.2451467890704, 33.891879515457646],
+                [-78.24290183110155, 33.890443504635826],
+                [-78.2243, 33.9126],
+            ],
+        ],
+    },
+};

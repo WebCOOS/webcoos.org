@@ -18,6 +18,7 @@ function parseWebCOOSAsset(item) {
     // Extracted from GeoJSON
     const longitude = item.data.properties.location?.coordinates[0];
     const latitude = item.data.properties.location?.coordinates[1];
+    const wedge = item.data.properties.wedge;
 
     const serviceDates = services.flatMap((svc) => [svc.elements.first_starting, svc.elements.last_starting]).filter(d => d !== null);
     serviceDates.sort();
@@ -56,7 +57,8 @@ function parseWebCOOSAsset(item) {
         dash_url: dash,
         services: services,
         dateBounds: dateBounds,
-        galleryServices: galleryServices
+        galleryServices: galleryServices,
+        wedge: wedge
     };
 }
 
