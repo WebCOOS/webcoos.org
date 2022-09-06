@@ -19,29 +19,4 @@ sections:
               to: /get-involved
             - label: How is the data being used or applied?
               to: /products
-    funding:
-        title: Project Funding
-        rows:
-            - content: This project is funded by the NOAA U.S. Integrated Ocean Observing System’s (IOOS®) Ocean Technology Transition grant.
-    partners:
-        - name: University of South Carolina
-          image: /UofSC_Monogram_Stack_RGB_K.png
-          link: https://www.sc.edu/
-        - name: University of North Carolina Wilmington
-          image: /uncw-logo-university-of-north-carolina-wilmington.png
-          link: https://uncw.edu/
-        - name: University of California Santa Cruz
-          image: /2021 UC Santa Cruz Logo - Blue RGB.png
-          link: https://www.ucsc.edu/
-        - name: Axiom Data Science
-          image: /axiom_logo_vert.png
-          link: https://www.axiomdatascience.com/
-        - name: NOAA (CO-OPS)
-          image: /NOAA_logo.svg
-          link: https://tidesandcurrents.noaa.gov/
-        - name: U.S. Geological Survey
-          image: /USGS_logo.png
-          link: https://www.usgs.gov/
-        - name: U.S. Army Corps of Engineers
-          image: /gsb-03.gif
-          link: https://www.usace.army.mil/
+

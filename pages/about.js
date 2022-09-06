@@ -13,6 +13,8 @@ export default function Home({ content, metadata, cameras }) {
                 <SectionHeader>Project Partners</SectionHeader>
                 <PartnerLogos partners={content.sections.partners} maxBoxesPerRow={7} imageHeight='sm' />
             </Section>
+
+            <NarrativeSection shaded={true} {...content.sections.funding} />
         </Page>
     );
 }

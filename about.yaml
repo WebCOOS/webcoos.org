@@ -16,6 +16,11 @@ sections:
             - content: >
                  Contact the team for more information: webcoos@secoora.org
 
+    funding:
+        title: Project Funding
+        rows:
+            - content: This project is funded by the NOAA U.S. Integrated Ocean Observing System’s (IOOS®) Ocean Technology Transition grant.
+
     partners:
         - name: University of South Carolina
           image: /UofSC_Monogram_Stack_RGB_K.png
@@ -38,3 +43,4 @@ sections:
         - name: U.S. Army Corps of Engineers
           image: /gsb-03.gif
           link: https://www.usace.army.mil/
+
