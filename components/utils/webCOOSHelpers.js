@@ -1,3 +1,5 @@
+import { differenceInDays } from 'date-fns';
+
 /**
  * Parses a WebCOOS asset single entry from the API into something multiple
  * components can use.
@@ -63,3 +65,24 @@ function parseWebCOOSAsset(item) {
 }
 
 export { parseWebCOOSAsset };
+
+/**
+ * Returns a status for a given date.
+ * Statuses are 'active' or 'archive'. (for 'live', see if there is an hls_url/dash_url in parseWebCOOSAsset's output)
+ * 
+ * You can specify a 'now', if not set, it will use the current timestamp at time of call.
+ */
+function getStatus({mostRecentElement, now = undefined}) {
+    if (!now) {
+        now = new Date();
+    }
+
+    const dayDiff = differenceInDays(mostRecentElement, now);
+    if (dayDiff > 1) {
+        return 'archive';
+    }
+
+    return 'active';
+}
+
+export { getStatus };
