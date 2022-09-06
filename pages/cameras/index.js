@@ -21,7 +21,7 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
     const { apiUrl, apiVersion, token, source } = useAPIContext();
 
     const defaultTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
-    const [curCameras, setCurCameras] = useState(null);
+    const [curCameras, setCurCameras] = useState([]);
 
     useEffect(() => {
         fetch(`${apiUrl}/${apiVersion}/assets/?source=${source}`, {
@@ -40,7 +40,9 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
 
                         return parsedItem;
                     }),
-                    filteredCams = parsedCams.filter((pc) => pc !== null);
+                    filteredCams = parsedCams.filter(
+                        (pc) => pc !== null && cameras.cameras.active.indexOf(pc.slug) !== -1
+                    );
 
                 setCurCameras(filteredCams);
             });
@@ -86,7 +88,7 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
                         </tr>
                     </thead>
                     <tbody className='text-gray-800 text-sm'>
-                        {parsedMetadata.map((c, ci) => {
+                        {(curCameras || parsedMetadata).map((c, ci) => {
                             return (
                                 <tr
                                     key={c.slug}
@@ -197,6 +199,8 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
 }
 
 export async function getStaticProps() {
+    const cameraYaml = await getYaml('cameras.yaml');
+
     // pull live metadata from API
     const apiUrl = process.env.NEXT_PUBLIC_WEBCOOS_API_URL || 'https://app.stage.webcoos.org/webcoos/api',
         apiVersion = 'v1',
@@ -223,12 +227,18 @@ export async function getStaticProps() {
         );
 
     const cameraMetadataResult = await cameraMetadataResponse.json(),
-        parsedMetadata = cameraMetadataResult.results.map(r => sanitized(parseWebCOOSAsset(r)));
+        parsedMetadata = cameraMetadataResult.results.map(r => {
+            const parsed = parseWebCOOSAsset(r);
+            if (parsed && cameraYaml.cameras.active.indexOf(parsed.slug) !== -1) {
+                return sanitized(parsed);
+            }
+            return null;
+        }).filter(pm => pm !== null);
 
     return {
         props: {
             metadata: await getSiteMetadata(),
-            cameras: await getYaml('cameras.yaml'),
+            cameras: cameraYaml,
             parsedMetadata: parsedMetadata
         },
     };
