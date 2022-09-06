@@ -20,3 +20,25 @@ sections:
             - label: How is the data being used or applied?
               to: /products
 
+    news:
+        - title: NOAA Launches a New Life-Saving Rip Current Model
+          image: https://secoora.org/wp-content/uploads/2021/04/thumbnail-rip_currents_dye-Source-NOAA-Ocean-Today-dr-greg-dusek-project.png
+          imageAltText: NOAA Launches a New Life-Saving Rip Current Model
+          content: >
+              NOAA released a new operational rip current model that will improve beach safety through sophisticated rip current forecasts. NOAA plans to validate the model using shoreline footage from SECOORA’s Webcams for Coastal Observations and Operational Support (WebCOOS) network.
+          link: https://secoora.org/noaa-launches-a-new-life-saving-rip-current-model/
+
+        - title: SECOORA Develops New Observing Network with Low-Cost Webcams
+          image: https://secoora.org/wp-content/uploads/2020/08/Webcam_Obs_Network_surfline_WebcamPics-thumbnail.png
+          imageAltText: SECOORA Develops New Observing Network with Low-Cost Webcams
+          content: >
+              SECOORA was awarded a $1.1 million grant to launch a sustained network of low-cost webcams throughout the Southeast, which will build off of the successful pilot project, the *Web Camera Applications Testbed*. 
+          link: SECOORA was awarded a $1.1 million grant to launch a sustained network of low-cost webcams throughout the Southeast, which will build off of the successful pilot project, the Web Camera Applications Testbed. 
+        
+        - title: New Open Source Tool to Remotely Calibrate Web Camera Data
+          image: https://secoora.org/wp-content/uploads/2020/03/New-Open-Source-Tool-to-Remotely-Calibrate-Web-Camera-Data-news-thumbnail.png
+          imageAltText: New Open Source Tool to Remotely Calibrate Web Camera Data 
+          content: >
+              SECOORA’s 2019 Data Challenge Winner, Matthew Conlin, a PhD student at the University of Florida, has developed an easy tool to remotely calibrate web camera images for use in measuring changes in coastal and nearshore environments.
+          link: https://secoora.org/new-open-source-tool-to-remotely-calibrate-web-camera-data/
+          

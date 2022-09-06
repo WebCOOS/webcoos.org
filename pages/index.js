@@ -1,7 +1,6 @@
 import {
     HeroSection,
-    NarrativeSection,
-    PartnerLogos,
+    MarkdownContent,
     Section,
     SectionHeader
 } from '@axds/landing-page-components';
@@ -22,11 +21,37 @@ export default function Home({ content, metadata, cameras }) {
 
             <Section shaded={true}>
                 <SectionHeader>Cameras</SectionHeader>
-                <WebCOOSMap
-                    longitude={-75.8139}
-                    latitude={36.3388}
-                    stationSlugs={cameras.cameras.active}
-                />
+                <WebCOOSMap longitude={-75.8139} latitude={36.3388} stationSlugs={cameras.cameras.active} />
+            </Section>
+
+            <Section>
+                <SectionHeader>News</SectionHeader>
+                <div className='flex gap-4'>
+                    {content.sections.news.map((item, ii) => {
+                        return (
+                            <div
+                                key={ii}
+                                className='flex-grow flex-shrink-0 flex flex-col gap-4'
+                                style={{ flexBasis: 0 }}
+                            >
+                                <a href={item.link} target='_blank' className='self-center'>
+                                    <img
+                                        src={item.image}
+                                        alt={item.imageAltText}
+                                        className='rounded-xl shadow border border-gray-400'
+                                    />
+                                </a>
+
+                                <div className='text-lg font-semibold' style={{minHeight: '3.5em'}}>{item.title}</div>
+                                <MarkdownContent children={item.content} />
+
+                                <a href={item.link} target='_blank' className='text-primary hover:underline'>
+                                    Read More.
+                                </a>
+                            </div>
+                        );
+                    })}
+                </div>
             </Section>
         </Page>
     );
