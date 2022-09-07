@@ -9,6 +9,7 @@ import { parseWebCOOSAsset } from '../../components/utils/webCOOSHelpers';
 import classNames from 'classnames';
 import { utcToZonedTime, format } from 'date-fns-tz';
 import { IconCamera, IconVideoCamera } from '../../components/Icon';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -21,31 +22,44 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
     const { apiUrl, apiVersion, token, source } = useAPIContext();
 
     const defaultTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
+    const [isLoading, setIsLoading] = useState(true);
     const [curCameras, setCurCameras] = useState([]);
 
     useEffect(() => {
-        fetch(`${apiUrl}/${apiVersion}/assets/?source=${source}`, {
-            headers: {
-                Authorization: `Token ${token}`,
-                Accept: 'application/json',
-            },
-        })
-            .then((response) => response.json())
-            .then((result) => {
-                const parsedCams = result.results.map((item) => {
-                        const parsedItem = parseWebCOOSAsset(item);
-                        if (!parsedItem) {
-                            return null;
-                        }
+        const getCurrentCams = async () => {
+            let result;
 
-                        return parsedItem;
-                    }),
-                    filteredCams = parsedCams.filter(
-                        (pc) => pc !== null && cameras.cameras.active.indexOf(pc.slug) !== -1
-                    );
+            const response = await fetch(`${apiUrl}/${apiVersion}/assets/?source=${source}`, {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                        Accept: 'application/json',
+                    },
+                });
 
-                setCurCameras(filteredCams);
-            });
+            try {
+                result = await response.json();
+            } catch (e) {
+                // stop the pulsing effect
+                setIsLoading(false);
+                // @TODO: sentry?
+                console.warn("Could not parse live camera list", e)
+                return;
+            }
+
+            const parsedCams = result.results.map((item) => {
+                    const parsedItem = parseWebCOOSAsset(item);
+                    if (!parsedItem) {
+                        return null;
+                    }
+
+                    return parsedItem;
+                }),
+                filteredCams = parsedCams.filter((pc) => pc !== null && cameras.cameras.active.indexOf(pc.slug) !== -1);
+
+            setCurCameras(filteredCams);
+            setIsLoading(false);
+        }
+        getCurrentCams();
     }, []);
     
     // creates an object, slug -> {starting: Date, ending: Date}
@@ -66,10 +80,18 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
         );
     }, [parsedMetadata, curCameras]);
 
+    // show the compile time list of cameras or the dynamically loaded one?
+    const cameraList = curCameras.length ? curCameras : parsedMetadata;
+
     return (
         <Page metadata={metadata} title='Cameras'>
             <Section>
-                <SectionHeader>Cameras</SectionHeader>
+                <SectionHeader>
+                    <div className='inline-block'>
+                        Cameras
+                    </div>
+                    {isLoading && <LoadingSpinner extraClasses={'inline-block ml-1 text-primary'}/>}
+                </SectionHeader>
 
                 <table className='w-full table-auto'>
                     <thead>
@@ -88,13 +110,14 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
                         </tr>
                     </thead>
                     <tbody className='text-gray-800 text-sm'>
-                        {(curCameras || parsedMetadata).map((c, ci) => {
+                        {cameraList.map((c, ci) => {
                             return (
                                 <tr
                                     key={c.slug}
                                     className={classNames('border-b border-gray-200 hover:bg-gray-200 ', {
                                         'bg-gray-100 ': ci % 2 === 0,
                                         'bg-white': ci % 2 !== 0,
+                                        'animate-pulse': isLoading,
                                     })}
                                 >
                                     <td className='py-3 lg:pl-3 pl-1 text-left min-w-max'>
@@ -161,32 +184,34 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
                                             </span>
                                         )}
                                     </td>
-                                    <td className='py-3 lg:px-6 px-2 flex flex-col gap-1 items-start'>
-                                        {c.galleryServices.map((cameraSvcProps, csi) => {
-                                            return (
-                                                <Link
-                                                    key={cameraSvcProps.common.slug}
-                                                    href={`/cameras/${c.slug}?gallery=${cameraSvcProps.common.slug}`}
-                                                >
-                                                    <a className='truncate inline hover:text-primary-darker hover:underline text-primary'>
-                                                        {cameraSvcProps.svcType === 'img' ? (
-                                                            <IconCamera
-                                                                size={4}
-                                                                extraClasses='inline-block pr-1 align-bottom'
-                                                                paddingx={0}
-                                                            />
-                                                        ) : (
-                                                            <IconVideoCamera
-                                                                size={4}
-                                                                extraClasses='inline-block pr-1 align-bottom'
-                                                                paddingx={0}
-                                                            />
-                                                        )}
-                                                        {cameraSvcProps.common.label}
-                                                    </a>
-                                                </Link>
-                                            );
-                                        })}
+                                    <td className='py-3 lg:px-6 px-2'>
+                                        <div className='flex flex-col gap-1'>
+                                            {c.galleryServices.map((cameraSvcProps, csi) => {
+                                                return (
+                                                    <Link
+                                                        key={cameraSvcProps.common.slug}
+                                                        href={`/cameras/${c.slug}?gallery=${cameraSvcProps.common.slug}`}
+                                                    >
+                                                        <a className='truncate inline hover:text-primary-darker hover:underline text-primary'>
+                                                            {cameraSvcProps.svcType === 'img' ? (
+                                                                <IconCamera
+                                                                    size={4}
+                                                                    extraClasses='inline-block pr-1 align-bottom'
+                                                                    paddingx={0}
+                                                                />
+                                                            ) : (
+                                                                <IconVideoCamera
+                                                                    size={4}
+                                                                    extraClasses='inline-block pr-1 align-bottom'
+                                                                    paddingx={0}
+                                                                />
+                                                            )}
+                                                            {cameraSvcProps.common.label}
+                                                        </a>
+                                                    </Link>
+                                                );
+                                            })}
+                                        </div>
                                     </td>
                                 </tr>
                             );
