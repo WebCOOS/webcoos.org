@@ -13,7 +13,7 @@ function MyApp({ Component, pageProps }) {
             }}
         >
             <MapboxContext.Provider value={process.env.NEXT_PUBLIC_MAPBOX_TOKEN || process.env.REACT_APP_MAPBOX_TOKEN}>
-                <Component {...pageProps} />;
+                <Component {...pageProps} />
             </MapboxContext.Provider>
         </ApiContext.Provider>
     );
