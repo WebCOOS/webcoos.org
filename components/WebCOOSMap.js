@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import classNames from 'classnames';
 
 import {Marker} from 'react-map-gl/dist/es5';
 import StationCard from './StationCard';
@@ -6,6 +7,7 @@ import { parseWebCOOSAsset } from './utils/webCOOSHelpers';
 
 import dynamic from 'next/dynamic';
 import { useAPIContext } from './contexts/ApiContext';
+import { IconSignal, IconVideoCamera } from './Icon';
 
 const GLMap = dynamic(() => import('./GLMap'), { ssr: false });
 
@@ -31,21 +33,29 @@ export default function WebCOOSMap({
           ),
           result = await response.json();
 
-          // @TODO: pagination
+        // @TODO: pagination
 
-      const meta = Object.fromEntries(
-          result.results
-              .filter((fd) => stationSlugs.indexOf(fd.data.common.slug) !== -1)
-              .map((fd) => {
-                  return [
-                      fd.data.common.slug,
-                      {
-                          ...parseWebCOOSAsset(fd),
-                          anchor: fd.data.common.label.toLowerCase().indexOf('north') !== -1 ? 'top' : 'left'
-                      },
-                  ];
-              })
-      );
+        const pairs = result.results
+            .filter((fd) => stationSlugs.indexOf(fd.data.common.slug) !== -1)
+            .map((fd) => {
+                return [
+                    fd.data.common.slug,
+                    {
+                        ...parseWebCOOSAsset(fd),
+                        anchor: fd.data.common.label.toLowerCase().indexOf('north') !== -1 ? 'top' : 'left'
+                    },
+                ];
+            })
+
+        // sort by age in the status object (then label if same age)
+        pairs.sort((a, b) => {
+            if (a[1].status.age === b[1].status.age) {
+                return a[1].label < b[1].label;
+            }
+            return a[1].status.age < b[1].status.age;
+        })
+
+        const meta = Object.fromEntries(pairs);
 
       setStationMetadata(meta);
     }
@@ -86,22 +96,24 @@ export default function WebCOOSMap({
                       anchor={v.anchor}
                       onClick={(e) => onMarkerClick(k, e)}
                   >
-                      <div className="bg-blue-300 cursor-pointer p-1 border border-blue-900 text-blue-900 rounded-sm shadow">
-                          <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4 inline"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                          >
-                              <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      <div
+                          className={classNames(
+                              'cursor-pointer p-1 shadow rounded-sm border',
+                              v.status.bg,
+                              v.status.fg,
+                              v.status.border,
+                          )}
+                      >
+                          {v.status.slug === 'live' ? (
+                              <IconSignal
+                                  size={4}
+                                  paddingx={0}
+                                  extraClasses='inline-block align-middle animate-pulse'
                               />
-                          </svg>
-                          <span className="pl-1">{v.label}</span>
+                          ) : (
+                              <IconVideoCamera size={4} paddingx={0} extraClasses='inline-block align-middle' />
+                          )}
+                          <span className='pl-1'>{v.label}</span>
                       </div>
                   </Marker>
               );

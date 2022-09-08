@@ -10,6 +10,9 @@ module.exports = {
             'text-green-100',
             'bg-gray-400',
             'text-gray-800',
+            'border-green-700',
+            'border-gray-800',
+            'border-gray-500',
         ]
     },
     darkMode: false, // or 'media' or 'class'

@@ -73,8 +73,9 @@ export { parseWebCOOSAsset };
 /**
  * Returns a status object for a given date.
  * 
- * Status object contains a slug, bg color, fg color, text description. An 'age' field (in days) is added dynamically based on
- * difference between `now` (or time of call) and `mostRecentElement`.
+ * Status object contains a slug, bg color, fg color, border color, text description.
+ * An 'age' field (in days) is added dynamically based on difference between `now` (or time of call)
+ * and `mostRecentElement`.
  * 
  * Status slugs are 'active', 'archive', 'live', or 'unknown'.
  * 
@@ -86,24 +87,28 @@ function getStatus(mostRecentElement, now = undefined, hasLive = false) {
             slug: 'active',
             bg: 'bg-primary',
             fg: 'text-white',
+            border: 'border-primary-darker',
             desc: 'Camera has data within the last 24 hours'
         },
         'archive': {
             slug: 'archive',
             bg: 'bg-primary-lighter',
             fg: 'text-gray-500',
+            border: 'border-gray-500',
             desc: 'Camera has data older than 24 hours'
         },
         'live': {
             slug: 'live',
             bg: 'bg-green-500',
             fg: 'text-green-100',
+            border: 'border-green-700',
             desc: 'Camera has a live streaming feed'
         },
         'unknown': {
             slug: 'unknown',
             bg: 'bg-gray-400',
             fg: 'text-gray-800',
+            border: 'border-gray-800',
             desc: 'Camera has an unknown status'
         }
     }
@@ -111,7 +116,7 @@ function getStatus(mostRecentElement, now = undefined, hasLive = false) {
     if (hasLive) {
         return {
             ...sobjs['live'],
-            age: 0
+            age: -1
         }
     }
 
@@ -123,7 +128,7 @@ function getStatus(mostRecentElement, now = undefined, hasLive = false) {
     if (isNaN(dayDiff)) {
         return {
             ...sobjs['unknown'],
-            age: -1
+            age: 999999
         }
     }
 
