@@ -146,8 +146,8 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
                                         <span
                                             className={classNames(
                                                 'group rounded uppercase py-1 px-3 relative cursor-help',
-                                                `bg-${c.status.bg}`,
-                                                `text-${c.status.fg}`,
+                                                c.status.bg,
+                                                c.status.fg,
                                                 {'animate-pulse': c.status.slug === 'live'}
                                             )}
                                             style={{ fontSize: '0.7rem' }}
