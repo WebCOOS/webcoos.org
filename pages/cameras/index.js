@@ -145,17 +145,23 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
                                     <td className='py-3 lg:px-6 px-2 text-center'>
                                         <span
                                             className={classNames(
-                                                'group rounded uppercase py-1 px-3 relative cursor-help',
+                                                'group rounded uppercase py-1 relative cursor-help',
                                                 c.status.bg,
                                                 c.status.fg,
-                                                {'animate-pulse': c.status.slug === 'live'}
+                                                {
+                                                    'animate-pulse px-2': c.status.slug === 'live',
+                                                    'px-3': c.status.slug !== 'live',
+                                                }
                                             )}
                                             style={{ fontSize: '0.7rem' }}
                                         >
-                                            {c.status.slug === 'live' && <IconSignal size={4} paddingx={0} extraClasses='pr-1 inline-block align-text-top' />}
-                                            {/* {c.status.slug === 'live' && (
-                                                <span className='animate-pulse mr-1 text-red-900'>&oplus;</span>
-                                            )} */}
+                                            {c.status.slug === 'live' && (
+                                                <IconSignal
+                                                    size={4}
+                                                    paddingx={0}
+                                                    extraClasses='pr-1 inline-block align-text-top'
+                                                />
+                                            )}
                                             {c.status.slug}
 
                                             <span className='hidden group-hover:block absolute -bottom-8 left-0 min-w-max p-1 rounded-sm shadow-xl bg-primary-darker text-white normal-case z-50'>
