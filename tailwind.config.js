@@ -30,6 +30,7 @@ module.exports = {
     },
     variants: {
         extend: {
+            display: ['group-hover'],
             borderRadius: ['hover'],
         },
     },

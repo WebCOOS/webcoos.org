@@ -4,7 +4,7 @@ import { differenceInDays } from 'date-fns';
  * Parses a WebCOOS asset single entry from the API into something multiple
  * components can use.
  */
-function parseWebCOOSAsset(item) {
+function parseWebCOOSAsset(item, statusNow=undefined) {
     /* This feels so hacky, the API should have an endpoint
         that returns all streaming URLs for a camera... and
         a much more simplified return object.
@@ -43,6 +43,9 @@ function parseWebCOOSAsset(item) {
               })
         : [];
 
+    // add a status description to the results
+    const status = getStatus(new Date(serviceDates[serviceDates.length - 1]), statusNow, !!(hls || dash));
+
     return {
         uuid: item.uuid,
         slug: item.data?.common?.slug,
@@ -60,29 +63,81 @@ function parseWebCOOSAsset(item) {
         services: services,
         dateBounds: dateBounds,
         galleryServices: galleryServices,
-        wedge: wedge
+        wedge: wedge,
+        status: status
     };
 }
 
 export { parseWebCOOSAsset };
 
 /**
- * Returns a status for a given date.
- * Statuses are 'active' or 'archive'. (for 'live', see if there is an hls_url/dash_url in parseWebCOOSAsset's output)
+ * Returns a status object for a given date.
+ * 
+ * Status object contains a slug, bg color, fg color, text description. An 'age' field (in days) is added dynamically based on
+ * difference between `now` (or time of call) and `mostRecentElement`.
+ * 
+ * Status slugs are 'active', 'archive', 'live', or 'unknown'.
  * 
  * You can specify a 'now', if not set, it will use the current timestamp at time of call.
  */
-function getStatus({mostRecentElement, now = undefined}) {
+function getStatus(mostRecentElement, now = undefined, hasLive = false) {
+    const sobjs = {
+        'active': {
+            slug: 'active',
+            bg: 'primary',
+            fg: 'white',
+            desc: 'Camera has data within the last 24 hours'
+        },
+        'archive': {
+            slug: 'archive',
+            bg: 'primary-lighter',
+            fg: 'gray-500',
+            desc: 'Camera has data older than 24 hours'
+        },
+        'live': {
+            slug: 'live',
+            bg: 'green-500',
+            fg: 'green-100',
+            desc: 'Camera has a live streaming feed'
+        },
+        'unknown': {
+            slug: 'unknown',
+            bg: 'gray-400',
+            fg: 'gray-800',
+            desc: 'Camera has an unknown status'
+        }
+    }
+
+    if (hasLive) {
+        return {
+            ...sobjs['live'],
+            age: 0
+        }
+    }
+
     if (!now) {
         now = new Date();
     }
 
-    const dayDiff = differenceInDays(mostRecentElement, now);
-    if (dayDiff > 1) {
-        return 'archive';
+    const dayDiff = differenceInDays(now, mostRecentElement);
+    if (isNaN(dayDiff)) {
+        return {
+            ...sobjs['unknown'],
+            age: -1
+        }
     }
 
-    return 'active';
+    if (Math.abs(dayDiff) > 1) {
+        return {
+            ...sobjs['archive'],
+            age: dayDiff
+        }
+    }
+
+    return {
+        ...sobjs['active'],
+        age: 0
+    }
 }
 
 export { getStatus };

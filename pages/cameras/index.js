@@ -5,10 +5,10 @@ import Page from '../../components/Page';
 
 import { getSiteMetadata, getYaml } from '../../utils';
 import { useAPIContext } from '../../components/contexts/ApiContext';
-import { parseWebCOOSAsset } from '../../components/utils/webCOOSHelpers';
+import { parseWebCOOSAsset  } from '../../components/utils/webCOOSHelpers';
 import classNames from 'classnames';
 import { utcToZonedTime, format } from 'date-fns-tz';
-import { IconCamera, IconVideoCamera } from '../../components/Icon';
+import { IconCamera, IconVideoCamera, IconSignal } from '../../components/Icon';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 import Link from 'next/link';
@@ -100,7 +100,7 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
                             <th className='py-3 lg:pl-3 pl-1 text-left'>Camera</th>
                             <th className='py-3 lg:px-6 px-2 text-left hidden lg:table-cell'>Data Access Slug</th>
                             <th className='py-3 lg:px-6 px-2 text-left'>Provider</th>
-                            <th className='py-3 lg:px-6 px-2 text-left'>Status</th>
+                            <th className='py-3 lg:px-6 px-2 text-center'>Status</th>
                             <th className='py-3 lg:px-6 px-2 text-left'>
                                 <span className='lg:hidden'>Range</span>
                                 <span className='hidden lg:table-cell'>Starting</span>
@@ -133,12 +133,6 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
                                         <Link href={`/cameras/${c.slug}`}>
                                             <a className='text-primary hover:text-primary-darker hover:underline'>
                                                 <span>{c.label}</span>
-
-                                                {(c.dash_url || c.hls_url) && (
-                                                    <span className='ml-2 text-xs uppercase bg-primary text-primary-lighter text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-green-200 dark:text-green-900 animate-pulse'>
-                                                        Live
-                                                    </span>
-                                                )}
                                             </a>
                                         </Link>
 
@@ -148,7 +142,27 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
                                         {c.slug}
                                     </td>
                                     <td className='py-3 lg:px-6 px-2 text-left'>{c.group}</td>
-                                    <td className='py-3 lg:px-6 px-2 text-left'></td>
+                                    <td className='py-3 lg:px-6 px-2 text-center'>
+                                        <span
+                                            className={classNames(
+                                                'group rounded uppercase py-1 px-3 relative cursor-help',
+                                                `bg-${c.status.bg}`,
+                                                `text-${c.status.fg}`,
+                                                {'animate-pulse': c.status.slug === 'live'}
+                                            )}
+                                            style={{ fontSize: '0.7rem' }}
+                                        >
+                                            {c.status.slug === 'live' && <IconSignal size={4} paddingx={0} extraClasses='pr-1 inline-block align-text-top' />}
+                                            {/* {c.status.slug === 'live' && (
+                                                <span className='animate-pulse mr-1 text-red-900'>&oplus;</span>
+                                            )} */}
+                                            {c.status.slug}
+
+                                            <span className='hidden group-hover:block absolute -bottom-8 left-0 min-w-max p-1 rounded-sm shadow-xl bg-primary-darker text-white normal-case z-50'>
+                                                {c.status.desc}
+                                            </span>
+                                        </span>
+                                    </td>
                                     <td className='py-3 lg:px-6 px-2 text-left text-xs font-mono'>
                                         {dateRanges && dateRanges[c.slug] && dateRanges[c.slug].starting && (
                                             <span>
