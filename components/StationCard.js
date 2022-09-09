@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
+import { IconLink } from './Icon';
 
 import dynamic from 'next/dynamic';
 const VideoStreamPlayer = dynamic(
@@ -44,34 +45,21 @@ export default function StationCard({
     }, [thumbnail, thumbnails, hls_url]);
 
     return (
-        <div className={classNames("w-full rounded overflow-hidden shadow-lg bg-white", extraClasses)}>
+        <div className={classNames('w-full rounded overflow-hidden shadow-lg bg-white', extraClasses)}>
             {hls_url ? (
-                <VideoStreamPlayer assetUri={hls_url} className="object-contain border" />
+                <VideoStreamPlayer key={slug} assetUri={hls_url} className='object-contain border' />
             ) : (
-                <img {...thumbsProps} alt={label} className="w-full object-fill" />
+                <img key={slug} {...thumbsProps} alt={label} className='w-full object-fill' />
             )}
 
-            <div className="px-6 py-4">
-                <div className="font-bold text-xl mb-2">{label}</div>
-                {description && <p className="text-gray-700 text-base">{description}</p>}
+            <div className='px-6 py-4'>
+                <div className='font-bold text-xl mb-2'>{label}</div>
+                {description && <p className='text-gray-700 text-base'>{description}</p>}
                 <a
                     href={`/cameras/${slug}`}
-                    className="bg-blue-300 hover:bg-blue-400 text-blue-900 hover:text-black font-bold py-2 px-4 rounded my-2 inline-block cursor-pointer border border-blue-900 hover:shadow"
+                    className='bg-primary hover:bg-primary-darker text-white hover:text-primary-lighter font-bold py-2 px-2 rounded my-2 inline-block cursor-pointer border border-primary-darker hover:shadow'
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 mr-1 inline"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                        />
-                    </svg>
+                    <IconLink size={4} extraClasses='inline-block' paddingx={1} />
                     More Info and Data
                 </a>
             </div>
