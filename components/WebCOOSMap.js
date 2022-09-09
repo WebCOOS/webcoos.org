@@ -38,11 +38,19 @@ export default function WebCOOSMap({
         const pairs = result.results
             .filter((fd) => stationSlugs.indexOf(fd.data.common.slug) !== -1)
             .map((fd) => {
+                const label = fd.data.common.label.toLowerCase(); 
                 return [
                     fd.data.common.slug,
                     {
                         ...parseWebCOOSAsset(fd),
-                        anchor: fd.data.common.label.toLowerCase().indexOf('north') !== -1 ? 'top' : 'left'
+                        anchor:
+                            label.indexOf('north') !== -1
+                                ? 'top'
+                                : label.indexOf('south') !== -1
+                                ? 'bottom'
+                                : label.indexOf('east') !== -1
+                                ? 'right'
+                                : 'left',
                     },
                 ];
             })
