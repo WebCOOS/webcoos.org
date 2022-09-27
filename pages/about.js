@@ -7,12 +7,12 @@ export default function Home({ content, metadata, cameras }) {
         <Page metadata={metadata}>
             <NarrativeSection {...content.sections.main} />
 
-            <NarrativeSection shaded={true} {...content.sections.contact} />
-
-            <Section>
+            <Section shaded={true}>
                 <SectionHeader>Project Partners</SectionHeader>
                 <PartnerLogos partners={content.sections.partners} maxBoxesPerRow={7} imageHeight='sm' />
             </Section>
+
+            <NarrativeSection shaded={false} {...content.sections.contact} />
 
             <NarrativeSection shaded={true} {...content.sections.funding} />
         </Page>
