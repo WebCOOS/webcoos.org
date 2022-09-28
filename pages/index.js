@@ -17,7 +17,18 @@ const WebCOOSMap = dynamic(
 export default function Home({ content, metadata, cameras }) {
     return (
         <Page metadata={metadata}>
-            <HeroSection {...content.sections.hero} />
+            <HeroSection {...content.sections.hero}>
+                <div className='grid grid-cols-2'>
+                    {content.sections.hero.icons.map((icon, ii) => {
+                        return (
+                            <div key={ii} className='flex flex-row items-center'>
+                                <img src={icon.img} className='w-32 h-32' alt={icon.label} />
+                                <div className='capitalize text-primary font-semibold ml-2'>{icon.label}</div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </HeroSection>
 
             <Section shaded={true}>
                 <SectionHeader>Cameras</SectionHeader>
@@ -42,7 +53,10 @@ export default function Home({ content, metadata, cameras }) {
                                     />
                                 </a>
 
-                                <div className='text-lg font-semibold' style={{minHeight: '3.5em'}}>{item.title}</div>
+                                <div className='text-lg font-semibold' style={{ minHeight: '3.5em' }}>
+                                    {item.title}
+                                </div>
+
                                 <MarkdownContent children={item.content} />
 
                                 <a href={item.link} target='_blank' className='text-primary hover:underline'>
