@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.prose-fix-images img {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.prose-image-grid img, .prose-image-grid p { 
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.prose-image-grid {
+  grid-template-columns: 4em auto;
+}

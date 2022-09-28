@@ -10,17 +10,21 @@ import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import { getSiteMetadata } from '../utils';
 import 'katex/dist/katex.min.css'
+import classNames from 'classnames';
+import { Section } from '@axds/landing-page-components';
 
 export default function MarkdownPage({ content, data, metadata }) {
     return (
         <Page metadata={metadata} title={data.title}>
-            <ReactMarkdown
-                remarkPlugins={[remarkMath]}
-                rehypePlugins={[rehypeRaw, rehypeKatex]}
-                className='mx-auto prose p-4 pb-12'
-            >
-                {content}
-            </ReactMarkdown>
+            <Section>
+                <ReactMarkdown
+                    remarkPlugins={[remarkMath]}
+                    rehypePlugins={[rehypeRaw, rehypeKatex]}
+                    className={classNames('prose p-4 pb-12', data.classes)}
+                >
+                    {content}
+                </ReactMarkdown>
+            </Section>
         </Page>
     );
 }
