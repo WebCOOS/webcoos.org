@@ -13,6 +13,7 @@ module.exports = {
             'border-green-700',
             'border-gray-800',
             'border-gray-500',
+            'max-w-none',
         ]
     },
     darkMode: false, // or 'media' or 'class'
