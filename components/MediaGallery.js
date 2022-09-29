@@ -18,6 +18,7 @@ export default function MediaGallery({
     iconComponent,
     zoomedComponent,
     empty = false,
+    sortDescending = false,
 }) {
     // api details from context
     const { apiUrl, apiVersion, token } = useAPIContext();
@@ -81,6 +82,11 @@ export default function MediaGallery({
                     new URLSearchParams({
                         service: serviceUuid,
                         page: pageNum + 1,
+                        ...(sortDescending
+                            ? {
+                                  ordering: '-starting',
+                              }
+                            : {}),
                         ...(selectedDate
                             ? {
                                   starting_after: formatISO(startOfDay(selectedDate)),
@@ -428,5 +434,6 @@ MediaGallery.propTypes = {
     selectedDate: PropTypes.object,
     iconComponent: PropTypes.object,
     zoomedComponent: PropTypes.func,
-    empty: PropTypes.bool
+    empty: PropTypes.bool,
+    sortDescending: PropTypes.bool
 };

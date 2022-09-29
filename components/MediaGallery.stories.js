@@ -53,6 +53,12 @@ ImageDefault.args = {
     serviceUuid: 'b7114ae2-b2cb-40fe-af33-820db2db7755', // currituck sailfish one minute stills
 };
 
+export const ImageSortDesc = ImgTemplate.bind({});
+ImageSortDesc.args = {
+    serviceUuid: 'b7114ae2-b2cb-40fe-af33-820db2db7755', // currituck sailfish one minute stills
+    sortDescending: true
+};
+
 export const ImageVerticallyConstrained = ImgTemplate.bind({});
 ImageVerticallyConstrained.args = {
     serviceUuid: 'b7114ae2-b2cb-40fe-af33-820db2db7755', // currituck sailfish one minute stills

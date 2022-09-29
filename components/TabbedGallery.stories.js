@@ -94,6 +94,39 @@ Default.args = {
     ],
 };
 
+export const DefaultSortDesc = Template.bind({});
+DefaultSortDesc.args = {
+   availTabs: [
+        {
+            key: 'stills',
+            label: 'Imagery',
+            icon: <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />,
+            serviceUuid: 'b7114ae2-b2cb-40fe-af33-820db2db7755',
+            galleryComponent: (date) => {
+                return (
+                    <MediaGallery
+                        key={`${date.toISOString()}-b7114ae2-b2cb-40fe-af33-820db2db7755`}
+                        serviceUuid='b7114ae2-b2cb-40fe-af33-820db2db7755' // currituck hampton inn one minute stills
+                        selectedDate={date}
+                        sortDescending={true}
+                        iconComponent={
+                            <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
+                        }
+                        zoomedComponent={(zoomed, onClick) => (
+                            <img
+                                className='object-contain'
+                                src={zoomed.data.properties.url}
+                                alt={zoomed.data.dateTimeStr}
+                                onClick={onClick}
+                            />
+                        )}
+                    />
+                );
+            }
+        }
+    ]
+}
+
 export const StaticInventory = Template.bind({});
 StaticInventory.args = {
     availTabs: [

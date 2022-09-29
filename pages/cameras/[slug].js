@@ -37,6 +37,7 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                         selectedDate={date}
                         timezone={parsedMetadata.timezone}
                         empty={empty}
+                        sortDescending={true}
                         iconComponent={
                             service.svcType === 'img' ? (
                                 <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
