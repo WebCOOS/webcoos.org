@@ -28,7 +28,7 @@ archived access to the images and videos is free.
 </div>
 
 
-<img src="/cost icon webcoos.svg" alt="community funding" />
+<img src="/location icon.png" alt="location identification" />
 
 <div>
 
@@ -42,7 +42,7 @@ products which can be generated depending on the placement of the webcam.
 
 </div>
 
-<img src="/cost icon webcoos.svg" alt="community funding" />
+<img src="/communication icon.png" alt="on-going communication" />
 
 <div>
 
