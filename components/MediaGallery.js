@@ -51,7 +51,7 @@ export default function MediaGallery({
                     data: {
                         ...r.data,
                         dateTime: dt,
-                        dateTimeStr: dtFormat(dt),
+                        dateTimeStr: dtFormat(dt, 'yyyy-MM-dd HH:mm:ss zzz'),
                         dateTimeStrLong: dtFormat(dt, 'yyyy-MM-dd HH:mm:ss zzz')
                     },
                 };
