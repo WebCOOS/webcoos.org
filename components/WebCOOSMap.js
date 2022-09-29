@@ -82,14 +82,6 @@ export default function WebCOOSMap({
       setSelectedStation(null);
   }
 
-        //   noverlayComponents={<div>
-        //       {selectedStation && (
-        //           <div className="absolute inset-y-0 left-0 w-full p-0 z-50 sm:w-1/2 sm:p-3 lg:w-1/3">
-        //               <StationCard {...stationMetadata[selectedStation]} extraClasses="pointer-events-auto" />
-        //           </div>
-        //       )}
-        //       </div>}
-
   return (
       <GLMap
           {...props}
