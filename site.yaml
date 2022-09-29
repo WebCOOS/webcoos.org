@@ -3,8 +3,8 @@ site:
     description: The project website for WebCOOS
 helpEmail:
 header:
-#    logoImage: /header-logo.png
-#    logoAltText: webcoos-project-site logo
+    logoImage: /SECOORA_Horizontal_FullColor_Transparent.png
+    logoAltText: SECOORA logo
     bannerText: WebCOOS
     menus:
         - label: Get Involved
