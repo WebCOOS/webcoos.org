@@ -4,6 +4,7 @@ module.exports = {
             './pages/**/*.{js,ts,jsx,tsx}',
             './components/**/*.{js,ts,jsx,tsx}',
             './node_modules/@axds/landing-page-components/**/*.{js,ts,jsx,tsx}',
+            './md-content/**/*.md'
         ],
         safelist: [
             'bg-green-500',
@@ -14,6 +15,7 @@ module.exports = {
             'border-gray-800',
             'border-gray-500',
             'max-w-none',
+            'bg-purple-900'
         ]
     },
     darkMode: false, // or 'media' or 'class'
