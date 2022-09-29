@@ -85,14 +85,6 @@ export default function CameraSummary({
                 <a href={`/cameras/${slug}`} className='font-bold text-2xl'>
                     {label}
                 </a>
-                <div className='grid grid-cols-3 md:grid-cols-2 font-bold justify-between items-center text-sm'>
-                    <div>{group}</div>
-                    <div className='justify-self-center md:justify-self-end'>{slug}</div>
-                    <div className='md:hidden flex flex-col font-normal text-xs justify-self-end items-end sm:flex-row sm:gap-2 sm:items-center'>
-                        <div>{longitude}</div>
-                        <div>{latitude}</div>
-                    </div>
-                </div>
                 <p className='hidden md:block md:flex-grow md:flex-shrink md:overflow-ellipsis md:overflow-hidden'>
                     {description}
                 </p>
