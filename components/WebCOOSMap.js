@@ -81,17 +81,49 @@ export default function WebCOOSMap({
   const onMapClick = (e) => {
       setSelectedStation(null);
   }
-  
+
+        //   noverlayComponents={<div>
+        //       {selectedStation && (
+        //           <div className="absolute inset-y-0 left-0 w-full p-0 z-50 sm:w-1/2 sm:p-3 lg:w-1/3">
+        //               <StationCard {...stationMetadata[selectedStation]} extraClasses="pointer-events-auto" />
+        //           </div>
+        //       )}
+        //       </div>}
+
   return (
       <GLMap
           {...props}
           onClick={onMapClick}
           overlayComponents={
-              selectedStation && (
-                  <div className="absolute inset-y-0 left-0 w-full p-0 z-50 sm:w-1/2 sm:p-3 lg:w-1/3">
-                      <StationCard {...stationMetadata[selectedStation]} extraClasses="pointer-events-auto" />
+              <div className='flex flex-col'>
+                  <div className='pt-3 pl-3 text-xs max-w-max'>
+                      <div className='flex flex-row gap-3 bg-white text-gray-600 border border-primary shadow-lg rounded p-2'>
+                          <div className='inline-flex items-center'>
+                              <span className='w-2 h-2 inline-block bg-primary rounded-full mr-1 border border-primary-darker'></span>
+                              <span>Active</span>
+                          </div>
+                          <div className='inline-flex items-center'>
+                              <span className='w-2 h-2 inline-block bg-primary-lighter rounded-full mr-1 border border-gray-500'></span>
+                              <span>Archive</span>
+                          </div>
+                          <div className='inline-flex items-center'>
+                              <span className='w-2 h-2 inline-block bg-green-500 rounded-full mr-1 border border-green-700'></span>
+                              <span>Live</span>
+                          </div>
+                          <div className='inline-flex items-center'>
+                              <span className='w-2 h-2 inline-block bg-gray-400 rounded-full mr-1 border border-gray-800'></span>
+                              <span>Pending</span>
+                          </div>
+                      </div>
                   </div>
-              )
+                  <div className='relative'>
+                      {selectedStation && (
+                          <div className='absolute inset-y-0 left-0 w-full p-0 z-50 sm:w-1/2 sm:p-3 lg:w-1/3'>
+                              <StationCard {...stationMetadata[selectedStation]} extraClasses='pointer-events-auto' />
+                          </div>
+                      )}
+                  </div>
+              </div>
           }
       >
           {Object.entries(stationMetadata).map((e) => {
@@ -109,7 +141,7 @@ export default function WebCOOSMap({
                               'cursor-pointer p-1 shadow rounded-sm border',
                               v.status.bg,
                               v.status.fg,
-                              v.status.border,
+                              v.status.border
                           )}
                       >
                           {v.status.slug === 'live' ? (
