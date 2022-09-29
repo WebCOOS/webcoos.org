@@ -8,8 +8,8 @@ export default function Products({ content, metadata }) {
         <Page metadata={metadata}>
             <NarrativeSection {...content.sections.main} />
 
-            <Section>
-                <div className='grid grid-cols-4 gap-4'>
+            <Section className="-mt-24">
+                <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
                     {content.sections.products.map((p) => {
                         return <ProductCard key={p.label} {...p} />;
                     })}

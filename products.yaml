@@ -7,18 +7,19 @@ sections:
 
     products:
         - label: Rip Current Detection
-          image:
+          image: /rip current icon.svg
           content: Used to inform public of rip current dangers and issue alerts to lifeguards.
           link: 
         - label: Shoreline change
-          image:
+          image: /beach erosion icon.svg
           content: Used to identify potential dune erosion or overwash events, infrastructure risk, and limitations to beach access.
           link: 
         - label: Automated Beach Usage Detection
-          image: 
+          image: /beach usage icon.svg
           content: Provides information to coastal managers on how busy a location is during different times of the day, season, or year for planning purposes.
           link:
         - label: Flood Monitoring
-          image:
-          content:
+          image: /flood monitoring icon.svg
+          content: Helps to document flooding impacts and provide realtime alerts for local communities.
+
           link:

@@ -12,16 +12,16 @@ export default function ProductCard({
   return (
       <div
           className={classNames(
-              'max-w-sm bg-white rounded border border-primary-lighter shadow-sm flex flex-col',
+              'max-w-sm bg-white rounded border border-primary-lighter shadow-sm flex flex-row gap-2 px-2',
               extraClasses
           )}
       >
-          <a href={link}>
-              <img className='rounded-t' src={image} alt='' />
+          <a href={link} className="self-top flex-none hidden md:block">
+              <img className='rounded-t w-16 pt-4' src={image} alt='' />
           </a>
-          <div className='flex-grow flex flex-col gap-1 p-4'>
-              <a href={link}>
-                  <h5 className='mb-2 text-2xl font-bold tracking-tight text-primary hover:text-primary-darker'>
+          <div className='flex-grow flex flex-col gap-1 pt-4'>
+              <a href={link} className={classNames("text-primary", {"hover:text-primary-darker": !!link})}>
+                  <h5 className='mb-2 text-2xl font-bold tracking-tight'>
                       {label}
                   </h5>
               </a>
