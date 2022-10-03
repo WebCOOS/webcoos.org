@@ -99,7 +99,6 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
                             <th className='py-3'></th>
                             <th className='py-3 lg:pl-3 pl-1 text-left'>Camera</th>
                             <th className='py-3 lg:px-6 px-2 text-left hidden lg:table-cell'>Data Access Slug</th>
-                            <th className='py-3 lg:px-6 px-2 text-left'>Provider</th>
                             <th className='py-3 lg:px-6 px-2 text-center'>Status</th>
                             <th className='py-3 lg:px-6 px-2 text-left'>
                                 <span className='lg:hidden'>Range</span>
@@ -141,7 +140,6 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
                                     <td className='py-3 lg:px-6 px-2 text-left font-mono text-xs hidden lg:table-cell'>
                                         {c.slug}
                                     </td>
-                                    <td className='py-3 lg:px-6 px-2 text-left'>{c.group}</td>
                                     <td className='py-3 lg:px-6 px-2 text-center'>
                                         <span
                                             className={classNames(
