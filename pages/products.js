@@ -9,6 +9,7 @@ export default function Products({ content, metadata }) {
             <NarrativeSection {...content.sections.main} />
 
             <Section className="-mt-24">
+                <SectionHeader className='text-primary-darker'>Coming Soon:</SectionHeader>
                 <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
                     {content.sections.products.map((p) => {
                         return <ProductCard key={p.label} {...p} />;
