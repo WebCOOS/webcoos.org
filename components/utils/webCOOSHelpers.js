@@ -83,35 +83,39 @@ export { parseWebCOOSAsset };
  */
 function getStatus(mostRecentElement, now = undefined, hasLive = false) {
     const sobjs = {
-        'active': {
+        active: {
             slug: 'active',
             bg: 'bg-primary',
             fg: 'text-white',
+            colorHex: '#32899e',
             border: 'border-primary-darker',
-            desc: 'Camera has data within the last 24 hours'
+            desc: 'Camera has data within the last 24 hours',
         },
-        'archive': {
+        archive: {
             slug: 'archive',
             bg: 'bg-primary-lighter',
             fg: 'text-gray-500',
+            colorHex: '#9ca3af',        // gray-400 so it can be seen easier
             border: 'border-gray-500',
-            desc: 'Camera has data older than 24 hours'
+            desc: 'Camera has data older than 24 hours',
         },
-        'live': {
+        live: {
             slug: 'live',
             bg: 'bg-green-500',
             fg: 'text-green-100',
+            colorHex: '#10b981',
             border: 'border-green-700',
-            desc: 'Camera has a live streaming feed'
+            desc: 'Camera has a live streaming feed',
         },
-        'unknown': {
+        unknown: {
             slug: 'unknown',
             bg: 'bg-gray-400',
             fg: 'text-gray-800',
+            colorHex: '#f3f4f6',    // gray-100
             border: 'border-gray-800',
-            desc: 'Camera has an unknown status'
-        }
-    }
+            desc: 'Camera has an unknown status',
+        },
+    };
 
     if (hasLive) {
         return {

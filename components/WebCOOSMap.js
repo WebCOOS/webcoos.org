@@ -126,27 +126,10 @@ export default function WebCOOSMap({
                       longitude={v.longitude}
                       latitude={v.latitude}
                       anchor={v.anchor}
+                      color={v.status.colorHex}
                       onClick={(e) => onMarkerClick(k, e)}
+                      style={{cursor: 'pointer'}}
                   >
-                      <div
-                          className={classNames(
-                              'cursor-pointer p-1 shadow rounded-sm border',
-                              v.status.bg,
-                              v.status.fg,
-                              v.status.border
-                          )}
-                      >
-                          {v.status.slug === 'live' ? (
-                              <IconSignal
-                                  size={4}
-                                  paddingx={0}
-                                  extraClasses='inline-block align-middle animate-pulse'
-                              />
-                          ) : (
-                              <IconVideoCamera size={4} paddingx={0} extraClasses='inline-block align-middle' />
-                          )}
-                          <span className='pl-1'>{v.label}</span>
-                      </div>
                   </Marker>
               );
           })}
