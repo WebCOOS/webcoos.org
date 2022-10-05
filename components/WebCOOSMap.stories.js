@@ -59,6 +59,16 @@ Default.args = {
     ],
 };
 
+export const ZoomToStations = Template.bind({});
+ZoomToStations.args = {
+    ...Default.args,
+    fitOnLoad: true,
+    fitOnLoadOptions: {
+        padding: 200,
+        duration: 500
+    }
+};
+
 export const Select = Template.bind({});
 Select.args = {
     longitude: -75.8139,

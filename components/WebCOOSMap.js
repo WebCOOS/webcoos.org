@@ -8,68 +8,85 @@ import { parseWebCOOSAsset } from './utils/webCOOSHelpers';
 import dynamic from 'next/dynamic';
 import { useAPIContext } from './contexts/ApiContext';
 import { IconSignal, IconVideoCamera } from './Icon';
+import { featureCollection, point } from '@turf/helpers';
+import bbox from '@turf/bbox';
 
 const GLMap = dynamic(() => import('./GLMap'), { ssr: false });
 
 export default function WebCOOSMap({
   stationSlugs,
+  fitOnLoad = false,
+  fitOnLoadOptions = { padding: 10, duration: 1000 },
   ...props
 }) {
   const { apiUrl, apiVersion, token, source } = useAPIContext();
+  const mapRef = useRef(null);
 
   const [stationMetadata, setStationMetadata] = useState({}); // station slug -> parsed asset
   const [selectedStation, setSelectedStation] = useState(null); // if set, slug of station, controls overlay
 
   useEffect(() => {
-    const getMeta = async () => {
-      const response = await fetch(
-              `${apiUrl}/${apiVersion}/assets/?source=${source}&type=webcoos.camera`,
-              {
+      const getMeta = async () => {
+          const response = await fetch(`${apiUrl}/${apiVersion}/assets/?source=${source}&type=webcoos.camera`, {
                   headers: {
                       Authorization: `Token ${token}`,
                       Accept: 'application/json',
                   },
+              }),
+              result = await response.json();
+
+          // @TODO: pagination
+
+          const pairs = result.results
+              .filter((fd) => stationSlugs.indexOf(fd.data.common.slug) !== -1)
+              .map((fd) => {
+                  const label = fd.data.common.label.toLowerCase();
+                  return [
+                      fd.data.common.slug,
+                      {
+                          ...parseWebCOOSAsset(fd),
+                          anchor:
+                              label.indexOf('north') !== -1
+                                  ? 'top'
+                                  : label.indexOf('south') !== -1
+                                  ? 'bottom'
+                                  : label.indexOf('east') !== -1
+                                  ? 'right'
+                                  : 'left',
+                      },
+                  ];
+              });
+
+          // sort by age in the status object (then label if same age)
+          pairs.sort((a, b) => {
+              if (a[1].status.age === b[1].status.age) {
+                  return a[1].label < b[1].label;
               }
-          ),
-          result = await response.json();
+              return a[1].status.age < b[1].status.age;
+          });
 
-        // @TODO: pagination
+          const meta = Object.fromEntries(pairs);
 
-        const pairs = result.results
-            .filter((fd) => stationSlugs.indexOf(fd.data.common.slug) !== -1)
-            .map((fd) => {
-                const label = fd.data.common.label.toLowerCase(); 
-                return [
-                    fd.data.common.slug,
-                    {
-                        ...parseWebCOOSAsset(fd),
-                        anchor:
-                            label.indexOf('north') !== -1
-                                ? 'top'
-                                : label.indexOf('south') !== -1
-                                ? 'bottom'
-                                : label.indexOf('east') !== -1
-                                ? 'right'
-                                : 'left',
-                    },
-                ];
-            })
+          setStationMetadata(meta);
 
-        // sort by age in the status object (then label if same age)
-        pairs.sort((a, b) => {
-            if (a[1].status.age === b[1].status.age) {
-                return a[1].label < b[1].label;
-            }
-            return a[1].status.age < b[1].status.age;
-        })
+          if (fitOnLoad) {
+              // figure out current bounds and go to them
+              const points = featureCollection(
+                      pairs.map((p) => {
+                          return point([p[1].longitude, p[1].latitude]);
+                      })
+                  ),
+                  box = bbox(points);
 
-        const meta = Object.fromEntries(pairs);
-
-      setStationMetadata(meta);
-    }
-    getMeta();
-
-  }, [stationSlugs]);
+              if (mapRef.current) {
+                  mapRef.current.fitBounds([box.slice(0, 2), box.slice(2, 4)], fitOnLoadOptions);
+              } else {
+                  console.warn("No valid map ref, can't fit to bounds");
+              }
+          }
+      };
+      getMeta();
+  }, [stationSlugs, fitOnLoad]);
 
 
   const onMarkerClick = (stationSlug, e) => {
@@ -85,6 +102,7 @@ export default function WebCOOSMap({
   return (
       <GLMap
           {...props}
+          mapRef={mapRef}
           onClick={onMapClick}
           overlayComponents={
               <div className='flex flex-col'>

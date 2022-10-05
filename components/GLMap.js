@@ -33,6 +33,7 @@ export default function GLMap({
     onHover = (lon, lat, layers) => {},
     onClick = (lon, lat, layers) => {},
     overlayComponents,
+    mapRef,
     ...props
 }) {
     const mapboxAccessToken = useMapboxContext();
@@ -188,6 +189,7 @@ export default function GLMap({
         <div className="glmap-container relative">
             <div className="glmap-internal-container">
                 <ReactMapGL
+                    ref={mapRef}
                     reuseMaps
                     initialViewState={viewport}
                     mapStyle={mapStyle}
