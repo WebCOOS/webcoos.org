@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-// import KeyboardEventHandler from 'react-keyboard-event-handler';
+import KeyboardEventHandler from '@infinium/react-keyboard-event-handler';
 import { formatISO, startOfDay, endOfDay } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 
@@ -361,7 +361,7 @@ export default function MediaGallery({
 
             {zoomed && (
                 <>
-                    {/* <KeyboardEventHandler handleKeys={['esc', 'left', 'right']} onKeyEvent={onKey} /> */}
+                    <KeyboardEventHandler handleKeys={['esc', 'left', 'right']} onKeyEvent={onKey} />
                     <div
                         className='fixed z-10 inset-0 bg-gray-500 bg-opacity-75 flex flex-col items-center justify-center overflow-hidden transition'
                         onClick={(e) => {
