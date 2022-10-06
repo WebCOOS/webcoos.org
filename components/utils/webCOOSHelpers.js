@@ -51,6 +51,8 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
         slug: item.data?.common?.slug,
         label: item.data?.common?.label,
         description: item.data?.common?.description,
+        access: item.data?.common?.access_level,
+        statisticsLevel: item.data?.common?.statistics_level,
         timezone: item.data?.properties?.timezone,
         source: item.data?.properties?.source,
         group: item.data?.properties?.group,
@@ -150,3 +152,57 @@ function getStatus(mostRecentElement, now = undefined, hasLive = false) {
 }
 
 export { getStatus };
+
+
+export class ResponseNotOkError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'ResponseNotOkError';
+    }
+}
+
+export class MissingTokenError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'MissingTokenError';
+    }
+}
+
+/**
+ * Helper method to make an API request for assets.
+ */
+async function getAPIAssets({
+    apiUrl = process.env.NEXT_PUBLIC_WEBCOOS_API_URL || 'https://app.stage.webcoos.org/webcoos/api',
+    apiVersion = 'v1',
+    source = 'webcoos',
+    token = process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN,
+    slug
+} = {}) {
+    if (!token) {
+        throw new MissingTokenError("API Token not provided, pass to getAPIAassets or set env var NEXT_PUBLIC_WEBCOOS_API_TOKEN");
+    }
+
+    const parts = [
+        apiUrl,
+        apiVersion,
+        'assets',
+        ...(!!slug ? [slug] : []),
+        `?source=${source}`
+    ],
+        url = parts.join('/');
+
+     const cameraMetadataResponse = await fetch(url, {
+         headers: {
+             Authorization: `Token ${token}`,
+             Accept: 'application/json',
+         },
+     });
+
+     if (!cameraMetadataResponse.ok) {
+        throw new ResponseNotOkError(`API response (${url}) not ok: ${cameraMetadataResponse.toString()}`);
+     }
+
+     return await cameraMetadataResponse.json();
+}
+
+export { getAPIAssets }

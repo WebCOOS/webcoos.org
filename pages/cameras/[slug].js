@@ -5,8 +5,8 @@ import { useRouter } from 'next/router';
 import { HeroSection, NarrativeSection, PartnerLogos, Section, SectionHeader } from '@axds/landing-page-components';
 import Page from '../../components/Page';
 
-import { getSiteMetadata, getYaml } from '../../utils';
-import { parseWebCOOSAsset } from '../../components/utils/webCOOSHelpers';
+import { getSiteMetadata  } from '../../utils';
+import { parseWebCOOSAsset, getAPIAssets } from '../../components/utils/webCOOSHelpers';
 import { IconCamera, IconVideoCamera } from '../../components/Icon';
 
 import dynamic from 'next/dynamic';
@@ -152,75 +152,86 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
 }
 
 export async function getStaticPaths() {
-    const cameraData = await getYaml('cameras.yaml'),
-        cameraSlugs = cameraData.cameras.active;
+    // pull live metadata from API
+    try { 
+        const cameraMetadataResult = await getAPIAssets(),
+            activeSlugs = cameraMetadataResult.results
+            .map((r) => {
+                const parsed = parseWebCOOSAsset(r);
+                if (parsed?.access === 'public') {
+                    return parsed.slug;
+                }
+                return null;
+            })
+            .filter((pm) => !!pm);
 
-    return {
-        paths: cameraSlugs.map((slug) => ({
-            params: {
-                slug,
-            },
-        })),
-        fallback: false,
-    };
+        return {
+            paths: activeSlugs.map((slug) => ({
+                params: {
+                    slug,
+                },
+            })),
+            fallback: false,
+        };
+
+    } catch (e) {
+        if (e?.name === 'ResponseNotOkError') {
+            // https://nextjs.org/docs/api-reference/data-fetching/get-static-props#notfound
+            return {
+                notFound: true,
+            };
+        }
+        throw e;
+    }
 }
 
 export async function getStaticProps({ params }) {
-    // pull live metadata from API
-    const apiUrl = process.env.NEXT_PUBLIC_WEBCOOS_API_URL || 'https://app.stage.webcoos.org/webcoos/api',
-        apiVersion = 'v1',
-        source = 'webcoos';
+    try {
+        const cameraMetadataResult = await getAPIAssets({ slug: params.slug }),
+            parsedMetadata = parseWebCOOSAsset(cameraMetadataResult),
+            sanitized = Object.fromEntries(
+                Object.entries(parsedMetadata).map((p) => {
+                    return [p[0], p[1] === undefined ? null : p[1]];
+                })
+            ),
+            rawServices = cameraMetadataResult.feeds.flatMap((feed) => {
+                return feed.products.flatMap((product) => {
+                    return product.services
+                        .filter((service) => service.data.type !== 'StreamingService')
+                        .flatMap((service) => {
+                            return {
+                                uuid: service.uuid,
+                                common: service.data.common,
+                                elements: service.elements,
+                            };
+                        });
+                });
+            }),
+            services = rawServices.map((service) => {
+                const svcType = service.common.slug.indexOf('-stills') !== -1 ? 'img' : 'video';
 
-    const cameraMetadataResponse = await fetch(`${apiUrl}/${apiVersion}/assets/${params.slug}?source=${source}`, {
-        headers: {
-            Authorization: `Token ${process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}`,
-            Accept: 'application/json',
-        },
-    });
-
-    // https://nextjs.org/docs/api-reference/data-fetching/get-static-props#notfound
-    if (!cameraMetadataResponse.ok) {
-        return {
-            notFound: true
-        }
-    }
-
-    const cameraMetadataResult = await cameraMetadataResponse.json(),
-        parsedMetadata = parseWebCOOSAsset(cameraMetadataResult),
-        sanitized = Object.fromEntries(
-            Object.entries(parsedMetadata).map((p) => {
-                return [p[0], p[1] === undefined ? null : p[1]];
-            })
-        ),
-        rawServices = cameraMetadataResult.feeds.flatMap((feed) => {
-            return feed.products.flatMap((product) => {
-                return product.services
-                    .filter((service) => service.data.type !== 'StreamingService')
-                    .flatMap((service) => {
-                        return {
-                            uuid: service.uuid,
-                            common: service.data.common,
-                            elements: service.elements,
-                        };
-                    });
+                return {
+                    ...service,
+                    svcType: svcType,
+                };
             });
-        }),
-        services = rawServices.map(service => {
-            const svcType = service.common.slug.indexOf('-stills') !== -1 ? 'img' : 'video';
 
+        return {
+            props: {
+                metadata: await getSiteMetadata(),
+                slug: params.slug,
+                rawMetadata: cameraMetadataResult,
+                parsedMetadata: sanitized,
+                services: services,
+            },
+        };
+    } catch (e) {
+        if (e?.name === 'ResponseNotOkError') {
+            // https://nextjs.org/docs/api-reference/data-fetching/get-static-props#notfound
             return {
-                ...service,
-                svcType: svcType,
+                notFound: true,
             };
-        })
-
-    return {
-        props: {
-            metadata: await getSiteMetadata(),
-            slug: params.slug,
-            rawMetadata: cameraMetadataResult,
-            parsedMetadata: sanitized,
-            services: services,
-        },
-    };
+        }
+        throw e;
+    }
 }

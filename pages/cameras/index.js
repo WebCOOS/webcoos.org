@@ -3,22 +3,19 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Section, SectionHeader } from '@axds/landing-page-components';
 import Page from '../../components/Page';
 
-import { getSiteMetadata, getYaml } from '../../utils';
+import { getSiteMetadata } from '../../utils';
 import { useAPIContext } from '../../components/contexts/ApiContext';
-import { parseWebCOOSAsset  } from '../../components/utils/webCOOSHelpers';
+import { parseWebCOOSAsset, getAPIAssets } from '../../components/utils/webCOOSHelpers';
 import classNames from 'classnames';
 import { utcToZonedTime, format } from 'date-fns-tz';
 import { IconCamera, IconVideoCamera, IconSignal } from '../../components/Icon';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
-
-const CameraLandingSection = dynamic(() => import('../../components/CameraLandingSection'), { ssr: false });
 
 const formatInTimeZone = (date, fmt, tz) => format(utcToZonedTime(date, tz), fmt, { timeZone: tz });
 
-export default function Cameras({ cameras, metadata, parsedMetadata }) {
+export default function Cameras({ metadata, parsedMetadata }) {
     const { apiUrl, apiVersion, token, source } = useAPIContext();
 
     const defaultTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
@@ -29,15 +26,8 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
         const getCurrentCams = async () => {
             let result;
 
-            const response = await fetch(`${apiUrl}/${apiVersion}/assets/?source=${source}`, {
-                    headers: {
-                        Authorization: `Token ${token}`,
-                        Accept: 'application/json',
-                    },
-                });
-
             try {
-                result = await response.json();
+                result = await getAPIAssets({apiUrl: apiUrl, apiVersion: apiVersion, token: token, source: source});
             } catch (e) {
                 // stop the pulsing effect
                 setIsLoading(false);
@@ -48,13 +38,12 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
 
             const parsedCams = result.results.map((item) => {
                     const parsedItem = parseWebCOOSAsset(item);
-                    if (!parsedItem) {
-                        return null;
+                    if (parsedItem && parsedItem.access === 'public') {
+                        return parsedItem;
                     }
-
-                    return parsedItem;
+                    return null;
                 }),
-                filteredCams = parsedCams.filter((pc) => pc !== null && cameras.cameras.active.indexOf(pc.slug) !== -1);
+                filteredCams = parsedCams.filter((pc) => pc !== null);
 
             setCurCameras(filteredCams);
             setIsLoading(false);
@@ -242,47 +231,39 @@ export default function Cameras({ cameras, metadata, parsedMetadata }) {
 }
 
 export async function getStaticProps() {
-    const cameraYaml = await getYaml('cameras.yaml');
-
-    // pull live metadata from API
-    const apiUrl = process.env.NEXT_PUBLIC_WEBCOOS_API_URL || 'https://app.stage.webcoos.org/webcoos/api',
-        apiVersion = 'v1',
-        source = 'webcoos';
-
-    const cameraMetadataResponse = await fetch(`${apiUrl}/${apiVersion}/assets/?source=${source}`, {
-        headers: {
-            Authorization: `Token ${process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN}`,
-            Accept: 'application/json',
-        },
-    });
-
-    // https://nextjs.org/docs/api-reference/data-fetching/get-static-props#notfound
-    if (!cameraMetadataResponse.ok) {
-        return {
-            notFound: true,
-        };
-    }
-
-    const sanitized = (ro) => Object.fromEntries(
+    const sanitized = (ro) =>
+        Object.fromEntries(
             Object.entries(ro).map((p) => {
                 return [p[0], p[1] === undefined ? null : p[1]];
             })
         );
 
-    const cameraMetadataResult = await cameraMetadataResponse.json(),
-        parsedMetadata = cameraMetadataResult.results.map(r => {
-            const parsed = parseWebCOOSAsset(r);
-            if (parsed && cameraYaml.cameras.active.indexOf(parsed.slug) !== -1) {
-                return sanitized(parsed);
-            }
-            return null;
-        }).filter(pm => pm !== null);
+    // pull live metadata from API
+    try {
+        const cameraMetadataResult = await getAPIAssets(),
+            parsedMetadata = cameraMetadataResult.results
+                .map((r) => {
+                    const parsed = parseWebCOOSAsset(r);
+                    if (parsed && parsed?.access === 'public') {
+                        return sanitized(parsed);
+                    }
+                    return null;
+                })
+                .filter((pm) => pm !== null);
 
-    return {
-        props: {
-            metadata: await getSiteMetadata(),
-            cameras: cameraYaml,
-            parsedMetadata: parsedMetadata
-        },
-    };
+        return {
+            props: {
+                metadata: await getSiteMetadata(),
+                parsedMetadata: parsedMetadata,
+            },
+        };
+    } catch (e) {
+        if (e?.name === 'ResponseNotOkError') {
+            // https://nextjs.org/docs/api-reference/data-fetching/get-static-props#notfound
+            return {
+                notFound: true,
+            };
+        }
+        throw e;
+    }
 }

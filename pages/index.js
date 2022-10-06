@@ -6,6 +6,7 @@ import {
 } from '@axds/landing-page-components';
 import Page from '../components/Page';
 import { getSiteMetadata, getYaml } from '../utils';
+import { parseWebCOOSAsset, getAPIAssets } from '../components/utils/webCOOSHelpers';
 
 import dynamic from 'next/dynamic';
 
@@ -14,7 +15,7 @@ const WebCOOSMap = dynamic(
         import('../components/WebCOOSMap')
     ), { ssr: false })
 
-export default function Home({ content, metadata, cameras }) {
+export default function Home({ content, metadata, activeSlugs }) {
     return (
         <Page metadata={metadata}>
             <HeroSection {...content.sections.hero}>
@@ -32,7 +33,7 @@ export default function Home({ content, metadata, cameras }) {
 
             <Section shaded={true}>
                 <SectionHeader>Cameras</SectionHeader>
-                <WebCOOSMap longitude={-75.8139} latitude={36.3388} stationSlugs={cameras.cameras.active} />
+                <WebCOOSMap longitude={-75.8139} latitude={36.3388} stationSlugs={activeSlugs} />
             </Section>
 
             <Section>
@@ -72,11 +73,32 @@ export default function Home({ content, metadata, cameras }) {
 }
 
 export async function getStaticProps() {
-    return {
-        props: {
-            metadata: await getSiteMetadata(),
-            content: await getYaml('home.yaml'),
-            cameras: await getYaml('cameras.yaml')
-        },
-    };
+    try {
+        const cameraMetadataResult = await getAPIAssets(),
+            activeSlugs = cameraMetadataResult.results
+                .map((r) => {
+                    const parsed = parseWebCOOSAsset(r);
+                    if (parsed?.access === 'public') {
+                        return parsed.slug;
+                    }
+                    return null;
+                })
+                .filter((pm) => !!pm);
+
+        return {
+            props: {
+                metadata: await getSiteMetadata(),
+                content: await getYaml('home.yaml'),
+                activeSlugs: activeSlugs,
+            },
+        };
+    } catch (e) {
+        if (e?.name === 'ResponseNotOkError') {
+            // https://nextjs.org/docs/api-reference/data-fetching/get-static-props#notfound
+            return {
+                notFound: true,
+            };
+        }
+        throw e;
+    }
 }
