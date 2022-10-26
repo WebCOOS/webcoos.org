@@ -16,6 +16,10 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
     const streams = streamingService?.data.properties.connections || [];
     const dash = streams.find((stream) => stream.protocol === 'dash')?.url;
     const hls = streams.find((stream) => stream.protocol === 'hls')?.url;
+    const embedBlock = streams.find((stream) => stream.protocol === 'embed'),
+        embed = embedBlock?.url,
+        embedAttrs = embedBlock?.attributes;
+
     const thumbnails = item.data.properties?.thumbnails?.base;
 
     // Extracted from GeoJSON
@@ -75,6 +79,8 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
         thumbnails: thumbnails,
         hls_url: hls,
         dash_url: dash,
+        embed_url: embed,
+        embedAttrs: embedAttrs,
         services: services,
         dateBounds: dateBounds,
         galleryServices: galleryServices,

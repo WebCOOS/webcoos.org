@@ -25,6 +25,8 @@ export default function CameraSummary({
     thumbnails,
     hls_url,
     dash_url,
+    embed_url,
+    embedAttrs,
     services,
     wedge,
     cameraSvcDataLink,
@@ -33,13 +35,15 @@ export default function CameraSummary({
 }) {
     const mapboxAccessToken = useMapboxContext();
 
+    const hasStream = (!!hls_url || !!dash_url || !!embed_url);
+
     const thumbsProps = useMemo(() => {
         if (thumbnails) {
             const srcset = `${thumbnails.rect_small} 200w, ${thumbnails.rect_medium} 400w, ${thumbnails.rect_large} 800w`,
                 // is the thumbnail center and large or video is center and thumb is right/small?
-                sizes = !!hls_url ?
-                    "(max-width: 840px) 200px, (max-width: 1536px) 400px, 800px" :
-                    "(max-width: 200px) 200px, (max-width: 940px) 400px, 800px";
+                sizes = hasStream
+                    ? '(max-width: 840px) 200px, (max-width: 1536px) 400px, 800px'
+                    : '(max-width: 200px) 200px, (max-width: 940px) 400px, 800px';
 
             return {
                 src: thumbnails.rect_large,
@@ -51,7 +55,7 @@ export default function CameraSummary({
                 src: thumbnail
             }
         }
-    }, [thumbnail, thumbnails, hls_url]);
+    }, [thumbnail, thumbnails, hls_url, dash_url, embed_url]);
 
     const borderColor = useMemo(() => {
         if (alt_bg) {
@@ -95,12 +99,16 @@ export default function CameraSummary({
                 )}
             </div>
             <div className='md:self-center md:justify-self-center'>
-                {hls_url ? (
-                    <VideoStreamPlayer
-                        assetUri={hls_url}
-                        className='object-contain border'
-                        style={{ borderColor: borderColor }}
-                    />
+                {hasStream ? (
+                    !!embed_url ? (
+                        <iframe src={embed_url} width='500px' height='375px' frameborder='0' allowfullscreen {...embedAttrs}></iframe>
+                    ) : (
+                        <VideoStreamPlayer
+                            assetUri={hls_url || dash_url}
+                            className='object-contain border'
+                            style={{ borderColor: borderColor }}
+                        />
+                    )
                 ) : (
                     <img
                         {...thumbsProps}
@@ -113,7 +121,7 @@ export default function CameraSummary({
 
             <div
                 className={classNames('hidden md:flex md:gap-4', {
-                    'md:flex-col': !!hls_url,
+                    'md:flex-col': hasStream,
                 })}
             >
                 <div className='md:flex-grow' style={{ minHeight: '90px' }}>
@@ -138,7 +146,7 @@ export default function CameraSummary({
                         }
                     </AutoSizer>
                 </div>
-                {hls_url ? (
+                {hasStream ? (
                     <div>
                         <img
                             {...thumbsProps}
