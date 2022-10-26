@@ -48,6 +48,7 @@ Default.args = {
             label: 'Imagery',
             icon: <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />,
             serviceUuid: 'b7114ae2-b2cb-40fe-af33-820db2db7755',
+            inventoryName: 'daily',
             galleryComponent: (date) => {
                 return (
                     <MediaGallery
@@ -102,6 +103,7 @@ DefaultSortDesc.args = {
             label: 'Imagery',
             icon: <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />,
             serviceUuid: 'b7114ae2-b2cb-40fe-af33-820db2db7755',
+            inventoryName: 'daily',
             galleryComponent: (date) => {
                 return (
                     <MediaGallery
@@ -135,6 +137,7 @@ StaticInventory.args = {
             label: 'Imagery',
             icon: <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />,
             serviceUuid: 'b7114ae2-b2cb-40fe-af33-820db2db7755',
+            inventoryName: 'daily',
             galleryComponent: (date) => {
                 return (
                     <MediaGallery
@@ -555,6 +558,7 @@ NorthInletDayBoundary.args = {
             label: 'northinlet-one-minute-stills-s3',
             serviceUuid: '70714572-3436-45ef-b4f9-1df59e5c293f',
             icon: <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />,
+            inventoryName: 'daily',
             galleryComponent: (date) => {
                 return (
                     <MediaGallery
@@ -676,6 +680,7 @@ EmptyInventory.args = {
             label: 'northinlet-one-minute-stills-s3',
             serviceUuid: '70714572-3436-45ef-b4f9-1df59e5c293f',
             icon: <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />,
+            inventoryName: 'daily',
             galleryComponent: (date, empty) => {
                 return (
                     <MediaGallery
@@ -728,6 +733,7 @@ ParentComponentTabControl.args = {
             label: 'Imagery',
             icon: <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />,
             serviceUuid: 'b7114ae2-b2cb-40fe-af33-820db2db7755',
+            inventoryName: 'daily',
             galleryComponent: (date) => {
                 return (
                     <MediaGallery
@@ -1137,5 +1143,35 @@ ParentComponentTabControl.args = {
                 },
             ],
         },
+    ],
+};
+
+export const Monthly = Template.bind({});
+Monthly.args = {
+    availTabs: [
+        {
+            key: 'time-lapse',
+            label: 'Time-Lapse',
+            icon: <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />,
+            serviceUuid: '647f8531-dac1-4b9b-9354-9560b04b9e17',
+            inventoryName: 'monthly',
+            galleryComponent: (date) => {
+                return (
+                    <MediaGallery
+                        key={`${date.start.toISOString()}-647f8531-dac1-4b9b-9354-9560b04b9e17`}
+                        serviceUuid='647f8531-dac1-4b9b-9354-9560b04b9e17' // georgetownscmm time lapse
+                        selectedDate={date}
+                        iconComponent={
+                            <IconVideoCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
+                        }
+                        zoomedComponent={(zoomed, onClick) => (
+                            <video className='object-contain' controls onClick={onClick}>
+                                <source src={zoomed.data.properties.url} type='video/mp4' />
+                            </video>
+                        )}
+                    />
+                );
+            },
+        }
     ],
 };

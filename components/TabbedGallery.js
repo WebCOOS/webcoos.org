@@ -1,13 +1,25 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useReducer } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { DatePicker } from '@axds/landing-page-components';
-import { parseISO, startOfDay, differenceInDays, addMinutes } from 'date-fns';
+import { DatePicker, MonthPicker } from '@axds/landing-page-components';
+import {
+    parseISO,
+    startOfDay,
+    differenceInDays,
+    addMinutes,
+    endOfMonth,
+    startOfMonth,
+    endOfDay,
+    getOverlappingDaysInIntervals,
+    isWithinInterval,
+    addDays,
+} from 'date-fns';
 import { utcToZonedTime, zonedTimeToUtc, format, } from 'date-fns-tz';
 import { useAPIContext } from './contexts/ApiContext';
 
 
 // extract dates from inventory
+// this is only for daily
 const getDates = (inv, tz) => {
     let endTransform = (d) => d,
         availIdx = inv.meta.fields.findIndex((f) => f.name === 'has_data'),
@@ -50,9 +62,143 @@ const getDates = (inv, tz) => {
     return allDates;
 }
 
+// extract date ranges from inventory
+// this is for monthly
+const getDateRanges = (inv, tz) => {
+    let availIdx = inv.meta.fields.findIndex((f) => f.name === 'has_data'),
+        startIdx = inv.meta.fields.findIndex((f) => f.name == 'starting'),
+        endIdx = inv.meta.fields.findIndex((f) => f.name == 'ending');
+
+    if (!(availIdx !== -1 && startIdx !== -1 && endIdx !== -1)) {
+        console.warn('Column search failed:', availIdx, startIdx, endIdx);
+        return null;
+    }
+
+    const allRanges = inv.values.filter(mv => mv[availIdx] === 1).map(mv => {
+        return {
+            start: parseISO(mv[startIdx]),
+            end: endOfDay(parseISO(mv[endIdx])),
+        };
+    })
+
+    allRanges.sort((a, b) => a.start.getTime() - b.start.getTime());
+
+    return allRanges;
+}
+
+
+const getAvailTimes = (inventory, inventoryName, tz) => {
+    const inv = (inventory || []).find((i) => i.name === inventoryName);
+    if (!inv) {
+        return [];
+    }
+    if (inventoryName === 'monthly') {
+        return getDateRanges(inv, tz);
+    }
+
+    return getDates(inv, tz);
+};
+
+const getValidTime = (curDate, availTimes, inventoryName) => {
+    // no available times?  return given date
+    if (availTimes.length === 0) {
+        console.debug("getValidTime: no availTimes, returning given date", curDate);
+        return curDate;
+    }
+
+    if (inventoryName === 'daily') {
+        // handle both ranges and single dates
+        const date = ('start' in curDate) ? curDate.start : curDate;
+
+        const withData = availTimes.map((v) => {
+            return [v, Math.abs(differenceInDays(v, date))];
+        });
+
+        withData.sort((a, b) => a[1] - b[1]);
+        return withData[0][0];
+
+    } else if (inventoryName === 'monthly') {
+
+        // just a plain date?
+        if ('start' in curDate === false) {
+            // try to locate a range that includes this day
+            const range = availTimes.find((at) => isWithinInterval(curDate, at));
+            if (!!range) {
+                return range;
+            }
+
+            // didn't find one?  find closest one.
+            const withData = availTimes.map(at => {
+                return [at, Math.min(
+                    Math.abs(differenceInDays(at.start, curDate)),
+                    Math.abs(differenceInDays(at.end, curDate)),
+                )]
+            });
+
+            withData.sort((a, b) => a[1] - b[1]);
+            return withData[0][0];
+        } else {
+            // it's a range. figure find out closest range by total difference in days from start and end
+            const withData = availTimes.map(at => {
+                return [
+                    at,
+                    Math.abs(differenceInDays(at.start, curDate.start)) +
+                        Math.abs(differenceInDays(at.end, curDate.end)),
+                ];
+            })
+
+            withData.sort((a, b) => a[1] - b[1]);
+            return withData[0][0];
+
+        }
+    }
+    return curDate;
+}
+
+/**
+ * Reducer used for state of the tabbed gallery.
+ * 
+ * Necessary because updating the current tab might need to change
+ * a lot of state at once, such as the inventory and the currently
+ * selected date, which depends on the inventory.
+ * 
+ * See https://adamrackis.dev/blog/state-and-use-reducer
+ * 
+ * @param state     Current state of the control
+ * @param action    Action taken (setCurDate, setInventory)
+ * @param data      Payload of that action (date, inventory)
+ */
+const invReducer = (state, [action, data]) => {
+    // console.debug("TabbedGallery reduce", state, action, data);
+    const { inventory, inventoryName, tz, galleryFunc, date } = data;
+
+    switch (action) {
+        case "setCurDate":
+            return {
+                ...state,
+                curDate: date,
+                galleryComponent: galleryFunc(date, false)
+            }
+
+        case "setInventory":
+            const { curDate } = state,
+                availTimes = getAvailTimes(inventory, inventoryName, tz),
+                newDate = getValidTime(curDate, availTimes, inventoryName);
+
+            return {
+                ...state,
+                inventory: inventory,
+                availTimes: availTimes,
+                curDate: newDate,
+                galleryComponent: galleryFunc(newDate, availTimes.length === 0)
+            }
+    }
+
+    return state;
+}
 
 export default function TabbedGallery({
-    availTabs = [],    // [{ key, icon, label, serviceUuid, galleryComponent (date) => JSX }, inventory?]
+    availTabs = [],    // [{ key, icon, label, serviceUuid, inventoryName, galleryComponent (date) => JSX }, inventory?]
     timezone,   // named, ie "America/New_York" - if none, will use browser's timezone. will be problem on server side rendering.
     selectedTab,
     onTabClick,
@@ -60,18 +206,34 @@ export default function TabbedGallery({
     const { apiUrl, apiVersion, token } = useAPIContext();
 
     const [curTab, setCurTab] = useState(availTabs.length && availTabs[0].key);
-    const [curDate, setCurDate] = useState(new Date());
-    const [curInventory, setCurInventory] = useState([]);
+    const [state, dispatch] = useReducer(invReducer, {
+        curDate: new Date(),
+        inventory: [],
+        availTimes: [],
+        galleryComponent: null,
+    });
 
     // curtab is only used if selected tab/on tab click not set
     const internalTabManaged = (onTabClick === undefined),
         activeTab = internalTabManaged ? curTab : selectedTab,
         curTabData = availTabs && availTabs.find((at) => at.key === activeTab);
 
+    // figure out timezone
+    const tz = useMemo(() => {
+        if (timezone) {
+            return timezone;
+        }
+
+        return Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
+    }, [timezone]);
+
     useEffect(() => {
         // if inventory set statically, set it and don't do anything else here
         if (curTabData && curTabData.inventory) {
-            setCurInventory(curTabData.inventory);
+            dispatch([
+                'setInventory',
+                { inventory: curTabData.inventory, inventoryName: curTabData.inventoryName, tz: tz, galleryFunc: curTabData.galleryComponent },
+            ]);
             return;
         }
 
@@ -93,7 +255,16 @@ export default function TabbedGallery({
             if (!active) {
                 return;
             }
-            setCurInventory((await dataInventoryResponse.json()).results);
+
+            dispatch([
+                'setInventory',
+                {
+                    inventory: (await dataInventoryResponse.json()).results,
+                    inventoryName: curTabData.inventoryName,
+                    tz: tz,
+                    galleryFunc: curTabData.galleryComponent
+                },
+            ]);
         };
 
         if (curTabData) {
@@ -103,40 +274,60 @@ export default function TabbedGallery({
         return () => {
             active = false;
         }; // "cancellable"
-    }, [curTabData]);
+    }, [selectedTab, tz]);
 
-    // figure out timezone
-    const tz = useMemo(() => {
-        if (timezone) {
-            return timezone;
+    // memoize the time selector component based on the inventory type
+    const timeSelectorComponent = useMemo(() => {
+        if (!curTabData) { return null; }
+        if (!curTabData.inventoryName) { return null; }
+
+        const {curDate, availTimes} = state;
+
+        if (curTabData.inventoryName === 'daily') {
+            const initDate = ('start' in curDate) ? curDate.start : curDate,
+                key=`${curTabData.inventoryName}-${initDate.toISOString()}`;
+
+            return (
+                <DatePicker
+                    key={key}
+                    initialDate={initDate}
+                    availableDays={availTimes}
+                    onDateSelected={(d) => {
+                        dispatch(['setCurDate', {date: d, galleryFunc: curTabData.galleryComponent}])
+                    }}
+                    timezone={tz}
+                />
+            );
+        } else if (curTabData.inventoryName === 'monthly') {
+            // @TODO: MonthlyPicker doesn't know about ranges yet. give it a singular date
+            const passDate =
+                    'start' in curDate
+                        ? addDays(curDate.start, Math.abs(differenceInDays(curDate.start, curDate.end))) // middle of range, should be middle of month
+                        : curDate,
+                key = `${curTabData.inventoryName}-${passDate.toISOString()}`;
+
+            return (
+                <MonthPicker
+                    key={key}
+                    initialDate={passDate}
+                    availableMonths={availTimes}
+                    onDateSelected={(d) => {
+                        dispatch([
+                            'setCurDate',
+                            {
+                                date: {
+                                    start: startOfMonth(d),
+                                    end: endOfMonth(d),
+                                },
+                                galleryFunc: curTabData.galleryComponent,
+                            },
+                        ]);
+                    }}
+                    timezone={tz}
+                />
+            );
         }
-
-        return Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
-    }, [timezone]);
-
-    // parse inventory into available days, in local timezone
-    const availDays = useMemo(() => {
-        const daily = (curInventory || []).find((i) => i.name === 'daily');
-        if (!daily) {
-            return [];      // empty array means no available days
-        }
-        return getDates(daily, tz);
-    }, [curInventory, tz]);
-
-    // when tab changes, inventory likely changes too.  make sure the new date is
-    // one that has data.
-    useEffect(() => {
-        const daily = curInventory.find((i) => i.name === 'daily');
-        if (daily) {
-            const allDates = getDates(daily, tz),
-                withData = allDates.map((v) => {
-                    return [v, Math.abs(differenceInDays(v, curDate))];
-                });
-
-            withData.sort((a, b) => a[1] - b[1]);
-            setCurDate(withData[0][0]);
-        }
-    }, [curInventory, tz]);
+    }, [state, tz])
 
     // event handlers
     const selectTab = (e, at) => {
@@ -151,10 +342,6 @@ export default function TabbedGallery({
             onTabClick(at);
             return;
         }
-    };
-
-    const onDateSelected = (date) => {
-        setCurDate(date);
     };
 
     return (
@@ -189,33 +376,19 @@ export default function TabbedGallery({
                     );
                 })}
 
-                <li className='ml-auto my-2'>
-                    <DatePicker
-                        key={`${curDate.toISOString()}-${activeTab}`}
-                        initialDate={curDate}
-                        availableDays={availDays}
-                        onDateSelected={onDateSelected}
-                        timezone={timezone}
-                    />
-                </li>
+                <li className='ml-auto my-2'>{timeSelectorComponent}</li>
             </ul>
             <div>
-                {availTabs.map((at, atIdx) => {
-                    return (
-                        <div
-                            key={`tab-${at.key}`}
-                            className={classNames('fade', {
-                                visible: activeTab === at.key,
-                                hidden: activeTab !== at.key,
-                            })}
-                            id={`tabs-${at.key}`}
-                            role='tabpanel'
-                            aria-labelledby={`tabs-${at.key}-tab`}
-                        >
-                            {at.galleryComponent(curDate, availDays && availDays.length === 0)}
-                        </div>
-                    );
-                })}
+                {state.galleryComponent && (
+                    <div
+                        key={`tab-${curTabData.key}`}
+                        id={`tabs-${curTabData.key}`}
+                        role='tabpanel'
+                        aria-labelledby={`tabs-${curTabData.key}-tab`}
+                    >
+                        {state.galleryComponent}
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -229,6 +402,7 @@ TabbedGallery.propTypes = {
             icon: PropTypes.object,
             serviceUuid: PropTypes.string,
             galleryComponent: PropTypes.func,
+            inventoryName: PropTypes.string,
             inventory: PropTypes.arrayOf(
                 PropTypes.shape({
                     type: PropTypes.string.isRequired,

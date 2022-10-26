@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
-import classNames from 'classnames';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import * as duration from 'duration-fns';
 
-import { HeroSection, NarrativeSection, PartnerLogos, Section, SectionHeader } from '@axds/landing-page-components';
+import { Section, SectionHeader } from '@axds/landing-page-components';
 import Page from '../../components/Page';
 
 import { getSiteMetadata  } from '../../utils';
@@ -19,6 +19,23 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
 
     // create tabs for TabbedGallery based on services in the asset
     const availTabs = services.map((service) => {
+        // If the value parses to “more than one instance per day” (< PT1D) it should show a day picker
+        // If the value parses to “one per day or less frequency than one per day” (>= PT1D), the UI should update to be a Year/Month selector and display all Elements for a given Month in the same paginated Gallery.
+        // If properties.frequency.type is static the Element objects in a service should just be listed out a table/list. This means they are not based on a date or time and are really just static resources or things that were produced once. No calendar selector is required and there should be a limited amount of Element objects in this Service.
+
+        let datePickerType = null;
+
+        if (service.frequency.type === 'periodic') {
+            // convert period to day
+            const svcDayFreq = duration.toDays(service.frequency.period);
+            // console.info("periodidc freq in days", svcDayFreq, service.common.slug);
+            if (svcDayFreq >= 1) {
+                datePickerType = 'monthly';
+            } else {
+                datePickerType = 'daily';
+            }
+        }
+
         return {
             key: service.common.slug,
             label: service.common.label,
@@ -29,10 +46,13 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                 ) : (
                     <IconVideoCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
                 ),
+            inventoryName: datePickerType,
             galleryComponent: (date, empty) => {
+                const k = !!date ? (date.start || date).toISOString() : 'any';
+
                 return (
                     <MediaGallery
-                        key={`${slug}-${date.toISOString()}-${service.uuid}`}
+                        key={`${slug}-${k}-${service.uuid}`}
                         serviceUuid={service.uuid}
                         selectedDate={date}
                         timezone={parsedMetadata.timezone}
@@ -104,7 +124,7 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                 setSelectedTab(availTabs[0].key)
             } 
         }
-    }, [router.query, availTabs, selectedTab])
+    }, [router.query])
 
     // event handler for when tabbed gallery active tab wants to change
     // pushes a new route onto the browser history stack and lets the useEffect handler
@@ -193,28 +213,7 @@ export async function getStaticProps({ params }) {
                 Object.entries(parsedMetadata).map((p) => {
                     return [p[0], p[1] === undefined ? null : p[1]];
                 })
-            ),
-            rawServices = cameraMetadataResult.feeds.flatMap((feed) => {
-                return feed.products.flatMap((product) => {
-                    return product.services
-                        .filter((service) => service.data.type !== 'StreamingService')
-                        .flatMap((service) => {
-                            return {
-                                uuid: service.uuid,
-                                common: service.data.common,
-                                elements: service.elements,
-                            };
-                        });
-                });
-            }),
-            services = rawServices.map((service) => {
-                const svcType = service.common.slug.indexOf('-stills') !== -1 ? 'img' : 'video';
-
-                return {
-                    ...service,
-                    svcType: svcType,
-                };
-            });
+            );
 
         return {
             props: {
@@ -222,7 +221,7 @@ export async function getStaticProps({ params }) {
                 slug: params.slug,
                 rawMetadata: cameraMetadataResult,
                 parsedMetadata: sanitized,
-                services: services,
+                services: parsedMetadata.galleryServices,
             },
         };
     } catch (e) {

@@ -23,6 +23,21 @@ export default function MediaGallery({
     // api details from context
     const { apiUrl, apiVersion, token } = useAPIContext();
 
+    // transform selectedDate into a range, always.
+    // if a single date, use start/end of day
+    const dateRange = useMemo(() => {
+        if (!selectedDate) { return null; }
+
+        if ('start' in selectedDate === false) {
+            return {
+                start: startOfDay(selectedDate),
+                end: endOfDay(selectedDate)
+            }
+        }
+
+        return selectedDate;
+    }, [selectedDate]);
+
     // data from api state
     const elements = useRef();
     const [apiCount, setApiCount] = useState(0); // count of total number of elements of the API collection, set when first retrieved
@@ -87,10 +102,10 @@ export default function MediaGallery({
                                   ordering: '-starting',
                               }
                             : {}),
-                        ...(selectedDate
+                        ...(dateRange
                             ? {
-                                  starting_after: formatISO(startOfDay(selectedDate)),
-                                  starting_before: formatISO(endOfDay(selectedDate)),
+                                  starting_after: formatISO(dateRange.start),
+                                  starting_before: formatISO(dateRange.end),
                               }
                             : {}),
                     }),
@@ -176,9 +191,12 @@ export default function MediaGallery({
         };
 
         if (!empty) {
-            maybeFetch();
+            const tId = setTimeout(maybeFetch, 200);
+            return () => {
+                clearTimeout(tId);
+            }
         }
-    }, [elements, viewPage, perPage, apiCount, apiUrl, apiVersion, serviceUuid, token, selectedDate, empty]);
+    }, [elements, viewPage, perPage, apiCount, apiUrl, apiVersion, serviceUuid, token, dateRange, empty]);
 
     // calculate visible page count based on visible perpage/api count
     const visiblePageCount = useMemo(() => {

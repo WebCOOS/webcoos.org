@@ -1,4 +1,5 @@
 import { differenceInDays } from 'date-fns';
+import * as duration from 'duration-fns';
 
 /**
  * Parses a WebCOOS asset single entry from the API into something multiple
@@ -34,11 +35,23 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
         ? services
               .filter((service) => service.data.type !== 'StreamingService')
               .flatMap((service) => {
+                  // parse the frequency if it exists
+                  const freqType = service.data?.properties?.frequency?.type;
+                  let freqPeriod = service.data?.properties?.frequency?.value;
+
+                  if (freqType === 'periodic' && !!freqPeriod) {
+                      freqPeriod = duration.parse(freqPeriod); // from str like 'P1Y6H' -> { years: 1, hours:  6}
+                  }
+
                   return {
                       uuid: service.uuid,
                       common: service.data.common,
                       elements: service.elements,
-                      svcType: service.data.common.slug.indexOf('-stills') !== -1 ? 'img' : 'video'
+                      svcType: service.data.common.slug.indexOf('-stills') !== -1 ? 'img' : 'video',
+                      frequency: {
+                          type: freqType,
+                          period: freqPeriod,
+                      },
                   };
               })
         : [];
@@ -66,7 +79,7 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
         dateBounds: dateBounds,
         galleryServices: galleryServices,
         wedge: wedge,
-        status: status
+        status: status,
     };
 }
 
