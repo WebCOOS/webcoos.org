@@ -21,14 +21,18 @@ export default function StationCard({
     thumbnails,
     hls_url,
     dash_url,
+    embed_url,
+    embedAttrs,
     extraClasses = '',
     ...props
 }) {
+    const hasStream = (!!hls_url || !!dash_url || !!embed_url);
+
     const thumbsProps = useMemo(() => {
         if (thumbnails) {
             const srcset = `${thumbnails.rect_small} 200w, ${thumbnails.rect_medium} 400w, ${thumbnails.rect_large} 800w`,
                 // is the thumbnail center and large or video is center and thumb is right/small?
-                sizes = !!hls_url
+                sizes = !!hasStream
                     ? '(max-width: 840px) 200px, (max-width: 1536px) 400px, 800px'
                     : '(max-width: 200px) 200px, (max-width: 940px) 400px, 800px';
 
@@ -42,12 +46,23 @@ export default function StationCard({
                 src: thumbnail,
             };
         }
-    }, [thumbnail, thumbnails, hls_url]);
+    }, [thumbnail, thumbnails, hls_url, dash_url, embed_url]);
 
     return (
         <div className={classNames('w-full rounded overflow-hidden shadow-lg bg-white', extraClasses)}>
-            {hls_url ? (
-                <VideoStreamPlayer key={slug} assetUri={hls_url} className='object-contain border' />
+            {hasStream ? (
+                !!embed_url ? (
+                    <iframe
+                        src={embed_url}
+                        width='500px'
+                        height='375px'
+                        frameBorder='0'
+                        allowFullscreen
+                        {...embedAttrs}
+                    ></iframe>
+                ) : (
+                    <VideoStreamPlayer key={slug} assetUri={hls_url || dash_url} className='object-contain border' />
+                )
             ) : (
                 <img key={slug} {...thumbsProps} alt={label} className='w-full object-fill' />
             )}
