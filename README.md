@@ -15,6 +15,11 @@ Set the same value to `STORYBOOK_MAPBOX_TOKEN` if you want to see map compontent
 
 You'll also need a WebCOOS API token.  Set this in `NEXT_PUBLIC_WEBCOOS_API_TOKEN` and `STORYBOOK_WEBCOOS_API_TOKEN`.
 
+#### Optional: Google Analytics
+
+The build process by default sets `NEXT_PUBLIC_GOOGLE_ANALYTICS_MEASUREMENT_ID` during build and deploy.
+You likely will not need to set this locally.  The script tags are emitted when this env var is present.
+
 ## Development
 
 ### Requirements
