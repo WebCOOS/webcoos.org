@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { StaticMap } from '@axds/landing-page-components';
-import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
+import AutoSizer from '@enykeev/react-virtualized/dist/commonjs/AutoSizer';
 import { useMapboxContext } from './contexts/MapboxContext';
 
 import classNames from 'classnames';
