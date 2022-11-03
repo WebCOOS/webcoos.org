@@ -185,6 +185,8 @@ export async function getStaticPaths() {
             })
             .filter((pm) => !!pm);
 
+        console.info("Found", activeSlugs.length, "cameras with access_level public");
+
         return {
             paths: activeSlugs.map((slug) => ({
                 params: {
