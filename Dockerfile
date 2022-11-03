@@ -1,11 +1,11 @@
 # Install dependencies only when needed
-FROM node:alpine AS deps
+FROM node:16-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
 # Rebuild the source code only when needed
-FROM node:alpine AS builder
+FROM node:16-alpine AS builder
 
 RUN apk --no-cache add curl
 
@@ -27,7 +27,7 @@ RUN npm run copyDocsRemote
 RUN npm run build
 
 # Production image, copy all the files and run next
-FROM node:alpine AS runner
+FROM node:16-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
