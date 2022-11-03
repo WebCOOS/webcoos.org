@@ -206,7 +206,7 @@ async function getAPIAssets({
         apiVersion,
         'assets',
         ...(!!slug ? [slug] : []),
-        `?source=${source}`
+        `?source=${source}&_nocache=true`
     ],
         url = parts.join('/');
 
