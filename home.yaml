@@ -44,14 +44,13 @@ sections:
               SECOORA was awarded a $1.1 million grant to launch a sustained network of low-cost
               webcams throughout the Southeast, which will build off of the successful pilot
               project, the Web Camera Applications Testbed.
-          link: SECOORA was awarded a $1.1 million grant to launch a sustained network of low-cost webcams throughout the Southeast, which will build off of the successful pilot project, the Web Camera Applications Testbed. 
-        
+          link: https://secoora.org/secoora-develops-new-observing-network-with-low-cost-webcams/
+
         - title: New Open Source Tool to Remotely Calibrate Web Camera Data
           image: https://secoora.org/wp-content/uploads/2020/03/New-Open-Source-Tool-to-Remotely-Calibrate-Web-Camera-Data-news-thumbnail.png
-          imageAltText: New Open Source Tool to Remotely Calibrate Web Camera Data 
+          imageAltText: New Open Source Tool to Remotely Calibrate Web Camera Data
           content: >
               SECOORA's 2019 Data Challenge Winner, Matthew Conlin, a PhD student at the University
               of Florida, has developed an easy tool to remotely calibrate web camera images for use
               in measuring changes in coastal and nearshore environments.
           link: https://secoora.org/new-open-source-tool-to-remotely-calibrate-web-camera-data/
-          
