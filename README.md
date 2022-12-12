@@ -26,7 +26,7 @@ You likely will not need to set this locally.  The script tags are emitted when 
 
 ### Requirements
 
-This project requires Node.js &geq; v14.0.0. It is recommended to use [nvm](https://github.com/nvm-sh/nvm)
+This project requires Node.js &geq; v16.0.0. It is recommended to use [nvm](https://github.com/nvm-sh/nvm)
 to manage multiple Node.js versions.
 
 ## Setup
