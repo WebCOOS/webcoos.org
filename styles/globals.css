@@ -7,11 +7,35 @@
   margin-bottom: 0;
 }
 
-.prose-image-grid img, .prose-image-grid p { 
+.prose-fix-images video {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.prose-image-grid img, .prose-image-grid p {
   margin-top: 0;
   margin-bottom: 0;
 }
 
 .prose-image-grid {
   grid-template-columns: 4em auto;
+}
+
+.active-product {
+  background-color: lightgreen;
+}
+
+.prose-image-with-caption {
+  width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.product-title img {
+  display: inline;
+}
+
+.product-title h1 {
+  display: inline;
+  vertical-align: middle;
 }

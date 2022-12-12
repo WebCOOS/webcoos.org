@@ -12,13 +12,13 @@ sections:
 
         icons:
           - label: identify rip currents
-            img: /rip current icon.svg
+            img: /rips.svg
           - label: study beach erosion
-            img: /beach erosion icon.svg
+            img: /shoreline.svg
           - label: monitor beach usage
-            img: /beach usage icon.svg
+            img: /beach.svg
           - label: flood monitoring
-            img: /flood monitoring icon.svg
+            img: /flood.svg
 
         buttons:
             - label: Join our Network!

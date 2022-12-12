@@ -5,10 +5,17 @@ export default function ProductCard({
     label,
     image,
     content,
-    link,
+    slug,
     extraClasses = '',
     ...props
 }) {
+
+  let link = `/products/${slug}`;
+  let isActive = slug == props.active;
+  if (isActive === true) {
+    extraClasses += ' active-product'
+  }
+
   return (
       <div
           className={classNames(
@@ -20,13 +27,13 @@ export default function ProductCard({
               <img className='rounded-t w-16 pt-4' src={image} alt='' />
           </a>
           <div className='flex-grow flex flex-col gap-1 pt-4'>
-              <a href={link} className={classNames("text-primary", {"hover:text-primary-darker": !!link})}>
+              <a href={link} className={classNames("text-primary", {"hover:text-primary-darker": !!slug})}>
                   <h5 className='mb-2 text-2xl font-bold tracking-tight'>
                       {label}
                   </h5>
               </a>
               <p className='mb-3 font-normal text-gray-700 flex-grow'>{content}</p>
-              {link && (
+              {slug && (
                   <a
                       href={link}
                       className='inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-primary rounded-sm hover:bg-primary-darker focus:ring-4 focus:outline-none focus:ring-primary-lighter'

@@ -5,7 +5,7 @@ classes: max-w-none prose-fix-images
 
 # Join our Network
 
-There is strength in numbers! With more webcams, higher quality information can be provided to users. Communities can partner with SECOORA to either provide existing webcam streams or install a webcam in their chosen location and receive the imagery and data personalized for their needs. 
+There is strength in numbers! With more webcams, higher quality information can be provided to users. Communities can partner with SECOORA to either provide existing webcam streams or install a webcam in their chosen location and receive the imagery and data personalized for their needs.
 
 ## My community would like to purchase and install a webcam. What is next?
 
@@ -111,19 +111,19 @@ Data is collected at 10-minute videos for each preset view.
 
 <div class="grid gap-4 prose-image-grid">
 
-<img src="/rip current icon.svg" alt="rip current" />
+<img src="/rips.svg" alt="rip current" />
 
 **Rip current detection** algorithms work best with video data from as high an elevation as
 possible and as close as possible to the surf zone. Stationary cams are preferred, if PTZ,
 ideally hold for at least 10 minutes in any one position.
 
-<img src="/beach erosion icon.svg" alt="beach erosion" />
+<img src="/shoreline.svg" alt="beach erosion" />
 
 For **studying beach erosion**, video is most useful, though snapshots can potentially provide
 some information. High elevation stationary webcams generally pointed alongshore to
 maximize the view of the surf zone and beach/dune are preferred.
 
-<img src="/beach usage icon.svg" alt="beach usage" />
+<img src="/beach.svg" alt="beach usage" />
 
 For **monitoring beach use** (people, vehicle, or animal counting) high elevation stationary
 webcams are acceptable, however PTZ cams may be preferred to maximize coverage area.
@@ -131,7 +131,7 @@ As detection algorithms will only recognize objects/persons usually within a 100
 where the person outline is more than 30 pixels large), placement at the beach dune line or as
 close to the beach activity to be monitored is required for this use case.
 
-<img src="/flood monitoring icon.svg" alt="beach usage" />
+<img src="/flood.svg" alt="beach usage" />
 
 **Flood monitoring** applications can use snapshot or video and higher elevations are preferred.
 Ideally, if the webcam is PTZ, it should can hold for at least 10 minutes in any one position.
