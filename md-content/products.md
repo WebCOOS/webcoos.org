@@ -8,7 +8,7 @@ show_product_grid: true
 
 WebCOOS cameras are collecting video and images which can be used for general coastal observing purposes. For example, our [Point Reyes National Seashore camera](https://webcoos.org/cameras/tmmc_prls/) is being used to allow users to view rehabilitated patient releases from The Marine Mammal Center.  The [camera at the South Carolina Maritime Museum in Georgetown, SC](https://webcoos.org/cameras/georgetownscmm/) is being used to monitor river use on the Sampit River, people traffic at events, and to remotely evaluate flooding impacts during storms.
 
-<video className='object-contain' autoplay controls >
+<video width="600" className='object-contain' autoplay controls >
     <source src='https://s3.us-west-2.amazonaws.com/webcoos-stage/media/sources/webcoos/groups/scmm/assets/georgetownscmm/feeds/raw-video-data/products/time-lapse/elements/2022/10/15/georgetownscmm-2022-10-15-000000Z.mp4#t=22' type='video/mp4' />
 </video>
 <sub>Example time lapse video from the South Carolina Maritime Museum Annual Boat Show on Saturday, October 15, 2022.</sub>
