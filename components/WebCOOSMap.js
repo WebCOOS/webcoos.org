@@ -138,18 +138,20 @@ export default function WebCOOSMap({
       >
           {Object.entries(stationMetadata).map((e) => {
               const [k, v] = e;
-              return (
-                  <Marker
-                      key={k}
-                      longitude={v.longitude}
-                      latitude={v.latitude}
-                      anchor={v.anchor}
-                      color={v.status.colorHex}
-                      onClick={(e) => onMarkerClick(k, e)}
-                      style={{cursor: 'pointer'}}
-                  >
-                  </Marker>
-              );
+              if (v.latitude != undefined && !v.longitude != undefined) {
+                return (
+                    <Marker
+                        key={k}
+                        longitude={v.longitude}
+                        latitude={v.latitude}
+                        anchor={v.anchor}
+                        color={v.status.colorHex}
+                        onClick={(e) => onMarkerClick(k, e)}
+                        style={{cursor: 'pointer'}}
+                    >
+                    </Marker>
+                );
+              }
           })}
       </GLMap>
   );
