@@ -2,6 +2,10 @@ import React, { useMemo } from 'react';
 import { StaticMap } from '@axds/landing-page-components';
 import AutoSizer from '@enykeev/react-virtualized/dist/commonjs/AutoSizer';
 import { useMapboxContext } from './contexts/MapboxContext';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import rehypeKatex from 'rehype-katex';
+import remarkMath from 'remark-math';
 
 import classNames from 'classnames';
 
@@ -89,9 +93,15 @@ export default function CameraSummary({
                 <a href={`/cameras/${slug}`} className='font-bold text-2xl'>
                     {label}
                 </a>
-                <p className='hidden md:block md:flex-grow md:flex-shrink md:overflow-ellipsis md:overflow-hidden'>
+                <div className='hidden md:block md:flex-grow md:flex-shrink md:overflow-ellipsis md:overflow-hidden'>
+                    <ReactMarkdown
+                        remarkPlugins={[remarkMath]}
+                        rehypePlugins={[rehypeRaw, rehypeKatex]}
+                        className={classNames('prose camera-prose text-sm p-0 pt-4')}
+                    >
                     {description}
-                </p>
+                    </ReactMarkdown>
+                </div>
                 {cameraSvcDataLink && (
                     <div className='hidden md:flex text-center justify-self-end flex-col justify-end gap-y-1'>
                         {galleryServices.map((s) => cameraSvcDataLink(slug, s))}

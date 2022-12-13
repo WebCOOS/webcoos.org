@@ -39,3 +39,7 @@
   display: inline;
   vertical-align: middle;
 }
+
+.camera-prose ul>li::before {
+  background-color: #374151;
+}
