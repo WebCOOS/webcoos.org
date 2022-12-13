@@ -57,7 +57,7 @@ export default function StationCard({
                         width='500px'
                         height='375px'
                         frameBorder='0'
-                        allowFullscreen
+                        allowFullScreen
                         {...embedAttrs}
                     ></iframe>
                 ) : (
