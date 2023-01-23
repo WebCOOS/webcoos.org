@@ -11,14 +11,14 @@ build_image_latest:
         - master
         - branches
     script:
-        - docker build --build-arg DOCS_URL=https://stage-webcoos-docs.srv.axds.co/ --build-arg MAPBOX_TOKEN=$MAPBOX_TOKEN --build-arg WEBCOOS_API_TOKEN=$WEBCOOS_API_TOKEN --build-arg GOOGLE_ANALYTICS_MEASUREMENT_ID=$GOOGLE_ANALYTICS_MEASUREMENT_ID -t $CI_PROJECT_NAME:$CI_PIPELINE_ID .
+        - docker build --build-arg DOCS_URL=https://stage-webcoos-docs.srv.axds.co/ --build-arg FEEDBACK_URL=$FEEDBACK_URL --build-arg MAPBOX_TOKEN=$MAPBOX_TOKEN --build-arg WEBCOOS_API_TOKEN=$WEBCOOS_API_TOKEN --build-arg GOOGLE_ANALYTICS_MEASUREMENT_ID=$GOOGLE_ANALYTICS_MEASUREMENT_ID -t $CI_PROJECT_NAME:$CI_PIPELINE_ID .
 
 build_image_tag:
     stage: build
     only:
         - tags
     script:
-        - docker build --build-arg DOCS_URL=https://webcoos-docs.srv.axds.co/ --build-arg MAPBOX_TOKEN=$MAPBOX_TOKEN --build-arg WEBCOOS_API_TOKEN=$WEBCOOS_PROD_API_TOKEN --build-arg GOOGLE_ANALYTICS_MEASUREMENT_ID=$GOOGLE_ANALYTICS_MEASUREMENT_ID --build-arg WEBCOOS_API_URL=https://app.webcoos.org/webcoos/api -t $CI_PROJECT_NAME:$CI_PIPELINE_ID .
+        - docker build --build-arg DOCS_URL=https://webcoos-docs.srv.axds.co/ --build-arg FEEDBACK_URL=$FEEDBACK_URL --build-arg MAPBOX_TOKEN=$MAPBOX_TOKEN --build-arg WEBCOOS_API_TOKEN=$WEBCOOS_PROD_API_TOKEN --build-arg GOOGLE_ANALYTICS_MEASUREMENT_ID=$GOOGLE_ANALYTICS_MEASUREMENT_ID --build-arg WEBCOOS_API_URL=https://app.webcoos.org/webcoos/api -t $CI_PROJECT_NAME:$CI_PIPELINE_ID .
 
 test:
     stage: test
