@@ -26,7 +26,7 @@ const VideoTemplate = (args) => (
         {...args}
         iconComponent={<IconVideoCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />}
         zoomedComponent={(zoomed, onClick) => (
-            <video className='object-contain' controls onClick={onClick}>
+            <video className='object-contain border' controls muted autoPlay playsInline>
                 <source src={zoomed.data.properties.url} type='video/mp4' />
             </video>
         )}
@@ -50,31 +50,31 @@ const ImgTemplate = (args) => (
 
 export const ImageDefault = ImgTemplate.bind({});
 ImageDefault.args = {
-    serviceUuid: 'b7114ae2-b2cb-40fe-af33-820db2db7755', // currituck sailfish one minute stills
+    serviceUuid: 'currituck_sailfish-image-stills-s3',
 };
 
 export const ImageSortDesc = ImgTemplate.bind({});
 ImageSortDesc.args = {
-    serviceUuid: 'b7114ae2-b2cb-40fe-af33-820db2db7755', // currituck sailfish one minute stills
+    serviceUuid: 'currituck_sailfish-image-stills-s3',
     sortDescending: true
 };
 
 export const ImageVerticallyConstrained = ImgTemplate.bind({});
 ImageVerticallyConstrained.args = {
-    serviceUuid: 'b7114ae2-b2cb-40fe-af33-820db2db7755', // currituck sailfish one minute stills
+    serviceUuid: 'currituck_sailfish-image-stills-s3',
     galleryClasses: 'max-h-96 overflow-y-auto',
 };
 
 export const ImageSpecificDay = ImgTemplate.bind({});
 ImageSpecificDay.args = {
-    serviceUuid: 'b7114ae2-b2cb-40fe-af33-820db2db7755', // currituck sailfish one minute stills
+    serviceUuid: 'currituck_sailfish-image-stills-s3',
     selectedDate: new Date('2022-05-08T00:00:00+00:00'),
 };
 
 export const VideoDefault = VideoTemplate.bind({});
 VideoDefault.args = {
     perPage: 8,
-    serviceUuid: '1c49de59-0195-4222-ae98-76693c99b745', // currituck hampton inn video
+    serviceUuid: 'currituck_sailfish-video-archive-s3',
 };
 
 export const EmptyGallery = ImgTemplate.bind({});

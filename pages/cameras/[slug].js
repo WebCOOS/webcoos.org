@@ -74,7 +74,7 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                                     onClick={onClick}
                                 />
                             ) : (
-                                <video className='object-contain' controls onClick={onClick}>
+                                <video className='object-contain' controls muted autoPlay playsInline>
                                     <source src={zoomed.data.properties.url} type='video/mp4' />
                                 </video>
                             )
@@ -122,7 +122,7 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
             } else {
                 // no gallery slug, use the first available
                 setSelectedTab(availTabs[0].key)
-            } 
+            }
         }
     }, [router.query])
 
@@ -173,7 +173,7 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
 
 export async function getStaticPaths() {
     // pull live metadata from API
-    try { 
+    try {
         const cameraMetadataResult = await getAPIAssets(),
             activeSlugs = cameraMetadataResult.results
             .map((r) => {
