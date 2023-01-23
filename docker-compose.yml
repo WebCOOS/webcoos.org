@@ -1,0 +1,17 @@
+services:
+
+  app:
+    image: "webcoos-project-site:latest"
+    build:
+      context:    .
+      dockerfile: Dockerfile
+      args:
+        - "STORYBOOK_WEBCOOS_API_TOKEN=${STORYBOOK_WEBCOOS_API_TOKEN}"
+        # WebCOOS API Token
+        - "WEBCOOS_API_TOKEN=${NEXT_PUBLIC_WEBCOOS_API_TOKEN}"
+        - "NEXT_PUBLIC_WEBCOOS_API_TOKEN=${NEXT_PUBLIC_WEBCOOS_API_TOKEN}"
+        # WebCOOS API URL
+        - "NEXT_PUBLIC_WEBCOOS_API_URL=${NEXT_PUBLIC_WEBCOOS_API_URL}"
+        - "WEBCOOS_API_URL=${NEXT_PUBLIC_WEBCOOS_API_URL}"
+    ports:
+     - 3000:3000

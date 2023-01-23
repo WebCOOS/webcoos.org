@@ -1,12 +1,4 @@
-export STORYBOOK_MAPBOX_TOKEN=
-export NEXT_PUBLIC_MAPBOX_TOKEN=
+# See: https://axds.atlassian.net/l/cp/Q1jy5TUL
+layout anaconda webcoos-project-site
 
-# Prod
-export STORYBOOK_WEBCOOS_API_TOKEN=
-export NEXT_PUBLIC_WEBCOOS_API_TOKEN=
-export NEXT_PUBLIC_WEBCOOS_API_URL=https://app.webcoos.org/webcoos/api
-
-# Stage
-# export STORYBOOK_WEBCOOS_API_TOKEN=
-# export NEXT_PUBLIC_WEBCOOS_API_TOKEN=
-# export NEXT_PUBLIC_WEBCOOS_API_URL=https://app.stage.webcoos.org/webcoos/api
+# env var exports have moved to .env
