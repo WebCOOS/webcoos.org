@@ -17,6 +17,8 @@ header:
           to: /docs
         - label: About
           to: /about
+        - label: Feedback
+          to: /feedback
 footer:
     logoImage: /SECOORA_logo.png
     logoAltText: SECOORA logo

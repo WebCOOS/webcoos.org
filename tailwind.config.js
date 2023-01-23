@@ -40,6 +40,9 @@ module.exports = {
             maxWidth: {
                 '75w': '75vw',
             },
+            height: {
+                '128': '32rem',
+            }
         },
     },
     variants: {
