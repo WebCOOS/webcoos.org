@@ -50,7 +50,7 @@ export default function Cameras({ metadata, parsedMetadata }) {
         }
         getCurrentCams();
     }, []);
-    
+
     // creates an object, slug -> {starting: Date, ending: Date}
     // uses static metadata at first then when the current metadata loads uses that
     const dateRanges = useMemo(() => {
@@ -70,7 +70,16 @@ export default function Cameras({ metadata, parsedMetadata }) {
     }, [parsedMetadata, curCameras]);
 
     // show the compile time list of cameras or the dynamically loaded one?
-    const cameraList = curCameras.length ? curCameras : parsedMetadata;
+    const unsortedCameraList = curCameras.length ? curCameras : parsedMetadata;
+
+    // apply sorting by Status
+    const cameraList = unsortedCameraList.sort((a, b) => {
+        if (a.status.sortorder === b.status.sortorder)
+            return a.label.localeCompare(b.label);
+        else
+            return a.status.sortorder - b.status.sortorder
+    });
+
 
     return (
         <Page metadata={metadata} title='Cameras'>
@@ -84,7 +93,9 @@ export default function Cameras({ metadata, parsedMetadata }) {
 
                 <table className='w-full table-auto'>
                     <thead>
-                        <tr className='bg-primary text-primary-lighter uppercase text-sm leading-normal text-left'>
+                        <tr className={classNames('bg-primary text-primary-lighter uppercase text-sm leading-normal text-left ', {
+                                'animate-pulse': isLoading,
+                            })}>
                             <th className='py-3'></th>
                             <th className='py-3 lg:pl-3 pl-1 text-left'>Camera</th>
                             <th className='py-3 lg:px-6 px-2 text-left hidden lg:table-cell'>Data Access Slug</th>
@@ -104,8 +115,7 @@ export default function Cameras({ metadata, parsedMetadata }) {
                                     key={c.slug}
                                     className={classNames('border-b border-gray-200 hover:bg-gray-200 ', {
                                         'bg-gray-100 ': ci % 2 === 0,
-                                        'bg-white': ci % 2 !== 0,
-                                        'animate-pulse': isLoading,
+                                        'bg-white': ci % 2 !== 0
                                     })}
                                 >
                                     <td className='py-3 lg:pl-3 pl-1 text-left min-w-max'>
@@ -157,15 +167,19 @@ export default function Cameras({ metadata, parsedMetadata }) {
                                         </span>
                                     </td>
                                     <td className='py-3 lg:px-6 px-2 text-left text-xs font-mono'>
-                                        {dateRanges && dateRanges[c.slug] && dateRanges[c.slug].starting && (
-                                            <span>
-                                                {formatInTimeZone(
-                                                    dateRanges[c.slug].starting,
-                                                    'yyyy-MM-dd',
-                                                    c.timezone || defaultTimeZone
-                                                )}
-                                            </span>
-                                        )}
+                                        {isLoading
+                                            ? (<LoadingSpinner extraClasses={'inline-block ml-1 text-primary'} />)
+                                            :
+                                            dateRanges && dateRanges[c.slug] && dateRanges[c.slug].starting && (
+                                                <span>
+                                                    {formatInTimeZone(
+                                                        dateRanges[c.slug].starting,
+                                                        'yyyy-MM-dd',
+                                                        c.timezone || defaultTimeZone
+                                                    )}
+                                                </span>
+                                            )
+                                        }
                                         <span className='lg:hidden'>
                                             {' - '}
                                             <br />
@@ -181,15 +195,19 @@ export default function Cameras({ metadata, parsedMetadata }) {
                                         </span>
                                     </td>
                                     <td className='py-3 lg:px-6 px-2 text-left font-mono text-xs hidden lg:table-cell'>
-                                        {dateRanges && dateRanges[c.slug] && dateRanges[c.slug].ending && (
-                                            <span>
-                                                {formatInTimeZone(
-                                                    dateRanges[c.slug].ending,
-                                                    'yyyy-MM-dd',
-                                                    c.timezone || defaultTimeZone
-                                                )}
-                                            </span>
-                                        )}
+                                        {isLoading
+                                            ? (<LoadingSpinner extraClasses={'inline-block ml-1 text-primary'} />)
+                                            :
+                                            dateRanges && dateRanges[c.slug] && dateRanges[c.slug].ending && (
+                                                <span>
+                                                    {formatInTimeZone(
+                                                        dateRanges[c.slug].ending,
+                                                        'yyyy-MM-dd',
+                                                        c.timezone || defaultTimeZone
+                                                    )}
+                                                </span>
+                                            )
+                                        }
                                     </td>
                                     <td className='py-3 lg:px-6 px-2'>
                                         <div className='flex flex-col gap-1'>

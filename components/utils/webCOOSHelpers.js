@@ -93,13 +93,13 @@ export { parseWebCOOSAsset };
 
 /**
  * Returns a status object for a given date.
- * 
+ *
  * Status object contains a slug, bg color, fg color, border color, text description.
  * An 'age' field (in days) is added dynamically based on difference between `now` (or time of call)
  * and `mostRecentElement`.
- * 
+ *
  * Status slugs are 'active', 'archive', 'live', or 'unknown'.
- * 
+ *
  * You can specify a 'now', if not set, it will use the current timestamp at time of call.
  */
 function getStatus(mostRecentElement, now = undefined, hasLive = false) {
@@ -111,6 +111,7 @@ function getStatus(mostRecentElement, now = undefined, hasLive = false) {
             colorHex: '#32899e',
             border: 'border-primary-darker',
             desc: 'Camera has data within the last 24 hours',
+            sortorder: 1,
         },
         archive: {
             slug: 'archive',
@@ -119,6 +120,7 @@ function getStatus(mostRecentElement, now = undefined, hasLive = false) {
             colorHex: '#9ca3af',        // gray-400 so it can be seen easier
             border: 'border-gray-500',
             desc: 'Camera has data older than 24 hours',
+            sortorder: 2,
         },
         live: {
             slug: 'live',
@@ -127,6 +129,7 @@ function getStatus(mostRecentElement, now = undefined, hasLive = false) {
             colorHex: '#10b981',
             border: 'border-green-700',
             desc: 'Camera has a live streaming feed',
+            sortorder: 0,
         },
         unknown: {
             slug: 'unknown',
@@ -135,6 +138,7 @@ function getStatus(mostRecentElement, now = undefined, hasLive = false) {
             colorHex: '#f3f4f6',    // gray-100
             border: 'border-gray-800',
             desc: 'Camera has an unknown status',
+            sortorder: 3,
         },
     };
 
