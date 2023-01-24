@@ -38,21 +38,27 @@ export default function Home({ content, metadata, activeSlugs }) {
 
             <Section>
                 <SectionHeader>News</SectionHeader>
-                <div className='flex gap-4'>
+                <div className='flex grid xl:grid-cols-3 md:grid-cols-2 gap-4'>
                     {content.sections.news.map((item, ii) => {
                         return (
                             <div
                                 key={ii}
-                                className='flex-grow flex-shrink-0 flex flex-col gap-4'
+                                className='flex-grow flex-shrink-0 flex flex-col gap-2'
                                 style={{ flexBasis: 0 }}
                             >
+
                                 <a href={item.link} target='_blank' className='self-center'>
                                     <img
                                         src={item.image}
                                         alt={item.imageAltText}
                                         className='rounded-xl shadow border border-gray-400'
+                                        style={{ height: '12em' }}
                                     />
                                 </a>
+
+                                <div className='text-xs italic'>
+                                    {item.date}
+                                </div>
 
                                 <div className='text-lg font-semibold' style={{ minHeight: '3.5em' }}>
                                     {item.title}

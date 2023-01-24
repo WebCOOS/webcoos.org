@@ -27,7 +27,32 @@ sections:
               to: /products
 
     news:
+
+        - title: Camera Footage of Marine Mammal Releases Available to View on WebCOOS
+          date: January 18, 2023
+          image: https://secoora.org/wp-content/uploads/2023/01/reduced-A-GIF-of-northern-elephant-seals-at-Point-Reyes-WEBCOOS.gif
+          imageAltText: >
+              A video clip of northern elephant seals from the Point Reyes National Seashore webcam
+              taken on November 30, 2022 at 1:24 PM PST. Video playback speed is doubled.
+          content: >
+              The public can now watch marine mammal releases by The Marine Mammal Center in Point
+              Reyes National Seashore thanks to a new partnership with WebCOOS.
+          link: https://secoora.org/camera-footage-of-marine-mammal-releases-available-to-view-on-webcoos/
+
+        - title: "Eyes on Ian: Data Resources"
+          date: September 27, 2022
+          image: https://secoora.org/wp-content/uploads/2022/10/WebCOOS-Cameras-Hurricane-Ian-1.gif
+          imageAltText: >
+              A short time lapse created from WebCOOS camera on Oak Island, NC where you can see
+              significant erosion of the recently planted dune during Hurricane Ian.
+          content: >
+              The WebCOOS website was shared as Hurricane Ian was approaching. This new observing
+              system allows users to stream live camera feeds in real-time in some locations, and
+              see snapshot images in other locations.
+          link: https://secoora.org/eyes-on-ian-data-resources/
+
         - title: NOAA Launches a New Life-Saving Rip Current Model
+          date: April 27, 2021
           image: https://secoora.org/wp-content/uploads/2021/04/thumbnail-rip_currents_dye-Source-NOAA-Ocean-Today-dr-greg-dusek-project.png
           imageAltText: NOAA Launches a New Life-Saving Rip Current Model
           content: >
@@ -38,6 +63,7 @@ sections:
           link: https://secoora.org/noaa-launches-a-new-life-saving-rip-current-model/
 
         - title: SECOORA Develops New Observing Network with Low-Cost Webcams
+          date: August 32, 2020
           image: https://secoora.org/wp-content/uploads/2020/08/Webcam_Obs_Network_surfline_WebcamPics-thumbnail.png
           imageAltText: SECOORA Develops New Observing Network with Low-Cost Webcams
           content: >
@@ -47,6 +73,7 @@ sections:
           link: https://secoora.org/secoora-develops-new-observing-network-with-low-cost-webcams/
 
         - title: New Open Source Tool to Remotely Calibrate Web Camera Data
+          date: March 30, 2020
           image: https://secoora.org/wp-content/uploads/2020/03/New-Open-Source-Tool-to-Remotely-Calibrate-Web-Camera-Data-news-thumbnail.png
           imageAltText: New Open Source Tool to Remotely Calibrate Web Camera Data
           content: >
