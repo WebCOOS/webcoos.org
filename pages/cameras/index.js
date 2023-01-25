@@ -8,12 +8,23 @@ import { useAPIContext } from '../../components/contexts/ApiContext';
 import { parseWebCOOSAsset, getAPIAssets } from '../../components/utils/webCOOSHelpers';
 import classNames from 'classnames';
 import { utcToZonedTime, format } from 'date-fns-tz';
+import { SortedIcon } from '../../components/SortedIcon';
 import { IconCamera, IconVideoCamera, IconSignal } from '../../components/Icon';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { get as pointerGet } from 'json-pointer';
 
 import Link from 'next/link';
 
 const formatInTimeZone = (date, fmt, tz) => format(utcToZonedTime(date, tz), fmt, { timeZone: tz });
+
+const THENBY_SEP='..';
+const SORT_BY_LABEL='/label';
+const SORT_BY_SLUG='/slug';
+const SORT_BY_STATUS_THEN_LABEL=`/status/sortorder${THENBY_SEP}${SORT_BY_LABEL}`;
+const SORT_BY_STARTING='/dateBounds/0';
+const SORT_BY_ENDING='/dateBounds/1';
+const SORT_BY_RANGE=SORT_BY_STARTING;
+const DEFAULT_SORT=SORT_BY_STATUS_THEN_LABEL;
 
 export default function Cameras({ metadata, parsedMetadata }) {
     const { apiUrl, apiVersion, token, source } = useAPIContext();
@@ -21,6 +32,12 @@ export default function Cameras({ metadata, parsedMetadata }) {
     const defaultTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
     const [isLoading, setIsLoading] = useState(true);
     const [curCameras, setCurCameras] = useState([]);
+
+    // Setting sortedBy and sort direction in single state function
+    const [
+        [ sortedBy, isSortDirectionAscending ],
+        setSortedByAndIsDirectionAscending
+    ] = useState( [ DEFAULT_SORT, true ] );
 
     useEffect(() => {
         const getCurrentCams = async () => {
@@ -72,14 +89,99 @@ export default function Cameras({ metadata, parsedMetadata }) {
     // show the compile time list of cameras or the dynamically loaded one?
     const unsortedCameraList = curCameras.length ? curCameras : parsedMetadata;
 
-    // apply sorting by Status
-    const cameraList = unsortedCameraList.sort((a, b) => {
-        if (a.status.sortorder === b.status.sortorder)
-            return a.label.localeCompare(b.label);
-        else
-            return a.status.sortorder - b.status.sortorder
-    });
+    const sortMemo = useMemo(() => {
+        // Copy so that we can sort and filter (without mutating original).
+        let sortedCameraList = [...unsortedCameraList];
 
+        let tempSortedBy = sortedBy;
+
+        if( !tempSortedBy ) {
+            // Default to status.slug
+            tempSortedBy = DEFAULT_SORT;
+        }
+
+        try {
+            // Attempt a json-pointer get on the first elemtn to ensure we don't
+            // have programmer error
+            if( sortedCameraList.length > 0 ) {
+
+                pointerGet( sortedCameraList[0], tempSortedBy );
+            }
+        } catch {
+            console.warn(
+                `Unable to sort on ${tempSortedBy}, defaulting to ${DEFAULT_SORT}`
+            )
+            tempSortedBy = DEFAULT_SORT;
+        }
+
+        try {
+
+            // Split by the THENBY_SEP in order to get the order in which we
+            // should sort the elements
+            const thenby_split = tempSortedBy.split( THENBY_SEP ).reverse();
+
+            sortedCameraList.sort(
+                (a,b) => {
+
+                    let sorts = [...thenby_split];
+
+                    let ret = 0;
+
+                    // Return the first non-zero comparison, for each of the
+                    // sortable fields, or return zero to reflect equality
+                    while( sorts.length > 0 ) {
+
+                        const by = sorts.pop();
+
+                        ret = (
+                            '' + pointerGet( a, by )
+                        ).localeCompare(
+                            ('' + pointerGet( b, by ) )
+                        );
+
+                        if( ret !== 0 ) {
+                            return ret;
+                        }
+                    }
+
+                    return ret;
+                }
+            );
+
+        } catch(error) {
+            console.warn(
+                `Error occurred during asset sort, leaving unsorted: ${error}`
+            )
+        }
+
+        // Finally, reverse if that is indicated by state
+        if( !isSortDirectionAscending ) {
+            sortedCameraList.reverse();
+        }
+
+        return sortedCameraList
+
+    }, [ unsortedCameraList, sortedBy, isSortDirectionAscending ] )
+
+    // Helper function, calls the useState updater with the correct sort field
+    // and, if we're already sorting on the desired sorting field, then invert
+    // the sort order
+    const updateSortStateForSortableHeader = (
+        currentlySortedBy,
+        desiredSortedBy,
+        currentlyIsSortedDirectionAscending
+    ) => {
+        return setSortedByAndIsDirectionAscending(
+            [
+                desiredSortedBy,
+                (
+                    currentlySortedBy === desiredSortedBy
+                    ? !currentlyIsSortedDirectionAscending
+                    : currentlyIsSortedDirectionAscending
+                )
+            ]
+        );
+    }
 
     return (
         <Page metadata={metadata} title='Cameras'>
@@ -97,19 +199,75 @@ export default function Cameras({ metadata, parsedMetadata }) {
                                 'animate-pulse': isLoading,
                             })}>
                             <th className='py-3'></th>
-                            <th className='py-3 lg:pl-3 pl-1 text-left'>Camera</th>
-                            <th className='py-3 lg:px-6 px-2 text-left hidden lg:table-cell'>Data Access Slug</th>
-                            <th className='py-3 lg:px-6 px-2 text-center'>Status</th>
-                            <th className='py-3 lg:px-6 px-2 text-left'>
-                                <span className='lg:hidden'>Range</span>
-                                <span className='hidden lg:table-cell'>Starting</span>
+                            <th className='py-3 lg:pl-3 pl-1 text-left'>
+                                <button
+                                    type="button"
+                                    onClick={() => updateSortStateForSortableHeader( sortedBy, SORT_BY_LABEL, isSortDirectionAscending )}
+                                    className="flex items-center uppercase text-sm leading-normal font-bold"
+                                >
+                                    Camera
+                                    <SortedIcon/>
+                                </button>
                             </th>
-                            <th className='py-3 lg:px-6 px-2 text-left hidden lg:table-cell'>Ending</th>
+                            <th className='py-3 lg:px-6 px-2 text-left hidden lg:table-cell'>
+                                <button
+                                    type="button"
+                                    onClick={() => updateSortStateForSortableHeader( sortedBy, SORT_BY_SLUG, isSortDirectionAscending )}
+                                    className="flex items-center uppercase text-sm leading-normal font-bold"
+                                >
+                                    Data Access Slug
+                                    <SortedIcon/>
+                                </button>
+                            </th>
+
+                            <th className='py-3 lg:px-6 px-2 text-center'>
+
+                                <button
+                                    type="button"
+                                    onClick={() => updateSortStateForSortableHeader( sortedBy, SORT_BY_STATUS_THEN_LABEL, isSortDirectionAscending )}
+                                    className="flex items-center uppercase text-sm leading-normal font-bold"
+                                >
+                                    Status
+                                    <SortedIcon/>
+                                </button>
+                            </th>
+                            <th className='py-3 lg:px-6 px-2 text-left'>
+                                <span className='lg:hidden'>
+                                    <button
+                                        type="button"
+                                        onClick={() => updateSortStateForSortableHeader( sortedBy, SORT_BY_RANGE, isSortDirectionAscending )}
+                                        className="flex items-center uppercase text-sm leading-normal font-bold"
+                                    >
+                                        Range
+                                        <SortedIcon/>
+                                    </button>
+                                </span>
+                                <span className='hidden lg:table-cell'>
+                                    <button
+                                        type="button"
+                                        onClick={() => updateSortStateForSortableHeader( sortedBy, SORT_BY_STARTING, isSortDirectionAscending )}
+                                        className="flex items-center uppercase text-sm leading-normal font-bold"
+                                    >
+                                        Starting
+                                        <SortedIcon/>
+                                    </button>
+                                </span>
+                            </th>
+                            <th className='py-3 lg:px-6 px-2 text-left hidden lg:table-cell'>
+                                <button
+                                        type="button"
+                                        onClick={() => updateSortStateForSortableHeader( sortedBy, SORT_BY_ENDING, isSortDirectionAscending )}
+                                        className="flex items-center uppercase text-sm leading-normal font-bold"
+                                    >
+                                        Ending
+                                        <SortedIcon/>
+                                    </button>
+                            </th>
                             <th className='py-3 lg:px-6 px-2 text-left'>Gallery Links</th>
                         </tr>
                     </thead>
                     <tbody className='text-gray-800 text-sm'>
-                        {cameraList.map((c, ci) => {
+                        {sortMemo.map((c, ci) => {
                             return (
                                 <tr
                                     key={c.slug}
