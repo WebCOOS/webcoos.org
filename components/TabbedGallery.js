@@ -327,6 +327,8 @@ export default function TabbedGallery({
                         ]);
                     }}
                     timezone={tz}
+                    rootClassNames="text-left"
+                    popUpClassNames="origin-top-right absolute left-0 mt-2 rounded shadow-lg border border-gray-300 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
                 />
             );
         }
