@@ -157,13 +157,13 @@ const getValidTime = (curDate, availTimes, inventoryName) => {
 
 /**
  * Reducer used for state of the tabbed gallery.
- * 
+ *
  * Necessary because updating the current tab might need to change
  * a lot of state at once, such as the inventory and the currently
  * selected date, which depends on the inventory.
- * 
+ *
  * See https://adamrackis.dev/blog/state-and-use-reducer
- * 
+ *
  * @param state     Current state of the control
  * @param action    Action taken (setCurDate, setInventory)
  * @param data      Payload of that action (date, inventory)
@@ -296,6 +296,9 @@ export default function TabbedGallery({
                         dispatch(['setCurDate', {date: d, galleryFunc: curTabData.galleryComponent}])
                     }}
                     timezone={tz}
+                    rootClassNames="text-left"
+                    popUpClassNames="origin-top-right absolute left-0 mt-2 rounded shadow-lg border border-gray-300 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
+
                 />
             );
         } else if (curTabData.inventoryName === 'monthly') {
@@ -351,7 +354,9 @@ export default function TabbedGallery({
                 id='tabs-tab'
                 role='tablist'
             >
-                {availTabs.map((at) => {
+                <li className='my-2'>{timeSelectorComponent}</li>
+                <li className='ml-auto'></li>
+                {availTabs.map((at,idx) => {
                     return (
                         <li key={at.key} className='nav-item' role='presentation'>
                             <a
@@ -375,8 +380,6 @@ export default function TabbedGallery({
                         </li>
                     );
                 })}
-
-                <li className='ml-auto my-2'>{timeSelectorComponent}</li>
             </ul>
             <div>
                 {state.galleryComponent && (
