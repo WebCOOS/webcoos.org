@@ -1,6 +1,55 @@
 import { differenceInDays } from 'date-fns';
 import * as duration from 'duration-fns';
 
+
+function findStream( streams, stream_protocol, match_preference_url_regex ) {
+
+    if( !streams ) {
+        return undefined;
+    }
+
+    if( !stream_protocol ) {
+        console.warn(
+            "Need to provide stream_protocol in order to find stream (findStream)"
+        );
+        return undefined;
+    }
+
+    if( typeof match_preference_url_regex === 'undefined' ) {
+        match_preference_url_regex = RegExp( "." );
+    }
+
+    if( typeof match_preference_url_regex === 'string' ) {
+        match_preference_url_regex = RegExp( match_preference_url_regex );
+    }
+
+    if( !match_preference_url_regex instanceof RegExp ) {
+        console.warn(
+            `Passed match_preference_url_regex value is not of type RegExp: ${typeof match_preference_url_regex}`
+        );
+        return undefined;
+    }
+
+    let found = streams.find(
+        (stream) => (
+            stream.protocol === stream_protocol &&
+            match_preference_url_regex.test( stream.url )
+        )
+    );
+
+    if( typeof found === 'undefined' ) {
+        // Fall back to original searching behavior without regex match against
+        // URL
+        found = streams.find(
+            (stream) => (
+                stream.protocol === stream_protocol
+            )
+        );
+    }
+
+    return found;
+}
+
 /**
  * Parses a WebCOOS asset single entry from the API into something multiple
  * components can use.
@@ -14,11 +63,12 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
     const services = products.flatMap((product) => product.services);
     const streamingService = services.find((service) => service.data.type === 'StreamingService');
     const streams = streamingService?.data.properties.connections || [];
-    const dash = streams.find((stream) => stream.protocol === 'dash')?.url;
-    const hls = streams.find((stream) => stream.protocol === 'hls')?.url;
-    const embedBlock = streams.find((stream) => stream.protocol === 'embed'),
-        embed = embedBlock?.url,
-        embedAttrs = embedBlock?.attributes;
+
+    const dash = findStream( streams, 'dash', /.*axds.co.*/ )?.url;
+    const hls = findStream( streams, 'hls', /.*axds.co.*/ )?.url;
+
+    const embedBlock = findStream( streams, 'embed', /.*axds.co.*/ );
+    const embed = embedBlock?.url, embedAttrs = embedBlock?.attributes;
 
     const thumbnails = item.data.properties?.thumbnails?.base;
 

@@ -110,7 +110,7 @@ export default function CameraSummary({
             </div>
             <div className='md:self-center md:justify-self-center'>
                 {hasStream ? (
-                    !!embed_url ? (
+                    ( !!embed_url && ( !hls_url && !dash_url ) ) ? (
                         <iframe src={embed_url} width='500px' height='375px' frameBorder='0' allowFullScreen {...embedAttrs}></iframe>
                     ) : (
                         <VideoStreamPlayer
