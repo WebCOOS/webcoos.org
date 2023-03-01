@@ -28,6 +28,19 @@ sections:
 
     news:
 
+        - title: "Strength in Numbers: The Power of Joining Forces"
+          date: January 30, 2023
+          image: http://secoora.org/wp-content/uploads/2023/01/Header-Strength-in-Numbers-The-Power-of-Joining-Forces.png
+          imageAltText: >
+              Enhanced photo still from the web camera located at South Carolina
+              Maritime Museum. Image taken on 1/24/2023 at 7:19 AM ET.
+          content: >
+              Over six partners have joined forces to install a web camera,
+              water level sensor, and an air quality monitor at the South
+              Carolina Maritime Museum located on the banks of the Sampit River
+              in Georgetown, SC.
+          link: https://secoora.org/strength-in-numbers-the-power-of-joining-forces/
+
         - title: Camera Footage of Marine Mammal Releases Available to View on WebCOOS
           date: January 18, 2023
           image: https://secoora.org/wp-content/uploads/2023/01/reduced-A-GIF-of-northern-elephant-seals-at-Point-Reyes-WEBCOOS.gif
