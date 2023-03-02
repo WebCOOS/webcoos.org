@@ -16,6 +16,61 @@ const VideoStreamPlayer = dynamic(
     { ssr: false }
 );
 
+function selectStream( stream_list ) {
+
+    if( !stream_list ) {
+        return [ null, null ];
+    }
+
+    // Get deep copy to ensure we aren't mutating the original
+    const working = JSON.parse( JSON.stringify( stream_list ) );
+
+    working.forEach(
+        ( [stream_type, stream] ) => {
+            if(
+                ( !( 'priority' in stream ) )
+                ||
+                ( typeof stream.priority === 'undefined' )
+            ) {
+                // If a priority is missing, give it a sufficiently low priority
+                // to ensure it isn't sorted above other priorities, but give
+                // preference in the following order among other unspecified stream
+                // types:
+                //
+                // 1. (highest) hls
+                // 2. dash
+                // 3. (lowest) embed
+
+                switch( stream_type ) {
+                    case "hls":
+                        stream.priority = -97;
+                        return;
+                    case "dash":
+                        stream.priority = -98;
+                        return;
+                    case "embed":
+                        stream.priority = -99;
+                        return;
+                    default:
+                        throw new Error(
+                            `Unhandled stream type: ${stream_type}`
+                        )
+                }
+            }
+        }
+    )
+
+    // Sort by priority, highest priority being last in the array, and taking
+    // precedence when popped off the end.
+    working.sort(
+        ( [a_type,a_stream],[b_type, b_stream] ) => {
+            return a_stream.priority - b_stream.priority;
+        }
+    );
+
+    return working.pop();
+}
+
 export default function CameraSummary({
     uuid,
     slug,
@@ -27,10 +82,9 @@ export default function CameraSummary({
     latitude,
     thumbnail,
     thumbnails,
-    hls_url,
-    dash_url,
-    embed_url,
-    embedAttrs,
+    hls_stream,
+    dash_stream,
+    embed_stream,
     services,
     wedge,
     cameraSvcDataLink,
@@ -38,6 +92,11 @@ export default function CameraSummary({
     has_bottom = true,
 }) {
     const mapboxAccessToken = useMapboxContext();
+
+    const hls_url = hls_stream?.url,
+        dash_url = dash_stream?.url,
+        embed_url = embed_stream?.url,
+        embedAttrs = embed_stream?.attributes;
 
     const hasStream = (!!hls_url || !!dash_url || !!embed_url);
 
@@ -78,6 +137,29 @@ export default function CameraSummary({
             };
         }) : [];
 
+    const available_streams = [];
+
+    if( !!hls_stream ) {
+        available_streams.push( ['hls', hls_stream] );
+    }
+
+    if( !!dash_stream ) {
+        available_streams.push( ['dash', dash_stream] );
+    }
+
+    if( !!embed_stream ) {
+        available_streams.push( ['embed', embed_stream] );
+    }
+
+    let selected_stream_type = null, selected_stream = null;
+
+    if( available_streams.length > 0 ) {
+        [ selected_stream_type, selected_stream ] = selectStream(
+            available_streams
+        );
+        // console.log( 'selected: ', selected_stream_type, selected_stream )
+    }
+
     return (
         <div
             className={classNames(
@@ -110,7 +192,7 @@ export default function CameraSummary({
             </div>
             <div className='md:self-center md:justify-self-center'>
                 {hasStream ? (
-                    ( !!embed_url && ( !hls_url && !dash_url ) ) ? (
+                    ( !!selected_stream_type && selected_stream_type === 'embed' ) ? (
                         <iframe src={embed_url} width='500px' height='375px' frameBorder='0' allowFullScreen {...embedAttrs}></iframe>
                     ) : (
                         <VideoStreamPlayer

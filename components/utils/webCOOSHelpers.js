@@ -64,11 +64,13 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
     const streamingService = services.find((service) => service.data.type === 'StreamingService');
     const streams = streamingService?.data.properties.connections || [];
 
-    const dash = findStream( streams, 'dash', /.*axds.co.*/ )?.url;
-    const hls = findStream( streams, 'hls', /.*axds.co.*/ )?.url;
+    const dashStream = findStream( streams, 'dash', /.*axds.co.*/ );
+    const hlsStream = findStream( streams, 'hls', /.*axds.co.*/ );
+    const embedStream = findStream( streams, 'embed', /.*axds.co.*/ );
 
-    const embedBlock = findStream( streams, 'embed', /.*axds.co.*/ );
-    const embed = embedBlock?.url, embedAttrs = embedBlock?.attributes;
+    const dashlUrl = dashStream?.url;
+    const hlsUrl = hlsStream?.url;
+    const embedUrl = embedStream?.url;
 
     const thumbnails = item.data.properties?.thumbnails?.base;
 
@@ -111,7 +113,7 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
         : [];
 
     // add a status description to the results
-    const status = getStatus(new Date(serviceDates[serviceDates.length - 1]), statusNow, !!(hls || dash));
+    const status = getStatus(new Date(serviceDates[serviceDates.length - 1]), statusNow, !!(hlsUrl || dashlUrl || embedUrl));
 
     return {
         uuid: item.uuid,
@@ -127,10 +129,9 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
         latitude: latitude,
         thumbnail: thumbnails?.rect_large,
         thumbnails: thumbnails,
-        hls_url: hls,
-        dash_url: dash,
-        embed_url: embed,
-        embedAttrs: embedAttrs,
+        hls_stream: hlsStream,
+        dash_stream: dashStream,
+        embed_stream: embedStream,
         services: services,
         dateBounds: dateBounds,
         galleryServices: galleryServices,
