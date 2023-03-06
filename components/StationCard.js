@@ -4,7 +4,7 @@ import { IconLink } from './Icon';
 
 import dynamic from 'next/dynamic';
 const VideoStreamPlayer = dynamic(
-    () => import('@axds/landing-page-components/build/es/no-ssr').then((mod) => mod.VideoStreamPlayer),
+    () => import('@axdspub/landing-page-components/build/es/no-ssr').then((mod) => mod.VideoStreamPlayer),
     { ssr: false }
 );
 

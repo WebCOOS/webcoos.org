@@ -3,7 +3,7 @@ import {
     MarkdownContent,
     Section,
     SectionHeader
-} from '@axds/landing-page-components';
+} from '@axdspub/landing-page-components';
 import Page from '../components/Page';
 import { getSiteMetadata, getYaml } from '../utils';
 import { parseWebCOOSAsset, getAPIAssets } from '../components/utils/webCOOSHelpers';

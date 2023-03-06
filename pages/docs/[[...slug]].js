@@ -2,7 +2,7 @@ import path from 'path';
 import { readFile, access } from 'fs/promises';
 import Page from '../../components/Page';
 import yaml from 'js-yaml';
-import { SphinxDoc } from '@axds/landing-page-components';
+import { SphinxDoc } from '@axdspub/landing-page-components';
 import recursive from 'recursive-readdir';
 import { getSiteMetadata } from '../../utils';
 
