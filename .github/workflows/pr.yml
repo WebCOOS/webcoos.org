@@ -45,8 +45,8 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         build-args: |
-          DOCS_URL=${{ env.DOCS_URL }}
-          WEBCOOS_API_URL=${{ env.WEBCOOS_API_URL }}
+          DOCS_URL=${{ vars.DOCS_URL }}
+          WEBCOOS_API_URL=${{ vars.WEBCOOS_API_URL }}
           WEBCOOS_API_TOKEN=${{ secrets.WEBCOOS_API_TOKEN }}
           FEEDBACK_URL=${{ secrets.FEEDBACK_URL }}
           MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }}
