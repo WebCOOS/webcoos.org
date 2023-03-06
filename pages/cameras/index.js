@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-import { Section, SectionHeader } from '@axds/landing-page-components';
+import { Section, SectionHeader } from '@axdspub/landing-page-components';
 import Page from '../../components/Page';
 
 import { getSiteMetadata } from '../../utils';

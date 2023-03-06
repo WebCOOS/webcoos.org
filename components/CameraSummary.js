@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { StaticMap } from '@axds/landing-page-components';
+import { StaticMap } from '@axdspub/landing-page-components';
 import AutoSizer from '@enykeev/react-virtualized/dist/commonjs/AutoSizer';
 import { useMapboxContext } from './contexts/MapboxContext';
 import ReactMarkdown from 'react-markdown';
@@ -12,7 +12,7 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 
 const VideoStreamPlayer = dynamic(
-    () => import('@axds/landing-page-components/build/es/no-ssr').then((mod) => mod.VideoStreamPlayer),
+    () => import('@axdspub/landing-page-components/build/es/no-ssr').then((mod) => mod.VideoStreamPlayer),
     { ssr: false }
 );
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, useReducer } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { DatePicker, MonthPicker } from '@axds/landing-page-components';
+import { DatePicker, MonthPicker } from '@axdspub/landing-page-components';
 import {
     parseISO,
     startOfDay,

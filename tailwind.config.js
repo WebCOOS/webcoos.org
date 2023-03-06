@@ -3,7 +3,7 @@ module.exports = {
         content: [
             './pages/**/*.{js,ts,jsx,tsx}',
             './components/**/*.{js,ts,jsx,tsx}',
-            './node_modules/@axds/landing-page-components/**/*.{js,ts,jsx,tsx}',
+            './node_modules/@axdspub/landing-page-components/**/*.{js,ts,jsx,tsx}',
             './md-content/**/*.md'
         ],
         safelist: [

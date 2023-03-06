@@ -12,7 +12,7 @@ import { getYaml, getSiteMetadata } from '../utils';
 import ProductCard from '../components/ProductCard';
 import 'katex/dist/katex.min.css'
 import classNames from 'classnames';
-import { Section } from '@axds/landing-page-components';
+import { Section } from '@axdspub/landing-page-components';
 
 export default function MarkdownPage({ products, content, data, metadata }) {
 

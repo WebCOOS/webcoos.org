@@ -1,5 +1,5 @@
 import React from 'react';
-import { Body, Footer, Header, Page as LPage } from '@axds/landing-page-components';
+import { Body, Footer, Header, Page as LPage } from '@axdspub/landing-page-components';
 import Head from 'next/head';
 import Script from 'next/script';
 

@@ -1,4 +1,4 @@
-import { NarrativeSection, PartnerLogos, Section, SectionHeader } from '@axds/landing-page-components';
+import { NarrativeSection, PartnerLogos, Section, SectionHeader } from '@axdspub/landing-page-components';
 import Page from '../components/Page';
 import { getSiteMetadata, getYaml } from '../utils';
 
