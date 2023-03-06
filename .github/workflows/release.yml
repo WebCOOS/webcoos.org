@@ -10,7 +10,7 @@ env:
   CACHE_KEY: docker-webcoosrelease-buildx-
 
 jobs:
-  build-push:
+  build-release:
     name: Build and test Docker Image
     runs-on: ubuntu-20.04
     timeout-minutes: 10
@@ -72,8 +72,8 @@ jobs:
     name: Push latest image to Docker Hub
     runs-on: ubuntu-20.04
     timeout-minutes: 10
-    needs: build
-    if: github.ref == 'refs/heads/main' && github.repository == 'axiom-data-science/docker-erddap'
+    needs: build-release
+    if: github.event_name == 'release' && github.event.action == 'published' && github.repository == 'WebCOOS/webcoos.org'
 
     steps:
     - name: Checkout

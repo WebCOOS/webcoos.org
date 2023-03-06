@@ -73,8 +73,8 @@ jobs:
     name: Push latest image to Docker Hub
     runs-on: ubuntu-20.04
     timeout-minutes: 10
-    needs: build
-    if: github.ref == 'refs/heads/main' && github.repository == 'axiom-data-science/docker-erddap'
+    needs: build-push
+    if: github.ref == 'refs/heads/main' && github.repository == 'WebCOOS/webcoos.org'
 
     steps:
     - name: Checkout
