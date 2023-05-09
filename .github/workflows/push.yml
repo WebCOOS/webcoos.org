@@ -30,10 +30,10 @@ jobs:
           type=raw,value=latest
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v2
 
     - name: Cache Docker layers
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${ BUILDX_CACHE }
         key: ${ CACHE_KEY }${{ github.sha }}
@@ -41,7 +41,7 @@ jobs:
           ${ CACHE_KEY }
 
     - name: Build and push
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v4
       with:
         push: false
         tags: ${{ steps.meta.outputs.tags }}
@@ -61,7 +61,7 @@ jobs:
       run: docker run -d -p 3000:3000 ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
 
     - name: Check that webcoos Docker Image will return a 200
-      uses: ifaxity/wait-on-action@v1
+      uses: ifaxity/wait-on-action@v1.1.0
       timeout-minutes: 1
       with:
         resource: http://localhost:3000
