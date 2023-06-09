@@ -5,6 +5,7 @@ helpEmail:
 header:
     logoImage: /SECOORA_Horizontal_FullColor_Transparent.png
     logoAltText: SECOORA logo
+    logoUrl: https://www.secoora.org
     bannerText: WebCOOS
     menus:
         - label: Get Involved
