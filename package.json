@@ -18,8 +18,8 @@
     "build-storybook": "build-storybook"
   },
   "peerDependencies": {
-    "@tailwindcss/typography": "*",
-    "tailwindcss": "*"
+    "@tailwindcss/typography": "0.4.1",
+    "tailwindcss": "2.2.19"
   },
   "dependencies": {
     "@axdspub/landing-page-components": "^0.7.18",
