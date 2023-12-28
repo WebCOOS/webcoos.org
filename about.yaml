@@ -2,7 +2,7 @@ sections:
     main:
         title: About
         rows:
-            - content: The Webcams for Coastal Observations and Operational Support (WebCOOS) project is being implemented by SECOORA and its partners with funding from NOAA.  The team is developing a webcam coastal observing network for quantitative scientific analysis, public safety, and resource management for coastal municipalities, scientists, and local communities. To accomplish this, standardized data processing and management methodology will be established to provide stakeholders with actionable information from webcam videos.  SECOORA is working to transfer this methodology nationwide across all 11 IOOS regional associations.
+            - content: The Webcam Coastal Observation System (WebCOOS) project is being implemented by SECOORA and its partners with funding from NOAA.  The team is developing a webcam coastal observing network for quantitative scientific analysis, public safety, and resource management for coastal municipalities, scientists, and local communities. To accomplish this, standardized data processing and management methodology will be established to provide stakeholders with actionable information from webcam videos.  SECOORA is working to transfer this methodology nationwide across all 11 IOOS regional associations.
             - content: >
                 For additional details about installing a webcam in your local community, [view our flyer here](http://secoora.org/wp-content/uploads/2022/08/webcoos-Outreach-Package.pdf).
             - content: >
@@ -45,4 +45,3 @@ sections:
         - name: U.S. Army Corps of Engineers
           image: /gsb-03.gif
           link: https://www.usace.army.mil/
-
