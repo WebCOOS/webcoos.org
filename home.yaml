@@ -7,8 +7,8 @@ sections:
             Web cameras are a low cost coastal observing platform transforming how environmental
             monitoring is conducted. Web camera data has demonstrated value to address significant
             gaps in the nation's ability to monitor and accurately forecast various weather, ocean,
-            ecological and public health hazards.  This project, Webcams for Coastal Observations
-            and Operational Support (WebCOOS), promotes low cost webcams to:
+            ecological and public health hazards.  This project, Webcam Coastal Observation System
+            (WebCOOS), promotes low cost webcams to:
 
         icons:
           - label: identify rip currents
@@ -71,8 +71,7 @@ sections:
           content: >
               NOAA released a new operational rip current model that will improve beach safety
               through sophisticated rip current forecasts. NOAA plans to validate the model using
-              shoreline footage from SECOORA's Webcams for Coastal Observations and Operational
-              Support (WebCOOS) network.
+              shoreline footage from SECOORA's Webcam Coastal Observation System (WebCOOS) network.
           link: https://secoora.org/noaa-launches-a-new-life-saving-rip-current-model/
 
         - title: SECOORA Develops New Observing Network with Low-Cost Webcams
