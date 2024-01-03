@@ -416,7 +416,7 @@ export async function getStaticProps() {
 
     // pull live metadata from API
     try {
-        const cameraMetadataResult = await getAPIAssets(),
+        const cameraMetadataResult = await getAPIAssets( { allow_cached: false } ),
             parsedMetadata = cameraMetadataResult.results
                 .map((r) => {
                     const parsed = parseWebCOOSAsset(r);

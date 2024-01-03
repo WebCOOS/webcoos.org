@@ -250,6 +250,7 @@ async function getAPIAssets({
     apiVersion = 'v1',
     source = 'webcoos',
     token = process.env.NEXT_PUBLIC_WEBCOOS_API_TOKEN,
+    allow_cached = true,
     slug
 } = {}) {
     if (!token) {
@@ -261,7 +262,7 @@ async function getAPIAssets({
         apiVersion,
         'assets',
         ...(!!slug ? [slug] : []),
-        `?source=${source}&_nocache=true`
+        `?source=${source}${(!!allow_cached ? '' : '&_nocache=true')}`
     ],
         url = parts.join('/');
 

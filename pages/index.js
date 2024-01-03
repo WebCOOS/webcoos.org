@@ -80,7 +80,7 @@ export default function Home({ content, metadata, activeSlugs }) {
 
 export async function getStaticProps() {
     try {
-        const cameraMetadataResult = await getAPIAssets(),
+        const cameraMetadataResult = await getAPIAssets({allow_cached: false}),
             activeSlugs = cameraMetadataResult.results
                 .map((r) => {
                     const parsed = parseWebCOOSAsset(r);
