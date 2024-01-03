@@ -174,7 +174,7 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
 export async function getStaticPaths() {
     // pull live metadata from API
     try {
-        const cameraMetadataResult = await getAPIAssets(),
+        const cameraMetadataResult = await getAPIAssets({ allow_cached: false }),
             activeSlugs = cameraMetadataResult.results
             .map((r) => {
                 const parsed = parseWebCOOSAsset(r);
@@ -209,7 +209,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
     try {
-        const cameraMetadataResult = await getAPIAssets({ slug: params.slug }),
+        const cameraMetadataResult = await getAPIAssets({ slug: params.slug, allow_cached: false }),
             parsedMetadata = parseWebCOOSAsset(cameraMetadataResult),
             sanitized = Object.fromEntries(
                 Object.entries(parsedMetadata).map((p) => {
