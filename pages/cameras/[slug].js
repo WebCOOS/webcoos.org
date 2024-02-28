@@ -40,6 +40,7 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
             key: service.common.slug,
             label: service.common.label,
             serviceUuid: service.uuid,
+            sortOrder: service.sortOrder,
             icon:
                 service.svcType === 'img' ? (
                     <IconCamera size={4} extraClasses='inline-block pr-1 align-bottom' paddingx={0} />
@@ -83,7 +84,24 @@ export default function CameraPage({ metadata, slug, rawMetadata, parsedMetadata
                 );
             },
         };
-    });
+    }).sort(
+        (a,b) => {
+            // Sort available tabs, first by their sort order, and second by
+            // their label, to determine display order of the tabs when viewing
+            // media gallery
+            if( a.sortOrder && b.sortOrder ) {
+                if( a.sortOrder !== b.sortOrder ) {
+                    return a.sortOrder - b.sortOrder;
+                }
+            }
+
+            if( a.label && b.label ) {
+                return a.label.localeCompare( b.label )
+            }
+
+            return 0;
+        }
+    );
 
     // if gallery the querystring, select the tab
 

@@ -90,6 +90,8 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
     const galleryServices = services
         ? services
               .filter((service) => service.data.type !== 'StreamingService')
+              // Filtering out any 'results' services/products for now
+              .filter((service) => service.data.common.slug.indexOf('-results') === -1 )
               .flatMap((service) => {
                   // parse the frequency if it exists
                   const freqType = service.data?.properties?.frequency?.type;
@@ -99,11 +101,33 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
                       freqPeriod = duration.parse(freqPeriod); // from str like 'P1Y6H' -> { years: 1, hours:  6}
                   }
 
+                  let sortOrder = 0;
+
+                  // a service of un-modified still images
+                  const isStillImageGallery = service.data.common.slug.indexOf('-stills') !== -1;
+                  // a service of modifified (annotated) still images
+                  const isAnnotatedImageGallery = service.data.common.slug.indexOf('annotated-image') !== -1;
+
+                  const isImageIshGallery = (isStillImageGallery || isAnnotatedImageGallery );
+
+                  if( isImageIshGallery ) {
+
+                    if( isStillImageGallery ) {
+                        sortOrder = 1;
+                    } else if ( isAnnotatedImageGallery ) {
+                        sortOrder = 2;
+                    }
+
+                  } else {
+                    sortOrder = 3;
+                  }
+
                   return {
                       uuid: service.uuid,
                       common: service.data.common,
                       elements: service.elements,
-                      svcType: service.data.common.slug.indexOf('-stills') !== -1 ? 'img' : 'video',
+                      sortOrder: sortOrder,
+                      svcType: ( isImageIshGallery ? 'img' : 'video' ),
                       frequency: {
                           type: freqType,
                           period: freqPeriod,
