@@ -28,6 +28,82 @@ sections:
 
     news:
 
+        - title: SECOORA Hosts the First National WebCOOS Technical Workshop
+          date: November 1, 2024
+          image: workshop_charleston_tour.jpg
+          imageAltText:
+              Photographs of the Beaufort, NC NWLON station.
+          content: >
+              The WebCOOS Technical Workshop brought together the WebCOOS
+              science team and contractors, representatives from multiple IOOS
+              Regional Associations, federal partners, and local community
+              partners on October 9th – 11th, 2024, in Charleston, South
+              Carolina.
+          link: https://secoora.org/secoora-hosts-the-first-national-webcoos-technical-workshop/
+
+        - title: CO-OPS Partners with SECOORA to Bring Coastal Webcam Imagery to Coastal Inundation Dashboard
+          date: September 3, 2024
+          image: Beaufort-NC-NWLON-and-Webcam.png
+          imageAltText:
+              Photographs of the Beaufort, NC NWLON station.
+          content: >
+              SECOORA and NOAA CO-OPS have partnered to provide access to
+              coastal webcam imagery through NOAA’s Coastal Inundation
+              Dashboard.
+          link: https://secoora.org/co-ops-partners-with-secoora-to-bring-coastal-webcam-imagery-to-coastal-inundation-dashboard/
+
+        - title: Rip Current Detection Research Featured in 2023 NOAA Science Report
+          date: March 2024
+          image: RipViz.png
+          imageAltText:
+              Rip current visualization
+          content: >
+              Rip current research by Akila de Silva and other members of the
+              WebCOOS team, including Greg Dusek and Alex Pang, was featured in
+              the 2023 NOAA Science Report. Image source: IEEE Transactions on
+              Visualization and Computer Graphics (2023), CC A-NC-ND 4.0
+              license.
+          link: https://repository.library.noaa.gov/view/noaa/60660
+
+
+        - title: "Web Cameras Capture Impacts from Powerful Nor’Easter"
+          date: December 20, 2023
+          image: nwlon_charleston_20231217.gif
+          imageAltText:
+              Animation featuring a clip of the storm and flooding at the
+              NWLON Station at the Charleston, NC harbor.
+          content: >
+              A low pressure storm system brought excessive rainfall and
+              coastal flooding to the Southeast on December 17th, 2023. Web
+              cameras stationed in Charleston, South Carolina and Oak Island,
+              North Carolina captured some of the shocking impacts from this
+              Nor’easter.
+          link: https://secoora.org/webcoos-capture-impacts-from-powerful-noreaster/
+
+
+        - title: "WebCOOS Rip Current Research Featured in Bay Area News Story"
+          date: November 27, 2023
+          image: WaltonRip.png
+          imageAltText:
+              Sample annotated image from the Walton Beach, Santa Cruz camera,
+              with a red 'detection' box indicating a rip current.
+          content: >
+              Alex Pang, Greg Dusek, and Fahim Hasan Khan were featured in a
+              news story about their work on rip current algorithms related to
+              the WebCOOS project.
+          link: https://www.mercurynews.com/2023/11/27/uc-santa-cruz-researchers-build-ai-to-prevent-drownings/
+
+
+        - title: "OTT: A Proposal to Scale from a Regional to a National Webcam Coastal Observation System (WebCOOS)"
+          date: October 2023
+          image: NewCrop_folly6thavenue_2023-10-18_web.jpg
+          imageAltText: >
+              Cropped photo of the beach at the Folly 6th Avenue camera.
+          content: >
+              The WebCOOS project enters its next phase with funding from a NOAA
+              IOOS Ocean Technology Transition grant!
+          link: https://ioos.noaa.gov/project/ott-national-webcoos/
+
         - title: "Strength in Numbers: The Power of Joining Forces"
           date: January 30, 2023
           image: http://secoora.org/wp-content/uploads/2023/01/Header-Strength-in-Numbers-The-Power-of-Joining-Forces.png
