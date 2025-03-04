@@ -36,6 +36,9 @@ sections:
         - name: Axiom Data Science
           image: /axiom_logo_vert.png
           link: https://www.axiomdatascience.com/
+        - name: Surfline
+          image: /Surfline Logo Full.svg
+          link: https://www.surfline.com/
         - name: NOAA (CO-OPS)
           image: /NOAA_logo.svg
           link: https://tidesandcurrents.noaa.gov/
