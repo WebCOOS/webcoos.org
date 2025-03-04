@@ -9,7 +9,7 @@ export default function Home({ content, metadata, cameras }) {
 
             <Section shaded={true}>
                 <SectionHeader>Project Partners</SectionHeader>
-                <PartnerLogos partners={content.sections.partners} maxBoxesPerRow={7} imageHeight='sm' />
+                <PartnerLogos partners={content.sections.partners} maxBoxesPerRow={8} imageHeight='sm' />
             </Section>
 
             <NarrativeSection shaded={false} {...content.sections.contact} />
