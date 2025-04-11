@@ -16,5 +16,6 @@ services:
         # Feedback URLs
         - "FEEDBACK_URL=${NEXT_PUBLIC_FEEDBACK_URL}"
         - "NEXT_PUBLIC_FEEDBACK_URL=${NEXT_PUBLIC_FEEDBACK_URL}"
+        - "DOCS_URL={DOCS_URL}"
     ports:
      - 3000:3000
