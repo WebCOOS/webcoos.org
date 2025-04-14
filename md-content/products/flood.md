@@ -44,12 +44,20 @@ Storm events may impact both power and connectivity of the instrumentation or co
 
 ## List of applicable cameras
 
+* [georgetown](/cameras/georgetownscmm/)
+* [nerrs_northinlet](/cameras/nerrs_northinlet/)
+* [nwlon_charleston](/cameras/nwlon_charleston/)
 * [rosemontpeace](/cameras/rosemontpeace/)
 * [rosemontpeonie](/cameras/rosemontpeonie/)
+
 
 ## Resources & Publications
 
 * Taylor, J., Levine, N.S., Muhammad, E., Porter, D.E., Watson, A.M. and P.A. Sandifer. 2022. Participatory and spatial analyses of Environmental Justice communities’ concerns about a proposed storm surge and flood protection seawall. *International Journal of Environmental Research and Public Health*. 2022, 19, 19912. [https://doi.org/10.3390/ijerph191811192](https://doi.org/10.3390/ijerph191811192).
+
+* Python tool to visualize water level data with camera videos: [NWLON WebCOOS Synchronizer ](https://github.com/NOAA-CO-OPS/NWLON_WebCOOS_Synchronizer) (Github repository)
+
+
 
 ## Partners
 

@@ -12,6 +12,12 @@ sections:
 
                 - [Scientific Paper: Automated Rip Current Detection with Region based Convolutional Neural Networks](https://secoora.org/wp-content/uploads/2021/04/Automated-Rip-Current-Detection-with-Region-based-Convolutional-Neural-Networks.pdf)
 
+                - [WebCOOS organization on Github](https://github.com/webcoos/), including repos for:
+                  * [py-webcoos-client](https://github.com/WebCOOS/py-webcoos-client), a Python wrapper for the WebCOOS API.
+                  * [rip_current_detect](https://github.com/WebCOOS/rip_current_detection), an API used by WebCOOS for rip current detection.
+                  * [seal_detection](https://github.com/WebCOOS/seal_detection), an API used by WebCOOS for seal detection.
+                  * [webcoos_object_detection](https://github.com/WebCOOS/webcoos_object_detection), an API used by WebCOOS for general object detection.
+
     contact:
         title: Contact
         rows:

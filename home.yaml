@@ -28,6 +28,18 @@ sections:
 
     news:
 
+        - title: NERACOOS Enters the WebCOOS Network with Two Webcam Installations in Camp Ellis, Maine
+          date: March 31, 2025
+          image: webcam-camp-ellis.jpg
+          imageAltText:
+              Photographs of the camera installation at Camp Ellis, Maine.
+          content: >
+              NERACOOS joins the WebCOOS network by installing two new webcams
+              in Camp Ellis, Maine. This partnership with the Maine Geological
+              Survey and the National Weather Service will enhance the
+              monitoring of coastal change and storm impacts.
+          link: https://neracoos.org/projects/maine-webcams/
+
         - title: SECOORA Hosts the First National WebCOOS Technical Workshop
           date: November 1, 2024
           image: workshop_charleston_tour.jpg
