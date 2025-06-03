@@ -28,6 +28,33 @@ sections:
 
     news:
 
+        - title: Webcam in Westerly, RI to Monitor Shoreline Change and Beach Usage
+          date: May 29, 2025
+          image: westerly-ri-webcam.jpg
+          imageAltText:
+              Images from the camera installation at Westerly, RI
+          content: >
+              A webcam was installed in Westerly, Rhode Island, to monitor
+              shoreline change and beach usage, in partnership between the
+              Northeast Regional Association of Coastal Ocean Observing Systems
+              (NERACOOS), WebCOOS, Town of Westerly, RI Coastal Resources
+              Management Council, Surfline, and the University of Rhode Island.
+          link: https://neracoos.org/projects/rhode-island-webcam/
+
+        - title: WebCOOS Network Expands In Mid-Atlantic
+          date: March 20, 2025
+          image: MidAtlantic WebCOOS.png
+          imageAltText:
+              Images from the camera installations at Camden and Hoboken, NY
+          content: >
+              Two new cameras have been integrated in Camden and Hoboken, NJ, to
+              enhance flood monitoring in the Mid-Atlantic, improving public
+              safety and environmental monitoring in coastal communities. This
+              brings the total number of cameras in the WebCOOS network in the
+              MARACOOS region to three, joining an existing camera in Rockaway,
+              NY.
+          link: https://maracoos.org/2025/03/20/webcoos-expands-in-midatlantic/
+
         - title: NERACOOS Enters the WebCOOS Network with Two Webcam Installations in Camp Ellis, Maine
           date: March 31, 2025
           image: webcam-camp-ellis.jpg
