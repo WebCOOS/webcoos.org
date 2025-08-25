@@ -513,7 +513,16 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                             </a>
                                         </Link>
 
-                                        <div className='font-mono text-xs lg:hidden'>{c.slug}</div>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                navigator.clipboard.writeText(c.slug);
+                                            }}
+                                            className='font-mono text-xs lg:hidden text-primary hover:text-primary-darker hover:bg-gray-100 px-2 py-1 rounded transition-colors duration-200 cursor-copy'
+                                            title='Click to copy slug to clipboard'
+                                        >
+                                            {c.slug}
+                                        </button>
                                     </td>
                                     <td className='py-2 px-1 lg:px-2 text-left text-xs align-middle hidden md:table-cell'>
                                         {c.geography?.region && (
@@ -543,7 +552,16 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                         </div>
                                     </td>
                                     <td className='py-2 px-1 lg:px-2 text-left font-mono text-xs hidden lg:table-cell align-middle'>
-                                        {c.slug}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                navigator.clipboard.writeText(c.slug);
+                                            }}
+                                            className='text-primary hover:text-primary-darker hover:bg-gray-100 px-2 py-1 rounded transition-colors duration-200 cursor-copy'
+                                            title='Click to copy slug to clipboard'
+                                        >
+                                            {c.slug}
+                                        </button>
                                     </td>
                                     <td className='py-2 px-1 lg:px-2 text-center align-middle'>
                                         <span
