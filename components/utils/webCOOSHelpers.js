@@ -201,8 +201,87 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
               })
         : [];
 
+    const cameraProducts = services
+        ? [
+              ...new Set(
+                  services
+                      .map((service) => {
+                          const system = service.data.system;
+                          if (!system) return null;
+
+                          if (system.includes('rip_current_detect')) return 'rips';
+                          if (system.includes('shoreline')) return 'shoreline';
+                          if (system.includes('object_detection')) return 'beach';
+                          if (system.includes('flood')) return 'flood';
+                          return null;
+                      })
+                      .filter((p) => p)
+              ),
+          ]
+        : [];
+
+    // Alternative product detection - check other possible locations
+    if (cameraProducts.length === 0 && services) {
+        console.log(`No products found via system property for ${item.data?.common?.label}, checking alternatives...`);
+
+        // Check if product info is in the service common data
+        const alternativeProducts = services
+            .map((service) => {
+                const slug = service.data.common?.slug;
+                if (!slug) return null;
+
+                // Look for product indicators in the slug
+                if (slug.includes('rip') || slug.includes('current')) return 'rips';
+                if (slug.includes('shoreline') || slug.includes('shore')) return 'shoreline';
+                if (slug.includes('beach') || slug.includes('usage') || slug.includes('object')) return 'beach';
+                if (slug.includes('flood') || slug.includes('water')) return 'flood';
+                return null;
+            })
+            .filter((p) => p);
+
+        if (alternativeProducts.length > 0) {
+            console.log(`Found products via alternative method for ${item.data?.common?.label}:`, alternativeProducts);
+            cameraProducts.push(...alternativeProducts);
+        }
+    }
+
+    // Debug logging for products
+    console.log('Camera products debug:', {
+        cameraLabel: item.data?.common?.label,
+        servicesCount: services?.length || 0,
+        cameraProducts: cameraProducts,
+        sampleService: services?.[0]?.data?.system || 'no system property',
+    });
+
+    // More detailed service debugging
+    if (services && services.length > 0) {
+        console.log(`Detailed service debug for ${item.data?.common?.label}:`, {
+            firstService: {
+                type: services[0].data.type,
+                system: services[0].data.system,
+                common: services[0].data.common,
+                properties: services[0].data.properties,
+            },
+            allServiceTypes: services.map((s) => s.data.type),
+            allSystemValues: services.map((s) => s.data.system).filter(Boolean),
+        });
+    }
+
+    // Log product type counts for this camera
+    if (cameraProducts.length > 0) {
+        const productCounts = cameraProducts.reduce((acc, product) => {
+            acc[product] = (acc[product] || 0) + 1;
+            return acc;
+        }, {});
+        console.log(`Product counts for ${item.data?.common?.label}:`, productCounts);
+    }
+
     // add a status description to the results
-    const status = getStatus(new Date(serviceDates[serviceDates.length - 1]), statusNow, !!(hlsUrl || dashlUrl || embedUrl));
+    const status = getStatus(
+        new Date(serviceDates[serviceDates.length - 1]),
+        statusNow,
+        !!(hlsUrl || dashlUrl || embedUrl)
+    );
     const state = getStateFromCameraLabel(item.data?.common?.label);
 
     return {
@@ -227,6 +306,7 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
         galleryServices: galleryServices,
         wedge: wedge,
         status: status,
+        products: cameraProducts,
         geography: {
             region: item.data?.properties?.group,
             state: state,

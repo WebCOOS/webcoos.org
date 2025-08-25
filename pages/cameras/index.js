@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Section, SectionHeader } from '@axdspub/landing-page-components';
 import Page from '../../components/Page';
 
-import { getSiteMetadata } from '../../utils';
+import { getSiteMetadata, getYaml } from '../../utils';
 import { useAPIContext } from '../../components/contexts/ApiContext';
 import { parseWebCOOSAsset, getAPIAssets } from '../../components/utils/webCOOSHelpers';
 import classNames from 'classnames';
@@ -17,23 +17,31 @@ import Link from 'next/link';
 
 const formatInTimeZone = (date, fmt, tz) => format(utcToZonedTime(date, tz), fmt, { timeZone: tz });
 
-const THENBY_SEP='..';
-const SORT_BY_LABEL='/label';
-const SORT_BY_SLUG='/slug';
-const SORT_BY_STATUS_THEN_LABEL=`/status/sortorder${THENBY_SEP}${SORT_BY_LABEL}`;
-const SORT_BY_STARTING='/dateBounds/0';
-const SORT_BY_ENDING='/dateBounds/1';
-const SORT_BY_RANGE=SORT_BY_STARTING;
+const THENBY_SEP = '..';
+const SORT_BY_LABEL = '/label';
+const SORT_BY_SLUG = '/slug';
+const SORT_BY_STATUS_THEN_LABEL = `/status/sortorder${THENBY_SEP}${SORT_BY_LABEL}`;
+const SORT_BY_STARTING = '/dateBounds/0';
+const SORT_BY_ENDING = '/dateBounds/1';
+const SORT_BY_RANGE = SORT_BY_STARTING;
 const SORT_BY_GEOGRAPHY = `/geography/region${THENBY_SEP}/geography/state${THENBY_SEP}${SORT_BY_LABEL}`;
 const DEFAULT_SORT = SORT_BY_STATUS_THEN_LABEL;
 
-export default function Cameras({ metadata, parsedMetadata }) {
+export default function Cameras({ metadata, parsedMetadata, products }) {
     const { apiUrl, apiVersion, token, source } = useAPIContext();
+
+    // Debug logging for component props
+    console.log('Cameras component props:', {
+        productsCount: products?.length || 0,
+        products: products,
+        parsedMetadataCount: parsedMetadata?.length || 0,
+    });
 
     const defaultTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
     const [isLoading, setIsLoading] = useState(true);
     const [curCameras, setCurCameras] = useState([]);
     const [geographyFilter, setGeographyFilter] = useState('');
+    const [productFilter, setProductFilter] = useState('');
 
     // Setting sortedBy and sort direction in single state function
     const [[sortedBy, isSortDirectionAscending], setSortedByAndIsDirectionAscending] = useState([DEFAULT_SORT, true]);
@@ -52,6 +60,31 @@ export default function Cameras({ metadata, parsedMetadata }) {
                 return;
             }
 
+            // Log raw API response structure for debugging
+            if (result.results.length > 0) {
+                const sampleItem = result.results[0];
+                console.log('Raw API response sample:', {
+                    feeds: sampleItem.feeds?.length || 0,
+                    sampleFeed: sampleItem.feeds?.[0]
+                        ? {
+                              products: sampleItem.feeds[0].products?.length || 0,
+                              sampleProduct: sampleItem.feeds[0].products?.[0]
+                                  ? {
+                                        services: sampleItem.feeds[0].products[0].services?.length || 0,
+                                        sampleService: sampleItem.feeds[0].products[0].services?.[0]
+                                            ? {
+                                                  type: sampleItem.feeds[0].products[0].services[0].data.type,
+                                                  system: sampleItem.feeds[0].products[0].services[0].data.system,
+                                                  common: sampleItem.feeds[0].products[0].services[0].data.common,
+                                              }
+                                            : null,
+                                    }
+                                  : null,
+                          }
+                        : null,
+                });
+            }
+
             const parsedCams = result.results.map((item) => {
                     const parsedItem = parseWebCOOSAsset(item);
                     if (parsedItem && parsedItem.access === 'public') {
@@ -60,6 +93,33 @@ export default function Cameras({ metadata, parsedMetadata }) {
                     return null;
                 }),
                 filteredCams = parsedCams.filter((pc) => pc !== null);
+
+            // Debug logging for parsed cameras
+            console.log('Parsed cameras debug:', {
+                totalResults: result.results.length,
+                parsedCount: parsedCams.length,
+                filteredCount: filteredCams.length,
+                sampleCamera: filteredCams[0]
+                    ? {
+                          label: filteredCams[0].label,
+                          products: filteredCams[0].products,
+                          servicesCount: filteredCams[0].services?.length,
+                      }
+                    : null,
+            });
+
+            console.log('Available products with counts:', availableProducts);
+
+            // Log available vs defined products
+            const availableProductSlugs = new Set(Object.keys(availableProducts));
+            const definedProductSlugs = new Set(products.map((p) => p.slug));
+            const unusedProducts = [...definedProductSlugs].filter((p) => !availableProductSlugs.has(p));
+            console.log('Product availability:', {
+                available: availableProductSlugs,
+                defined: definedProductSlugs,
+                unused: unusedProducts,
+                summary: `${availableProductSlugs.size}/${definedProductSlugs.size} products have cameras`,
+            });
 
             setCurCameras(filteredCams);
             setIsLoading(false);
@@ -89,6 +149,22 @@ export default function Cameras({ metadata, parsedMetadata }) {
             'IOOS Regions': Array.from(geo['IOOS Regions']).sort(),
             States: Array.from(geo['States']).sort(),
         };
+    }, [curCameras, parsedMetadata]);
+
+    // Extract available products for filtering
+    const availableProducts = useMemo(() => {
+        const productCounts = {};
+        const cameraList = curCameras.length ? curCameras : parsedMetadata;
+
+        cameraList.forEach((camera) => {
+            if (camera.products) {
+                camera.products.forEach((product) => {
+                    productCounts[product] = (productCounts[product] || 0) + 1;
+                });
+            }
+        });
+
+        return productCounts;
     }, [curCameras, parsedMetadata]);
 
     // creates an object, slug -> {starting: Date, ending: Date}
@@ -183,8 +259,11 @@ export default function Cameras({ metadata, parsedMetadata }) {
                 return true;
             });
         }
+        if (productFilter) {
+            cameras = cameras.filter((c) => c.products && c.products.includes(productFilter));
+        }
         return cameras;
-    }, [sortMemo, geographyFilter]);
+    }, [sortMemo, geographyFilter, productFilter]);
 
     // Helper function, calls the useState updater with the correct sort field
     // and, if we're already sorting on the desired sorting field, then invert
@@ -210,36 +289,58 @@ export default function Cameras({ metadata, parsedMetadata }) {
                     {isLoading && <LoadingSpinner extraClasses={'inline-block ml-1 text-primary'} />}
                 </SectionHeader>
 
-                <div className='mb-4'>
-                    <label htmlFor='geography-filter' className='mr-2 font-bold text-sm'>
-                        Filter by Geography:
-                    </label>
-                    <select
-                        id='geography-filter'
-                        value={geographyFilter}
-                        onChange={(e) => setGeographyFilter(e.target.value)}
-                        className='border border-gray-300 rounded p-1 text-sm'
-                    >
-                        <option value=''>All</option>
-                        {geographies['IOOS Regions'].length > 0 && (
-                            <optgroup label='IOOS Regions'>
-                                {geographies['IOOS Regions'].map((region) => (
-                                    <option key={region} value={`region:${region}`}>
-                                        {region}
+                <div className='flex flex-row gap-4 mb-4'>
+                    <div>
+                        <label htmlFor='geography-filter' className='mr-2 font-bold text-sm'>
+                            Filter by Geography:
+                        </label>
+                        <select
+                            id='geography-filter'
+                            value={geographyFilter}
+                            onChange={(e) => setGeographyFilter(e.target.value)}
+                            className='border border-gray-300 rounded p-1 text-sm'
+                        >
+                            <option value=''>All</option>
+                            {geographies['IOOS Regions'].length > 0 && (
+                                <optgroup label='IOOS Regions'>
+                                    {geographies['IOOS Regions'].map((region) => (
+                                        <option key={region} value={`region:${region}`}>
+                                            {region}
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            )}
+                            {geographies['States'].length > 0 && (
+                                <optgroup label='States'>
+                                    {geographies['States'].map((state) => (
+                                        <option key={state} value={`state:${state}`}>
+                                            {state}
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            )}
+                        </select>
+                    </div>
+                    <div>
+                        <label htmlFor='product-filter' className='mr-2 font-bold text-sm'>
+                            Filter by Product:
+                        </label>
+                        <select
+                            id='product-filter'
+                            value={productFilter}
+                            onChange={(e) => setProductFilter(e.target.value)}
+                            className='border border-gray-300 rounded p-1 text-sm'
+                        >
+                            <option value=''>All</option>
+                            {products
+                                .filter((p) => availableProducts[p.slug])
+                                .map((p) => (
+                                    <option key={p.slug} value={p.slug}>
+                                        {p.label} ({availableProducts[p.slug]})
                                     </option>
                                 ))}
-                            </optgroup>
-                        )}
-                        {geographies['States'].length > 0 && (
-                            <optgroup label='States'>
-                                {geographies['States'].map((state) => (
-                                    <option key={state} value={`state:${state}`}>
-                                        {state}
-                                    </option>
-                                ))}
-                            </optgroup>
-                        )}
-                    </select>
+                        </select>
+                    </div>
                 </div>
 
                 <table className='w-full table-auto'>
@@ -284,6 +385,9 @@ export default function Cameras({ metadata, parsedMetadata }) {
                                     Geography
                                     <SortedIcon />
                                 </button>
+                            </th>
+                            <th className='py-3 lg:px-6 px-2 text-left'>
+                                <span className='uppercase text-sm leading-normal font-bold'>Products</span>
                             </th>
                             <th className='py-3 lg:px-6 px-2 text-left hidden lg:table-cell'>
                                 <button
@@ -433,6 +537,25 @@ export default function Cameras({ metadata, parsedMetadata }) {
                                         )}
                                         {c.geography?.state && <div>{c.geography.state}</div>}
                                     </td>
+                                    <td className='py-3 lg:px-6 px-2 align-middle'>
+                                        <div className='flex flex-row space-x-1'>
+                                            {c.products &&
+                                                products &&
+                                                c.products.map((p_slug) => {
+                                                    const product = products.find((pr) => pr.slug === p_slug);
+                                                    if (!product) return null;
+                                                    return (
+                                                        <div key={p_slug} title={product.label}>
+                                                            <img
+                                                                src={product.image}
+                                                                alt={product.label}
+                                                                className='w-6 h-6 inline-block'
+                                                            />
+                                                        </div>
+                                                    );
+                                                })}
+                                        </div>
+                                    </td>
                                     <td className='py-3 lg:px-6 px-2 text-left font-mono text-xs hidden lg:table-cell align-middle'>
                                         {c.slug}
                                     </td>
@@ -559,7 +682,7 @@ export async function getStaticProps() {
 
     // pull live metadata from API
     try {
-        const cameraMetadataResult = await getAPIAssets( { allow_cached: false } ),
+        const cameraMetadataResult = await getAPIAssets({ allow_cached: false }),
             parsedMetadata = cameraMetadataResult.results
                 .map((r) => {
                     const parsed = parseWebCOOSAsset(r);
@@ -569,11 +692,30 @@ export async function getStaticProps() {
                     return null;
                 })
                 .filter((pm) => pm !== null);
+        const products = await getYaml('products.yaml');
+
+        // Debug logging for products
+        console.log('Products loaded:', {
+            productsCount: products.sections.products.length,
+            products: products.sections.products,
+        });
+
+        // Log product type counts for static metadata
+        const staticProductCounts = parsedMetadata.reduce((acc, camera) => {
+            if (camera.products) {
+                camera.products.forEach((product) => {
+                    acc[product] = (acc[product] || 0) + 1;
+                });
+            }
+            return acc;
+        }, {});
+        console.log('Static metadata product type counts:', staticProductCounts);
 
         return {
             props: {
                 metadata: await getSiteMetadata(),
                 parsedMetadata: parsedMetadata,
+                products: products.sections.products,
             },
         };
     } catch (e) {
