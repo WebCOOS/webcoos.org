@@ -381,16 +381,44 @@ export default function Cameras({ metadata, parsedMetadata }) {
                                         'bg-white': ci % 2 !== 0,
                                     })}
                                 >
-                                    <td className='py-3 lg:pl-3 pl-1 text-left min-w-max'>
-                                        {c.thumbnails && c.thumbnails.square_small && (
+                                    <td className='py-3 lg:pl-3 pl-1 text-left align-middle'>
+                                        {c.thumbnails && (c.thumbnails.rect_small || c.thumbnails.square_small) && (
                                             <img
-                                                src={c.thumbnails.square_small}
+                                                src={c.thumbnails.rect_small || c.thumbnails.square_small}
                                                 alt={c.label}
-                                                className='w-8 inline-block align-middle rounded-sm shadow'
+                                                className='w-40 rounded shadow'
+                                                onError={(e) => {
+                                                    // If rect_small fails, try square_small as fallback
+                                                    if (
+                                                        e.target.src === c.thumbnails.rect_small &&
+                                                        c.thumbnails.square_small
+                                                    ) {
+                                                        e.target.src = c.thumbnails.square_small;
+                                                    } else {
+                                                        // If both fail, hide the image and show placeholder
+                                                        e.target.style.display = 'none';
+                                                        e.target.nextSibling.style.display = 'flex';
+                                                    }
+                                                }}
                                             />
                                         )}
+                                        <div
+                                            className={`w-40 h-24 bg-gray-100 rounded shadow flex items-center justify-center border-2 border-dashed border-gray-300 ${
+                                                c.thumbnails && (c.thumbnails.rect_small || c.thumbnails.square_small)
+                                                    ? 'hidden'
+                                                    : ''
+                                            }`}
+                                        >
+                                            <div className='text-center text-gray-500 text-xs px-2'>
+                                                <div className='mb-1'>
+                                                    <IconCamera size={6} extraClasses='mx-auto' paddingx={0} />
+                                                </div>
+                                                <div className='font-medium'>No Image</div>
+                                                <div className='text-gray-400'>Available</div>
+                                            </div>
+                                        </div>
                                     </td>
-                                    <td className='py-3 lg:pl-3 pl-1 text-left whitespace-nowrap'>
+                                    <td className='py-3 lg:pl-3 pl-1 text-left whitespace-nowrap align-middle'>
                                         <Link href={`/cameras/${c.slug}`}>
                                             <a className='text-primary hover:text-primary-darker hover:underline'>
                                                 <span>{c.label}</span>
@@ -399,16 +427,16 @@ export default function Cameras({ metadata, parsedMetadata }) {
 
                                         <div className='font-mono text-xs lg:hidden'>{c.slug}</div>
                                     </td>
-                                    <td className='py-3 lg:px-6 px-2 text-left text-xs'>
+                                    <td className='py-3 lg:px-6 px-2 text-left text-xs align-middle'>
                                         {c.geography?.region && (
                                             <div className='font-bold'>{c.geography.region.toUpperCase()}</div>
                                         )}
                                         {c.geography?.state && <div>{c.geography.state}</div>}
                                     </td>
-                                    <td className='py-3 lg:px-6 px-2 text-left font-mono text-xs hidden lg:table-cell'>
+                                    <td className='py-3 lg:px-6 px-2 text-left font-mono text-xs hidden lg:table-cell align-middle'>
                                         {c.slug}
                                     </td>
-                                    <td className='py-3 lg:px-6 px-2 text-center'>
+                                    <td className='py-3 lg:px-6 px-2 text-center align-middle'>
                                         <span
                                             className={classNames(
                                                 'group rounded uppercase py-1 relative cursor-help',
@@ -435,7 +463,7 @@ export default function Cameras({ metadata, parsedMetadata }) {
                                             </span>
                                         </span>
                                     </td>
-                                    <td className='py-3 lg:px-6 px-2 text-left text-xs font-mono'>
+                                    <td className='py-3 lg:px-6 px-2 text-left text-xs font-mono align-middle'>
                                         {isLoading ? (
                                             <LoadingSpinner extraClasses={'inline-block ml-1 text-primary'} />
                                         ) : (
@@ -465,7 +493,7 @@ export default function Cameras({ metadata, parsedMetadata }) {
                                             )}
                                         </span>
                                     </td>
-                                    <td className='py-3 lg:px-6 px-2 text-left font-mono text-xs hidden lg:table-cell'>
+                                    <td className='py-3 lg:px-6 px-2 text-left font-mono text-xs hidden lg:table-cell align-middle'>
                                         {isLoading ? (
                                             <LoadingSpinner extraClasses={'inline-block ml-1 text-primary'} />
                                         ) : (
@@ -482,7 +510,7 @@ export default function Cameras({ metadata, parsedMetadata }) {
                                             )
                                         )}
                                     </td>
-                                    <td className='py-3 lg:px-6 px-2'>
+                                    <td className='py-3 lg:px-6 px-2 align-middle'>
                                         <div className='flex flex-col gap-1'>
                                             {c.galleryServices.map((cameraSvcProps, csi) => {
                                                 return (
