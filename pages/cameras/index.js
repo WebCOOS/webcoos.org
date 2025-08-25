@@ -465,10 +465,10 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                             </div>
                                         </div>
                                     </td>
-                                    <td className='py-3 lg:pl-3 pl-1 text-left whitespace-nowrap align-middle'>
+                                    <td className='py-3 lg:pl-3 pl-1 text-left align-middle'>
                                         <Link href={`/cameras/${c.slug}`}>
                                             <a className='text-primary hover:text-primary-darker hover:underline'>
-                                                <span>{c.label}</span>
+                                                <div className='max-w-xs'>{c.label}</div>
                                             </a>
                                         </Link>
 
