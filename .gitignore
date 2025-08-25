@@ -41,6 +41,7 @@ yalc.lock
 
 # IDEs
 .idea
+repomix-*
 
 .tmp
 json_bundle.zip

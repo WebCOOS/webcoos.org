@@ -24,7 +24,8 @@ const SORT_BY_STATUS_THEN_LABEL=`/status/sortorder${THENBY_SEP}${SORT_BY_LABEL}`
 const SORT_BY_STARTING='/dateBounds/0';
 const SORT_BY_ENDING='/dateBounds/1';
 const SORT_BY_RANGE=SORT_BY_STARTING;
-const DEFAULT_SORT=SORT_BY_STATUS_THEN_LABEL;
+const SORT_BY_GEOGRAPHY = `/geography/region${THENBY_SEP}/geography/state${THENBY_SEP}${SORT_BY_LABEL}`;
+const DEFAULT_SORT = SORT_BY_STATUS_THEN_LABEL;
 
 export default function Cameras({ metadata, parsedMetadata }) {
     const { apiUrl, apiVersion, token, source } = useAPIContext();
@@ -32,24 +33,22 @@ export default function Cameras({ metadata, parsedMetadata }) {
     const defaultTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
     const [isLoading, setIsLoading] = useState(true);
     const [curCameras, setCurCameras] = useState([]);
+    const [geographyFilter, setGeographyFilter] = useState('');
 
     // Setting sortedBy and sort direction in single state function
-    const [
-        [ sortedBy, isSortDirectionAscending ],
-        setSortedByAndIsDirectionAscending
-    ] = useState( [ DEFAULT_SORT, true ] );
+    const [[sortedBy, isSortDirectionAscending], setSortedByAndIsDirectionAscending] = useState([DEFAULT_SORT, true]);
 
     useEffect(() => {
         const getCurrentCams = async () => {
             let result;
 
             try {
-                result = await getAPIAssets({apiUrl: apiUrl, apiVersion: apiVersion, token: token, source: source});
+                result = await getAPIAssets({ apiUrl: apiUrl, apiVersion: apiVersion, token: token, source: source });
             } catch (e) {
                 // stop the pulsing effect
                 setIsLoading(false);
                 // @TODO: sentry?
-                console.warn("Could not parse live camera list", e)
+                console.warn('Could not parse live camera list', e);
                 return;
             }
 
@@ -64,9 +63,33 @@ export default function Cameras({ metadata, parsedMetadata }) {
 
             setCurCameras(filteredCams);
             setIsLoading(false);
-        }
+        };
         getCurrentCams();
     }, []);
+
+    // Extract geography information for filtering
+    const geographies = useMemo(() => {
+        const geo = {
+            'IOOS Regions': new Set(),
+            States: new Set(),
+        };
+
+        const cameraList = curCameras.length ? curCameras : parsedMetadata;
+
+        cameraList.forEach((c) => {
+            if (c.geography?.region) {
+                geo['IOOS Regions'].add(c.geography.region);
+            }
+            if (c.geography?.state) {
+                geo['States'].add(c.geography.state);
+            }
+        });
+
+        return {
+            'IOOS Regions': Array.from(geo['IOOS Regions']).sort(),
+            States: Array.from(geo['States']).sort(),
+        };
+    }, [curCameras, parsedMetadata]);
 
     // creates an object, slug -> {starting: Date, ending: Date}
     // uses static metadata at first then when the current metadata loads uses that
@@ -80,22 +103,21 @@ export default function Cameras({ metadata, parsedMetadata }) {
                     {
                         starting: c.dateBounds && c.dateBounds[0] ? Date.parse(c.dateBounds[0]) : null,
                         ending: c.dateBounds && c.dateBounds[1] ? Date.parse(c.dateBounds[1]) : null,
-                    }
+                    },
                 ];
             })
         );
     }, [parsedMetadata, curCameras]);
 
     // show the compile time list of cameras or the dynamically loaded one?
-    const unsortedCameraList = curCameras.length ? curCameras : parsedMetadata;
 
     const sortMemo = useMemo(() => {
         // Copy so that we can sort and filter (without mutating original).
-        let sortedCameraList = [...unsortedCameraList];
+        let sortedCameraList = [...(curCameras.length ? curCameras : parsedMetadata)];
 
         let tempSortedBy = sortedBy;
 
-        if( !tempSortedBy ) {
+        if (!tempSortedBy) {
             // Default to status.slug
             tempSortedBy = DEFAULT_SORT;
         }
@@ -103,65 +125,66 @@ export default function Cameras({ metadata, parsedMetadata }) {
         try {
             // Attempt a json-pointer get on the first elemtn to ensure we don't
             // have programmer error
-            if( sortedCameraList.length > 0 ) {
-
-                pointerGet( sortedCameraList[0], tempSortedBy );
+            if (sortedCameraList.length > 0) {
+                pointerGet(sortedCameraList[0], tempSortedBy);
             }
         } catch {
-            console.warn(
-                `Unable to sort on ${tempSortedBy}, defaulting to ${DEFAULT_SORT}`
-            )
+            console.warn(`Unable to sort on ${tempSortedBy}, defaulting to ${DEFAULT_SORT}`);
             tempSortedBy = DEFAULT_SORT;
         }
 
         try {
-
             // Split by the THENBY_SEP in order to get the order in which we
             // should sort the elements
-            const thenby_split = tempSortedBy.split( THENBY_SEP ).reverse();
+            const thenby_split = tempSortedBy.split(THENBY_SEP).reverse();
 
-            sortedCameraList.sort(
-                (a,b) => {
+            sortedCameraList.sort((a, b) => {
+                let sorts = [...thenby_split];
 
-                    let sorts = [...thenby_split];
+                let ret = 0;
 
-                    let ret = 0;
+                // Return the first non-zero comparison, for each of the
+                // sortable fields, or return zero to reflect equality
+                while (sorts.length > 0) {
+                    const by = sorts.pop();
 
-                    // Return the first non-zero comparison, for each of the
-                    // sortable fields, or return zero to reflect equality
-                    while( sorts.length > 0 ) {
+                    ret = ('' + pointerGet(a, by)).localeCompare('' + pointerGet(b, by));
 
-                        const by = sorts.pop();
-
-                        ret = (
-                            '' + pointerGet( a, by )
-                        ).localeCompare(
-                            ('' + pointerGet( b, by ) )
-                        );
-
-                        if( ret !== 0 ) {
-                            return ret;
-                        }
+                    if (ret !== 0) {
+                        return ret;
                     }
-
-                    return ret;
                 }
-            );
 
-        } catch(error) {
-            console.warn(
-                `Error occurred during asset sort, leaving unsorted: ${error}`
-            )
+                return ret;
+            });
+        } catch (error) {
+            console.warn(`Error occurred during asset sort, leaving unsorted: ${error}`);
         }
 
         // Finally, reverse if that is indicated by state
-        if( !isSortDirectionAscending ) {
+        if (!isSortDirectionAscending) {
             sortedCameraList.reverse();
         }
 
-        return sortedCameraList
+        return sortedCameraList;
+    }, [curCameras, parsedMetadata, sortedBy, isSortDirectionAscending]);
 
-    }, [ unsortedCameraList, sortedBy, isSortDirectionAscending ] )
+    const sortedAndFilteredCameraList = useMemo(() => {
+        let cameras = [...sortMemo];
+        if (geographyFilter) {
+            const [type, value] = geographyFilter.split(':');
+            cameras = cameras.filter((c) => {
+                if (type === 'region') {
+                    return c.geography?.region === value;
+                }
+                if (type === 'state') {
+                    return c.geography?.state === value;
+                }
+                return true;
+            });
+        }
+        return cameras;
+    }, [sortMemo, geographyFilter]);
 
     // Helper function, calls the useState updater with the correct sort field
     // and, if we're already sorting on the desired sorting field, then invert
@@ -171,109 +194,191 @@ export default function Cameras({ metadata, parsedMetadata }) {
         desiredSortedBy,
         currentlyIsSortedDirectionAscending
     ) => {
-        return setSortedByAndIsDirectionAscending(
-            [
-                desiredSortedBy,
-                (
-                    currentlySortedBy === desiredSortedBy
-                    ? !currentlyIsSortedDirectionAscending
-                    : currentlyIsSortedDirectionAscending
-                )
-            ]
-        );
-    }
+        return setSortedByAndIsDirectionAscending([
+            desiredSortedBy,
+            currentlySortedBy === desiredSortedBy
+                ? !currentlyIsSortedDirectionAscending
+                : currentlyIsSortedDirectionAscending,
+        ]);
+    };
 
     return (
         <Page metadata={metadata} title='Cameras'>
             <Section>
                 <SectionHeader>
-                    <div className='inline-block'>
-                        Cameras
-                    </div>
-                    {isLoading && <LoadingSpinner extraClasses={'inline-block ml-1 text-primary'}/>}
+                    <div className='inline-block'>Cameras</div>
+                    {isLoading && <LoadingSpinner extraClasses={'inline-block ml-1 text-primary'} />}
                 </SectionHeader>
+
+                <div className='mb-4'>
+                    <label htmlFor='geography-filter' className='mr-2 font-bold text-sm'>
+                        Filter by Geography:
+                    </label>
+                    <select
+                        id='geography-filter'
+                        value={geographyFilter}
+                        onChange={(e) => setGeographyFilter(e.target.value)}
+                        className='border border-gray-300 rounded p-1 text-sm'
+                    >
+                        <option value=''>All</option>
+                        {geographies['IOOS Regions'].length > 0 && (
+                            <optgroup label='IOOS Regions'>
+                                {geographies['IOOS Regions'].map((region) => (
+                                    <option key={region} value={`region:${region}`}>
+                                        {region}
+                                    </option>
+                                ))}
+                            </optgroup>
+                        )}
+                        {geographies['States'].length > 0 && (
+                            <optgroup label='States'>
+                                {geographies['States'].map((state) => (
+                                    <option key={state} value={`state:${state}`}>
+                                        {state}
+                                    </option>
+                                ))}
+                            </optgroup>
+                        )}
+                    </select>
+                </div>
 
                 <table className='w-full table-auto'>
                     <thead>
-                        <tr className={classNames('bg-primary text-primary-lighter uppercase text-sm leading-normal text-left ', {
-                                'animate-pulse': isLoading,
-                            })}>
+                        <tr
+                            className={classNames(
+                                'bg-primary text-primary-lighter uppercase text-sm leading-normal text-left ',
+                                {
+                                    'animate-pulse': isLoading,
+                                }
+                            )}
+                        >
                             <th className='py-3'></th>
                             <th className='py-3 lg:pl-3 pl-1 text-left'>
                                 <button
-                                    type="button"
-                                    onClick={() => updateSortStateForSortableHeader( sortedBy, SORT_BY_LABEL, isSortDirectionAscending )}
-                                    className="flex items-center uppercase text-sm leading-normal font-bold"
+                                    type='button'
+                                    onClick={() =>
+                                        updateSortStateForSortableHeader(
+                                            sortedBy,
+                                            SORT_BY_LABEL,
+                                            isSortDirectionAscending
+                                        )
+                                    }
+                                    className='flex items-center uppercase text-sm leading-normal font-bold'
                                 >
                                     Camera
-                                    <SortedIcon/>
+                                    <SortedIcon />
+                                </button>
+                            </th>
+                            <th className='py-3 lg:px-6 px-2 text-left'>
+                                <button
+                                    type='button'
+                                    onClick={() =>
+                                        updateSortStateForSortableHeader(
+                                            sortedBy,
+                                            SORT_BY_GEOGRAPHY,
+                                            isSortDirectionAscending
+                                        )
+                                    }
+                                    className='flex items-center uppercase text-sm leading-normal font-bold'
+                                >
+                                    Geography
+                                    <SortedIcon />
                                 </button>
                             </th>
                             <th className='py-3 lg:px-6 px-2 text-left hidden lg:table-cell'>
                                 <button
-                                    type="button"
-                                    onClick={() => updateSortStateForSortableHeader( sortedBy, SORT_BY_SLUG, isSortDirectionAscending )}
-                                    className="flex items-center uppercase text-sm leading-normal font-bold"
+                                    type='button'
+                                    onClick={() =>
+                                        updateSortStateForSortableHeader(
+                                            sortedBy,
+                                            SORT_BY_SLUG,
+                                            isSortDirectionAscending
+                                        )
+                                    }
+                                    className='flex items-center uppercase text-sm leading-normal font-bold'
                                 >
                                     Data Access Slug
-                                    <SortedIcon/>
+                                    <SortedIcon />
                                 </button>
                             </th>
 
                             <th className='py-3 lg:px-6 px-2 text-center'>
-
                                 <button
-                                    type="button"
-                                    onClick={() => updateSortStateForSortableHeader( sortedBy, SORT_BY_STATUS_THEN_LABEL, isSortDirectionAscending )}
-                                    className="flex items-center uppercase text-sm leading-normal font-bold"
+                                    type='button'
+                                    onClick={() =>
+                                        updateSortStateForSortableHeader(
+                                            sortedBy,
+                                            SORT_BY_STATUS_THEN_LABEL,
+                                            isSortDirectionAscending
+                                        )
+                                    }
+                                    className='flex items-center uppercase text-sm leading-normal font-bold'
                                 >
                                     Status
-                                    <SortedIcon/>
+                                    <SortedIcon />
                                 </button>
                             </th>
                             <th className='py-3 lg:px-6 px-2 text-left'>
                                 <span className='lg:hidden'>
                                     <button
-                                        type="button"
-                                        onClick={() => updateSortStateForSortableHeader( sortedBy, SORT_BY_RANGE, isSortDirectionAscending )}
-                                        className="flex items-center uppercase text-sm leading-normal font-bold"
+                                        type='button'
+                                        onClick={() =>
+                                            updateSortStateForSortableHeader(
+                                                sortedBy,
+                                                SORT_BY_RANGE,
+                                                isSortDirectionAscending
+                                            )
+                                        }
+                                        className='flex items-center uppercase text-sm leading-normal font-bold'
                                     >
                                         Range
-                                        <SortedIcon/>
+                                        <SortedIcon />
                                     </button>
                                 </span>
                                 <span className='hidden lg:table-cell'>
                                     <button
-                                        type="button"
-                                        onClick={() => updateSortStateForSortableHeader( sortedBy, SORT_BY_STARTING, isSortDirectionAscending )}
-                                        className="flex items-center uppercase text-sm leading-normal font-bold"
+                                        type='button'
+                                        onClick={() =>
+                                            updateSortStateForSortableHeader(
+                                                sortedBy,
+                                                SORT_BY_STARTING,
+                                                isSortDirectionAscending
+                                            )
+                                        }
+                                        className='flex items-center uppercase text-sm leading-normal font-bold'
                                     >
                                         Starting
-                                        <SortedIcon/>
+                                        <SortedIcon />
                                     </button>
                                 </span>
                             </th>
                             <th className='py-3 lg:px-6 px-2 text-left hidden lg:table-cell'>
                                 <button
-                                        type="button"
-                                        onClick={() => updateSortStateForSortableHeader( sortedBy, SORT_BY_ENDING, isSortDirectionAscending )}
-                                        className="flex items-center uppercase text-sm leading-normal font-bold"
-                                    >
-                                        Ending
-                                        <SortedIcon/>
-                                    </button>
+                                    type='button'
+                                    onClick={() =>
+                                        updateSortStateForSortableHeader(
+                                            sortedBy,
+                                            SORT_BY_ENDING,
+                                            isSortDirectionAscending
+                                        )
+                                    }
+                                    className='flex items-center uppercase text-sm leading-normal font-bold'
+                                >
+                                    Ending
+                                    <SortedIcon />
+                                </button>
                             </th>
                             <th className='py-3 lg:px-6 px-2 text-left'>Gallery Links</th>
                         </tr>
                     </thead>
                     <tbody className='text-gray-800 text-sm'>
-                        {sortMemo.map((c, ci) => {
+                        {sortedAndFilteredCameraList.map((c, ci) => {
                             return (
                                 <tr
                                     key={c.slug}
                                     className={classNames('border-b border-gray-200 hover:bg-gray-200 ', {
                                         'bg-gray-100 ': ci % 2 === 0,
-                                        'bg-white': ci % 2 !== 0
+                                        'bg-white': ci % 2 !== 0,
                                     })}
                                 >
                                     <td className='py-3 lg:pl-3 pl-1 text-left min-w-max'>
@@ -293,6 +398,12 @@ export default function Cameras({ metadata, parsedMetadata }) {
                                         </Link>
 
                                         <div className='font-mono text-xs lg:hidden'>{c.slug}</div>
+                                    </td>
+                                    <td className='py-3 lg:px-6 px-2 text-left text-xs'>
+                                        {c.geography?.region && (
+                                            <div className='font-bold'>{c.geography.region.toUpperCase()}</div>
+                                        )}
+                                        {c.geography?.state && <div>{c.geography.state}</div>}
                                     </td>
                                     <td className='py-3 lg:px-6 px-2 text-left font-mono text-xs hidden lg:table-cell'>
                                         {c.slug}
@@ -325,10 +436,12 @@ export default function Cameras({ metadata, parsedMetadata }) {
                                         </span>
                                     </td>
                                     <td className='py-3 lg:px-6 px-2 text-left text-xs font-mono'>
-                                        {isLoading
-                                            ? (<LoadingSpinner extraClasses={'inline-block ml-1 text-primary'} />)
-                                            :
-                                            dateRanges && dateRanges[c.slug] && dateRanges[c.slug].starting && (
+                                        {isLoading ? (
+                                            <LoadingSpinner extraClasses={'inline-block ml-1 text-primary'} />
+                                        ) : (
+                                            dateRanges &&
+                                            dateRanges[c.slug] &&
+                                            dateRanges[c.slug].starting && (
                                                 <span>
                                                     {formatInTimeZone(
                                                         dateRanges[c.slug].starting,
@@ -337,7 +450,7 @@ export default function Cameras({ metadata, parsedMetadata }) {
                                                     )}
                                                 </span>
                                             )
-                                        }
+                                        )}
                                         <span className='lg:hidden'>
                                             {' - '}
                                             <br />
@@ -353,10 +466,12 @@ export default function Cameras({ metadata, parsedMetadata }) {
                                         </span>
                                     </td>
                                     <td className='py-3 lg:px-6 px-2 text-left font-mono text-xs hidden lg:table-cell'>
-                                        {isLoading
-                                            ? (<LoadingSpinner extraClasses={'inline-block ml-1 text-primary'} />)
-                                            :
-                                            dateRanges && dateRanges[c.slug] && dateRanges[c.slug].ending && (
+                                        {isLoading ? (
+                                            <LoadingSpinner extraClasses={'inline-block ml-1 text-primary'} />
+                                        ) : (
+                                            dateRanges &&
+                                            dateRanges[c.slug] &&
+                                            dateRanges[c.slug].ending && (
                                                 <span>
                                                     {formatInTimeZone(
                                                         dateRanges[c.slug].ending,
@@ -365,7 +480,7 @@ export default function Cameras({ metadata, parsedMetadata }) {
                                                     )}
                                                 </span>
                                             )
-                                        }
+                                        )}
                                     </td>
                                     <td className='py-3 lg:px-6 px-2'>
                                         <div className='flex flex-col gap-1'>

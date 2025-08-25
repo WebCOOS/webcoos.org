@@ -1,6 +1,71 @@
 import { differenceInDays } from 'date-fns';
 import * as duration from 'duration-fns';
 
+const state_abbrevs = [
+    'AL',
+    'AK',
+    'AZ',
+    'AR',
+    'CA',
+    'CO',
+    'CT',
+    'DE',
+    'FL',
+    'GA',
+    'HI',
+    'ID',
+    'IL',
+    'IN',
+    'IA',
+    'KS',
+    'KY',
+    'LA',
+    'ME',
+    'MD',
+    'MA',
+    'MI',
+    'MN',
+    'MS',
+    'MO',
+    'MT',
+    'NE',
+    'NV',
+    'NH',
+    'NJ',
+    'NM',
+    'NY',
+    'NC',
+    'ND',
+    'OH',
+    'OK',
+    'OR',
+    'PA',
+    'RI',
+    'SC',
+    'SD',
+    'TN',
+    'TX',
+    'UT',
+    'VT',
+    'VA',
+    'WA',
+    'WV',
+    'WI',
+    'WY',
+];
+
+function getStateFromCameraLabel(label) {
+    if (!label) {
+        return null;
+    }
+
+    for (const state of state_abbrevs) {
+        if (label.includes(`, ${state}`)) {
+            return state;
+        }
+    }
+    return null;
+}
 
 function findStream( streams, stream_protocol, match_preference_url_regex ) {
 
@@ -138,6 +203,7 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
 
     // add a status description to the results
     const status = getStatus(new Date(serviceDates[serviceDates.length - 1]), statusNow, !!(hlsUrl || dashlUrl || embedUrl));
+    const state = getStateFromCameraLabel(item.data?.common?.label);
 
     return {
         uuid: item.uuid,
@@ -161,6 +227,10 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
         galleryServices: galleryServices,
         wedge: wedge,
         status: status,
+        geography: {
+            region: item.data?.properties?.group,
+            state: state,
+        },
     };
 }
 
