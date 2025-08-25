@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { IconLink } from './Icon';
 
@@ -26,7 +26,8 @@ export default function StationCard({
     extraClasses = '',
     ...props
 }) {
-    const hasStream = (!!hls_url || !!dash_url || !!embed_url);
+    const [streamError, setStreamError] = useState(false);
+    const hasStream = !!hls_url || !!dash_url || !!embed_url;
 
     const thumbsProps = useMemo(() => {
         if (thumbnails) {
@@ -51,17 +52,44 @@ export default function StationCard({
     return (
         <div className={classNames('w-full rounded overflow-hidden shadow-lg bg-white', extraClasses)}>
             {hasStream ? (
-                !!embed_url ? (
-                    <iframe
-                        src={embed_url}
-                        width='500px'
-                        height='375px'
-                        frameBorder='0'
-                        allowFullScreen
-                        {...embedAttrs}
-                    ></iframe>
+                streamError ? (
+                    <div className='w-full bg-gray-200 text-gray-700 flex flex-col justify-center items-center p-4 aspect-video'>
+                        <svg
+                            xmlns='http://www.w3.org/2000/svg'
+                            className='h-8 w-8 text-red-500 mb-2'
+                            fill='none'
+                            viewBox='0 0 24 24'
+                            stroke='currentColor'
+                            strokeWidth={2}
+                        >
+                            <path
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                                d='M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636'
+                            />
+                        </svg>
+                        <div className='text-red-500 font-bold text-lg mb-1'>Feed Unavailable</div>
+                        <p className='text-center text-xs'>Could not load live video.</p>
+                    </div>
+                ) : !!embed_url ? (
+                    <div className='aspect-video'>
+                        <iframe
+                            src={embed_url}
+                            className='w-full h-full'
+                            frameBorder='0'
+                            allowFullScreen
+                            {...embedAttrs}
+                        ></iframe>
+                    </div>
                 ) : (
-                    <VideoStreamPlayer key={slug} assetUri={hls_url || dash_url} className='object-contain border' />
+                    <div className='aspect-video'>
+                        <VideoStreamPlayer
+                            key={slug}
+                            assetUri={hls_url || dash_url}
+                            className='object-contain border w-full h-full'
+                            onError={() => setStreamError(true)}
+                        />
+                    </div>
                 )
             ) : (
                 <img key={slug} {...thumbsProps} alt={label} className='w-full object-fill' />

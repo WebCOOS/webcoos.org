@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { StaticMap } from '@axdspub/landing-page-components';
 import AutoSizer from '@enykeev/react-virtualized/dist/commonjs/AutoSizer';
 import { useMapboxContext } from './contexts/MapboxContext';
@@ -16,57 +16,46 @@ const VideoStreamPlayer = dynamic(
     { ssr: false }
 );
 
-function selectStream( stream_list ) {
-
-    if( !stream_list ) {
-        return [ null, null ];
+function selectStream(stream_list) {
+    if (!stream_list) {
+        return [null, null];
     }
 
     // Get deep copy to ensure we aren't mutating the original
-    const working = JSON.parse( JSON.stringify( stream_list ) );
+    const working = JSON.parse(JSON.stringify(stream_list));
 
-    working.forEach(
-        ( [stream_type, stream] ) => {
-            if(
-                ( !( 'priority' in stream ) )
-                ||
-                ( typeof stream.priority === 'undefined' )
-            ) {
-                // If a priority is missing, give it a sufficiently low priority
-                // to ensure it isn't sorted above other priorities, but give
-                // preference in the following order among other unspecified stream
-                // types:
-                //
-                // 1. (highest) hls
-                // 2. dash
-                // 3. (lowest) embed
+    working.forEach(([stream_type, stream]) => {
+        if (!('priority' in stream) || typeof stream.priority === 'undefined') {
+            // If a priority is missing, give it a sufficiently low priority
+            // to ensure it isn't sorted above other priorities, but give
+            // preference in the following order among other unspecified stream
+            // types:
+            //
+            // 1. (highest) hls
+            // 2. dash
+            // 3. (lowest) embed
 
-                switch( stream_type ) {
-                    case "hls":
-                        stream.priority = -97;
-                        return;
-                    case "dash":
-                        stream.priority = -98;
-                        return;
-                    case "embed":
-                        stream.priority = -99;
-                        return;
-                    default:
-                        throw new Error(
-                            `Unhandled stream type: ${stream_type}`
-                        )
-                }
+            switch (stream_type) {
+                case 'hls':
+                    stream.priority = -97;
+                    return;
+                case 'dash':
+                    stream.priority = -98;
+                    return;
+                case 'embed':
+                    stream.priority = -99;
+                    return;
+                default:
+                    throw new Error(`Unhandled stream type: ${stream_type}`);
             }
         }
-    )
+    });
 
     // Sort by priority, highest priority being last in the array, and taking
     // precedence when popped off the end.
-    working.sort(
-        ( [a_type,a_stream],[b_type, b_stream] ) => {
-            return a_stream.priority - b_stream.priority;
-        }
-    );
+    working.sort(([a_type, a_stream], [b_type, b_stream]) => {
+        return a_stream.priority - b_stream.priority;
+    });
 
     return working.pop();
 }
@@ -91,6 +80,7 @@ export default function CameraSummary({
     alt_bg,
     has_bottom = true,
 }) {
+    const [streamError, setStreamError] = useState(false);
     const mapboxAccessToken = useMapboxContext();
 
     const hls_url = hls_stream?.url,
@@ -98,7 +88,7 @@ export default function CameraSummary({
         embed_url = embed_stream?.url,
         embedAttrs = embed_stream?.attributes;
 
-    const hasStream = (!!hls_url || !!dash_url || !!embed_url);
+    const hasStream = !!hls_url || !!dash_url || !!embed_url;
 
     const thumbsProps = useMemo(() => {
         if (thumbnails) {
@@ -111,12 +101,12 @@ export default function CameraSummary({
             return {
                 src: thumbnails.rect_large,
                 srcSet: srcset,
-                sizes: sizes
-            }
+                sizes: sizes,
+            };
         } else {
             return {
-                src: thumbnail
-            }
+                src: thumbnail,
+            };
         }
     }, [thumbnail, thumbnails, hls_url, dash_url, embed_url]);
 
@@ -127,36 +117,37 @@ export default function CameraSummary({
         return '#ACB5B1';
     }, [alt_bg]);
 
-    const galleryServices = services ? services
-        .filter((service) => service.data.type !== 'StreamingService')
-        .flatMap((service) => {
-            return {
-                uuid: service.uuid,
-                common: service.data.common,
-                elements: service.elements,
-            };
-        }) : [];
+    const galleryServices = services
+        ? services
+              .filter((service) => service.data.type !== 'StreamingService')
+              .flatMap((service) => {
+                  return {
+                      uuid: service.uuid,
+                      common: service.data.common,
+                      elements: service.elements,
+                  };
+              })
+        : [];
 
     const available_streams = [];
 
-    if( !!hls_stream ) {
-        available_streams.push( ['hls', hls_stream] );
+    if (!!hls_stream) {
+        available_streams.push(['hls', hls_stream]);
     }
 
-    if( !!dash_stream ) {
-        available_streams.push( ['dash', dash_stream] );
+    if (!!dash_stream) {
+        available_streams.push(['dash', dash_stream]);
     }
 
-    if( !!embed_stream ) {
-        available_streams.push( ['embed', embed_stream] );
+    if (!!embed_stream) {
+        available_streams.push(['embed', embed_stream]);
     }
 
-    let selected_stream_type = null, selected_stream = null;
+    let selected_stream_type = null,
+        selected_stream = null;
 
-    if( available_streams.length > 0 ) {
-        [ selected_stream_type, selected_stream ] = selectStream(
-            available_streams
-        );
+    if (available_streams.length > 0) {
+        [selected_stream_type, selected_stream] = selectStream(available_streams);
         // console.log( 'selected: ', selected_stream_type, selected_stream )
     }
 
@@ -181,7 +172,7 @@ export default function CameraSummary({
                         rehypePlugins={[rehypeRaw, rehypeKatex]}
                         className={classNames('prose camera-prose text-sm p-0 pt-4')}
                     >
-                    {description}
+                        {description}
                     </ReactMarkdown>
                 </div>
                 {cameraSvcDataLink && (
@@ -190,16 +181,52 @@ export default function CameraSummary({
                     </div>
                 )}
             </div>
-            <div className='md:self-center md:justify-self-center'>
+            <div className='md:self-center md:justify-self-center w-full max-w-[500px]'>
                 {hasStream ? (
-                    ( !!selected_stream_type && selected_stream_type === 'embed' ) ? (
-                        <iframe src={embed_url} width='500px' height='375px' frameBorder='0' allowFullScreen {...embedAttrs}></iframe>
-                    ) : (
-                        <VideoStreamPlayer
-                            assetUri={hls_url || dash_url}
-                            className='object-contain border'
+                    streamError ? (
+                        <div
+                            className='w-full bg-gray-800 text-white flex flex-col justify-center items-center p-8 text-center border aspect-[4/3]'
                             style={{ borderColor: borderColor }}
-                        />
+                        >
+                            <svg
+                                xmlns='http://www.w3.org/2000/svg'
+                                className='h-16 w-16 text-red-500 mb-4'
+                                fill='none'
+                                viewBox='0 0 24 24'
+                                stroke='currentColor'
+                                strokeWidth={2}
+                            >
+                                <path
+                                    strokeLinecap='round'
+                                    strokeLinejoin='round'
+                                    d='M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636'
+                                />
+                            </svg>
+                            <div className='text-red-400 font-bold text-2xl mb-2'>Live Feed Unavailable</div>
+                            <p>There appears to be a technical problem with this camera's live feed.</p>
+                            <p className='text-sm text-gray-400 mt-2'>
+                                Please try again later or check the archived imagery.
+                            </p>
+                        </div>
+                    ) : !!selected_stream_type && selected_stream_type === 'embed' ? (
+                        <div className='aspect-[4/3]'>
+                            <iframe
+                                src={embed_url}
+                                className='w-full h-full'
+                                frameBorder='0'
+                                allowFullScreen
+                                {...embedAttrs}
+                            ></iframe>
+                        </div>
+                    ) : (
+                        <div className='aspect-[4/3]'>
+                            <VideoStreamPlayer
+                                assetUri={hls_url || dash_url}
+                                className='object-contain border w-full h-full'
+                                style={{ borderColor: borderColor }}
+                                onError={() => setStreamError(true)}
+                            />
+                        </div>
                     )
                 ) : (
                     <img
