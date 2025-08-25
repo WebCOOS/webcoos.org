@@ -37,6 +37,7 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
     const [curCameras, setCurCameras] = useState([]);
     const [geographyFilter, setGeographyFilter] = useState('');
     const [productFilter, setProductFilter] = useState('');
+    const [imageryTypeFilter, setImageryTypeFilter] = useState('');
 
     // Setting sortedBy and sort direction in single state function
     const [[sortedBy, isSortDirectionAscending], setSortedByAndIsDirectionAscending] = useState([DEFAULT_SORT, true]);
@@ -205,8 +206,22 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
         if (productFilter) {
             cameras = cameras.filter((c) => c.products && c.products.includes(productFilter));
         }
+        if (imageryTypeFilter) {
+            cameras = cameras.filter((c) => {
+                if (imageryTypeFilter === 'live') {
+                    return c.has_live_stream;
+                }
+                if (imageryTypeFilter === 'video') {
+                    return c.has_archived_video;
+                }
+                if (imageryTypeFilter === 'snapshots') {
+                    return c.has_archived_images && !c.has_live_stream && !c.has_archived_video;
+                }
+                return true;
+            });
+        }
         return cameras;
-    }, [sortMemo, geographyFilter, productFilter]);
+    }, [sortMemo, geographyFilter, productFilter, imageryTypeFilter]);
 
     // Helper function, calls the useState updater with the correct sort field
     // and, if we're already sorting on the desired sorting field, then invert
@@ -282,6 +297,22 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                         {p.label} ({availableProducts[p.slug]})
                                     </option>
                                 ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label htmlFor='imagery-type-filter' className='mr-2 font-bold text-sm'>
+                            Imagery type:
+                        </label>
+                        <select
+                            id='imagery-type-filter'
+                            value={imageryTypeFilter}
+                            onChange={(e) => setImageryTypeFilter(e.target.value)}
+                            className='border border-gray-300 rounded p-1 text-sm'
+                        >
+                            <option value=''>All</option>
+                            <option value='live'>Video - Live stream</option>
+                            <option value='video'>Video - Near real time</option>
+                            <option value='snapshots'>Snapshots only</option>
                         </select>
                     </div>
                 </div>

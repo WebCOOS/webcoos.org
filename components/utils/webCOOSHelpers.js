@@ -133,9 +133,11 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
     const hlsStream = findStream( streams, 'hls', /.*axds.co.*/ );
     const embedStream = findStream( streams, 'embed', /.*axds.co.*/ );
 
-    const dashlUrl = dashStream?.url;
+    const dashUrl = dashStream?.url;
     const hlsUrl = hlsStream?.url;
     const embedUrl = embedStream?.url;
+
+    const has_live_stream = !!(hlsUrl || dashUrl || embedUrl);
 
     const thumbnails = item.data.properties?.thumbnails?.base;
 
@@ -201,6 +203,9 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
               })
         : [];
 
+    const has_archived_video = galleryServices.some(s => s.svcType === 'video');
+    const has_archived_images = galleryServices.some(s => s.svcType === 'img');
+
     let cameraProducts = [];
     if (services) {
         const productsFromSystem = services
@@ -236,7 +241,7 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
     const status = getStatus(
         new Date(serviceDates[serviceDates.length - 1]),
         statusNow,
-        !!(hlsUrl || dashlUrl || embedUrl)
+        has_live_stream
     );
     const state = getStateFromCameraLabel(item.data?.common?.label);
 
@@ -267,6 +272,9 @@ function parseWebCOOSAsset(item, statusNow=undefined) {
             region: item.data?.properties?.group,
             state: state,
         },
+        has_live_stream,
+        has_archived_video,
+        has_archived_images,
     };
 }
 
