@@ -512,7 +512,7 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                         {c.geography?.state && <div>{c.geography.state}</div>}
                                     </td>
                                     <td className='py-3 lg:px-6 px-2 align-middle'>
-                                        <div className='flex flex-row space-x-1'>
+                                        <div className='flex flex-row space-x-2'>
                                             {c.products &&
                                                 products &&
                                                 c.products.map((p_slug) => {
@@ -520,11 +520,13 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                                     if (!product) return null;
                                                     return (
                                                         <div key={p_slug} title={product.label}>
-                                                            <img
-                                                                src={product.image}
-                                                                alt={product.label}
-                                                                className='w-6 h-6 inline-block'
-                                                            />
+                                                            <div className='flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full border border-gray-300'>
+                                                                <img
+                                                                    src={product.image}
+                                                                    alt={product.label}
+                                                                    className='w-5 h-5'
+                                                                />
+                                                            </div>
                                                         </div>
                                                     );
                                                 })}
