@@ -327,8 +327,8 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                 }
                             )}
                         >
-                            <th className='py-3'></th>
-                            <th className='py-3 lg:pl-3 pl-1 text-left'>
+                            <th className='py-2 pl-1 lg:pl-2'></th>
+                            <th className='py-2 pl-1 lg:pl-2 text-left'>
                                 <button
                                     type='button'
                                     onClick={() =>
@@ -344,7 +344,7 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                     <SortedIcon />
                                 </button>
                             </th>
-                            <th className='py-3 lg:px-6 px-2 text-left'>
+                            <th className='py-2 px-1 lg:px-2 text-left hidden md:table-cell'>
                                 <button
                                     type='button'
                                     onClick={() =>
@@ -360,10 +360,10 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                     <SortedIcon />
                                 </button>
                             </th>
-                            <th className='py-3 lg:px-6 px-2 text-left'>
+                            <th className='py-2 px-1 lg:px-2 text-left hidden md:table-cell'>
                                 <span className='uppercase text-sm leading-normal font-bold'>Products</span>
                             </th>
-                            <th className='py-3 lg:px-6 px-2 text-left hidden lg:table-cell'>
+                            <th className='py-2 px-1 lg:px-2 text-left hidden lg:table-cell'>
                                 <button
                                     type='button'
                                     onClick={() =>
@@ -380,7 +380,7 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                 </button>
                             </th>
 
-                            <th className='py-3 lg:px-6 px-2 text-center'>
+                            <th className='py-2 px-1 lg:px-2 text-center'>
                                 <button
                                     type='button'
                                     onClick={() =>
@@ -396,7 +396,7 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                     <SortedIcon />
                                 </button>
                             </th>
-                            <th className='py-3 lg:px-6 px-2 text-left'>
+                            <th className='py-2 px-1 lg:px-2 text-left'>
                                 <span className='lg:hidden'>
                                     <button
                                         type='button'
@@ -430,7 +430,7 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                     </button>
                                 </span>
                             </th>
-                            <th className='py-3 lg:px-6 px-2 text-left hidden lg:table-cell'>
+                            <th className='py-2 px-1 lg:px-2 text-left hidden lg:table-cell'>
                                 <button
                                     type='button'
                                     onClick={() =>
@@ -446,7 +446,7 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                     <SortedIcon />
                                 </button>
                             </th>
-                            <th className='py-3 lg:px-6 px-2 text-left'>Gallery Links</th>
+                            <th className='py-2 px-1 lg:px-2 text-left'>Gallery Links</th>
                         </tr>
                     </thead>
                     <tbody className='text-gray-800 text-sm'>
@@ -469,12 +469,12 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                         }
                                     }}
                                 >
-                                    <td className='py-3 lg:pl-3 pl-1 text-left align-middle'>
+                                    <td className='py-2 pl-1 lg:pl-2 text-left align-middle'>
                                         {c.thumbnails && (c.thumbnails.rect_small || c.thumbnails.square_small) && (
                                             <img
                                                 src={c.thumbnails.rect_small || c.thumbnails.square_small}
                                                 alt={c.label}
-                                                className='w-40 rounded shadow'
+                                                className='w-24 lg:w-40 rounded shadow'
                                                 onError={(e) => {
                                                     // If rect_small fails, try square_small as fallback
                                                     if (
@@ -491,7 +491,7 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                             />
                                         )}
                                         <div
-                                            className={`w-40 h-24 bg-gray-100 rounded shadow flex items-center justify-center border-2 border-dashed border-gray-300 ${
+                                            className={`w-24 h-16 lg:w-40 lg:h-24 bg-gray-100 rounded shadow flex items-center justify-center border-2 border-dashed border-gray-300 ${
                                                 c.thumbnails && (c.thumbnails.rect_small || c.thumbnails.square_small)
                                                     ? 'hidden'
                                                     : ''
@@ -499,14 +499,14 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                         >
                                             <div className='text-center text-gray-500 text-xs px-2'>
                                                 <div className='mb-1'>
-                                                    <IconCamera size={6} extraClasses='mx-auto' paddingx={0} />
+                                                    <IconCamera size={4} extraClasses='mx-auto' paddingx={0} />
                                                 </div>
                                                 <div className='font-medium'>No Image</div>
                                                 <div className='text-gray-400'>Available</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className='py-3 lg:pl-3 pl-1 text-left align-middle'>
+                                    <td className='py-2 pl-1 lg:pl-2 text-left align-middle'>
                                         <Link href={`/cameras/${c.slug}`}>
                                             <a className='text-primary hover:text-primary-darker hover:underline'>
                                                 <div className='max-w-xs'>{c.label}</div>
@@ -515,13 +515,13 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
 
                                         <div className='font-mono text-xs lg:hidden'>{c.slug}</div>
                                     </td>
-                                    <td className='py-3 lg:px-6 px-2 text-left text-xs align-middle'>
+                                    <td className='py-2 px-1 lg:px-2 text-left text-xs align-middle hidden md:table-cell'>
                                         {c.geography?.region && (
                                             <div className='font-bold'>{c.geography.region.toUpperCase()}</div>
                                         )}
                                         {c.geography?.state && <div>{c.geography.state}</div>}
                                     </td>
-                                    <td className='py-3 lg:px-6 px-2 align-middle'>
+                                    <td className='py-2 px-1 lg:px-2 align-middle hidden md:table-cell'>
                                         <div className='flex flex-row space-x-2'>
                                             {c.products &&
                                                 products &&
@@ -542,10 +542,10 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                                 })}
                                         </div>
                                     </td>
-                                    <td className='py-3 lg:px-6 px-2 text-left font-mono text-xs hidden lg:table-cell align-middle'>
+                                    <td className='py-2 px-1 lg:px-2 text-left font-mono text-xs hidden lg:table-cell align-middle'>
                                         {c.slug}
                                     </td>
-                                    <td className='py-3 lg:px-6 px-2 text-center align-middle'>
+                                    <td className='py-2 px-1 lg:px-2 text-center align-middle'>
                                         <span
                                             className={classNames(
                                                 'group rounded uppercase py-1 relative cursor-help',
@@ -572,7 +572,7 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                             </span>
                                         </span>
                                     </td>
-                                    <td className='py-3 lg:px-6 px-2 text-left text-xs font-mono align-middle'>
+                                    <td className='py-2 px-1 lg:px-2 text-left text-xs font-mono align-middle'>
                                         {isLoading ? (
                                             <LoadingSpinner extraClasses={'inline-block ml-1 text-primary'} />
                                         ) : (
@@ -602,7 +602,7 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                             )}
                                         </span>
                                     </td>
-                                    <td className='py-3 lg:px-6 px-2 text-left font-mono text-xs hidden lg:table-cell align-middle'>
+                                    <td className='py-2 px-1 lg:px-2 text-left font-mono text-xs hidden lg:table-cell align-middle'>
                                         {isLoading ? (
                                             <LoadingSpinner extraClasses={'inline-block ml-1 text-primary'} />
                                         ) : (
@@ -619,7 +619,7 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                             )
                                         )}
                                     </td>
-                                    <td className='py-3 lg:px-6 px-2 align-middle'>
+                                    <td className='py-2 px-1 lg:px-2 align-middle'>
                                         <div className='flex flex-col gap-1'>
                                             {c.galleryServices.map((cameraSvcProps, csi) => {
                                                 return (
@@ -627,7 +627,7 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                                         key={cameraSvcProps.common.slug}
                                                         href={`/cameras/${c.slug}?gallery=${cameraSvcProps.common.slug}`}
                                                     >
-                                                        <a className='truncate inline hover:text-primary-darker hover:underline text-primary'>
+                                                        <a className='truncate inline hover:text-primary-darker hover:underline text-primary text-xs'>
                                                             {cameraSvcProps.svcType === 'img' ? (
                                                                 <IconCamera
                                                                     size={4}
@@ -641,7 +641,9 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                                                                     paddingx={0}
                                                                 />
                                                             )}
-                                                            {cameraSvcProps.common.label}
+                                                            <span className='hidden md:inline'>
+                                                                {cameraSvcProps.common.label}
+                                                            </span>
                                                         </a>
                                                     </Link>
                                                 );
