@@ -454,10 +454,20 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                             return (
                                 <tr
                                     key={c.slug}
-                                    className={classNames('border-b border-gray-200 hover:bg-gray-200 ', {
+                                    className={classNames('border-b border-gray-200 hover:bg-gray-200 cursor-pointer', {
                                         'bg-gray-100 ': ci % 2 === 0,
                                         'bg-white': ci % 2 !== 0,
                                     })}
+                                    onClick={(e) => {
+                                        // Check if the click target is within the gallery links column (last column)
+                                        const target = e.target;
+                                        const galleryCell = target.closest('td:last-child');
+
+                                        // If click is not in gallery links column, navigate to camera page
+                                        if (!galleryCell) {
+                                            window.location.href = `/cameras/${c.slug}`;
+                                        }
+                                    }}
                                 >
                                     <td className='py-3 lg:pl-3 pl-1 text-left align-middle'>
                                         {c.thumbnails && (c.thumbnails.rect_small || c.thumbnails.square_small) && (
