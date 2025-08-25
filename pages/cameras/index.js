@@ -30,12 +30,7 @@ const DEFAULT_SORT = SORT_BY_STATUS_THEN_LABEL;
 export default function Cameras({ metadata, parsedMetadata, products }) {
     const { apiUrl, apiVersion, token, source } = useAPIContext();
 
-    // Debug logging for component props
-    console.log('Cameras component props:', {
-        productsCount: products?.length || 0,
-        products: products,
-        parsedMetadataCount: parsedMetadata?.length || 0,
-    });
+
 
     const defaultTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
     const [isLoading, setIsLoading] = useState(true);
@@ -60,31 +55,6 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                 return;
             }
 
-            // Log raw API response structure for debugging
-            if (result.results.length > 0) {
-                const sampleItem = result.results[0];
-                console.log('Raw API response sample:', {
-                    feeds: sampleItem.feeds?.length || 0,
-                    sampleFeed: sampleItem.feeds?.[0]
-                        ? {
-                              products: sampleItem.feeds[0].products?.length || 0,
-                              sampleProduct: sampleItem.feeds[0].products?.[0]
-                                  ? {
-                                        services: sampleItem.feeds[0].products[0].services?.length || 0,
-                                        sampleService: sampleItem.feeds[0].products[0].services?.[0]
-                                            ? {
-                                                  type: sampleItem.feeds[0].products[0].services[0].data.type,
-                                                  system: sampleItem.feeds[0].products[0].services[0].data.system,
-                                                  common: sampleItem.feeds[0].products[0].services[0].data.common,
-                                              }
-                                            : null,
-                                    }
-                                  : null,
-                          }
-                        : null,
-                });
-            }
-
             const parsedCams = result.results.map((item) => {
                     const parsedItem = parseWebCOOSAsset(item);
                     if (parsedItem && parsedItem.access === 'public') {
@@ -93,33 +63,6 @@ export default function Cameras({ metadata, parsedMetadata, products }) {
                     return null;
                 }),
                 filteredCams = parsedCams.filter((pc) => pc !== null);
-
-            // Debug logging for parsed cameras
-            console.log('Parsed cameras debug:', {
-                totalResults: result.results.length,
-                parsedCount: parsedCams.length,
-                filteredCount: filteredCams.length,
-                sampleCamera: filteredCams[0]
-                    ? {
-                          label: filteredCams[0].label,
-                          products: filteredCams[0].products,
-                          servicesCount: filteredCams[0].services?.length,
-                      }
-                    : null,
-            });
-
-            console.log('Available products with counts:', availableProducts);
-
-            // Log available vs defined products
-            const availableProductSlugs = new Set(Object.keys(availableProducts));
-            const definedProductSlugs = new Set(products.map((p) => p.slug));
-            const unusedProducts = [...definedProductSlugs].filter((p) => !availableProductSlugs.has(p));
-            console.log('Product availability:', {
-                available: availableProductSlugs,
-                defined: definedProductSlugs,
-                unused: unusedProducts,
-                summary: `${availableProductSlugs.size}/${definedProductSlugs.size} products have cameras`,
-            });
 
             setCurCameras(filteredCams);
             setIsLoading(false);
@@ -693,23 +636,6 @@ export async function getStaticProps() {
                 })
                 .filter((pm) => pm !== null);
         const products = await getYaml('products.yaml');
-
-        // Debug logging for products
-        console.log('Products loaded:', {
-            productsCount: products.sections.products.length,
-            products: products.sections.products,
-        });
-
-        // Log product type counts for static metadata
-        const staticProductCounts = parsedMetadata.reduce((acc, camera) => {
-            if (camera.products) {
-                camera.products.forEach((product) => {
-                    acc[product] = (acc[product] || 0) + 1;
-                });
-            }
-            return acc;
-        }, {});
-        console.log('Static metadata product type counts:', staticProductCounts);
 
         return {
             props: {
