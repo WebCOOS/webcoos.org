@@ -1,6 +1,0 @@
-name: webcoos-project-site
-channels:
-  - conda-forge
-  - defaults
-dependencies:
-  - nodejs>=18.0.0,<19
