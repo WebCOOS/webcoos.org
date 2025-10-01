@@ -1,5 +1,5 @@
 import type { ComponentType, ReactElement } from "react";
-import { useYAML } from "../services/yaml/hooks/useYAML";
+import { useYAML } from "@/services/yaml/hooks/useYAML";
 import { ViewWithLoader } from "@axdspub/axiom-ui-utilities";
 
 function YAML<T>(
@@ -21,7 +21,7 @@ function YAML<T>(
         </ViewWithLoader>
     )
 
-    
+     
 }
 
 export default YAML

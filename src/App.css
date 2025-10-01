@@ -1,1 +1,55 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@source "../node_modules/@axdspub/axiom-ui-utilities";
+
+@theme {
+    --color-primary: #32899e;
+    --color-primary-lighter: #d5e1e6;
+    --color-primary-darker: #123c49;
+    --color-secondary: #002b80;
+    --color-secondary-lighter: #8aa8e6;
+    --color-secondary-darker: #001133;
+    --gridTemplateColumns-camera: 2.5fr 4.5fr 2.5fr;
+    --maxWidth-75w: 75vw;
+    --height-128: 32rem;
+
+}
+
+
+.prose-fix-images img {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.prose-fix-images video {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.prose-image-grid img, .prose-image-grid p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.prose-image-grid {
+  grid-template-columns: 4em auto;
+}
+
+.prose-image-with-caption {
+  width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.product-title img {
+  display: inline;
+}
+
+.product-title h1 {
+  display: inline;
+  vertical-align: middle;
+}
+
+.camera-prose ul>li::before {
+  background-color: #374151;
+}

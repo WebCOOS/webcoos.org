@@ -21,7 +21,18 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "baseUrl": ".", // Important: set baseUrl to the root of your project
+    "paths": {
+      "@/*": ["./src/*"],
+      "@Components/*": ["./src/Components/*"],
+      "@Layouts/*": ["./src/Layouts/*"],
+      "@Pages/*": ["./src/Pages/*"],
+      "@services/*": ["./src/services/*"],
+      "@/state/*": ["./src/state/*"],
+      "@types/*": ["./src/types/*"]
+    }
+
   },
   "include": ["src"]
 }

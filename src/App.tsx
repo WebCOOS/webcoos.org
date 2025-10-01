@@ -1,23 +1,58 @@
 
 import './App.css'
-import { BrowserRouter, Route, Routes } from "react-router"
+import { BrowserRouter,  Route, Routes, useParams } from "react-router"
 import Home from './Pages/Home'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import YAML from './Layouts/YAML'
+import type { SiteConfig } from './types/yaml/site'
+import SiteContext from './state/SiteContext'
+import Header from './Components/Header/Header'
+import Markdown from './Layouts/Markdown'
+import Footer from './Components/Footer/Footer'
+import type { ReactElement } from 'react'
+import About from './Pages/About/About'
+import Feedback from './Pages/Feedback'
+import ApiContext from '@/state/ApiContext'
+import apiContextDefault from '@/state/apiContextDefault'
+import CamerasLoader from '@/Pages/Cameras/Cameras'
+
 
 const queryClient = new QueryClient()
 
+const ProductDetail = (): ReactElement => {
+  const { productId } = useParams();
+  return <Markdown markdownFile={`/md_content/products/${productId}.md`} />
+}
 
-function App() {
-
+function App(site: SiteConfig) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-        </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <SiteContext value={site}>
+        <BrowserRouter>
+        <Header />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/get-involved" element={<Markdown markdownFile="/md_content/get-involved.md" />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/feedback" element={<Feedback />} />
+            <Route path="/products" element={<Markdown markdownFile="/md_content/products.md" />} />
+            <Route path="/products/:productId" element={<ProductDetail />} />
+            <Route path="/cameras" element={<CamerasLoader />} />
+          </Routes>
+          <Footer />
+        </BrowserRouter>
+    </SiteContext>
   )
 }
 
-export default App
+function AppPreload() {
+  return <ApiContext value={apiContextDefault}>
+            <QueryClientProvider client={queryClient}> 
+              <YAML<SiteConfig>
+                        yamlFile="/yaml_content/site.yaml" 
+                        Component={App} 
+                        />
+          </QueryClientProvider>
+      </ApiContext>
+}
+
+export default AppPreload
