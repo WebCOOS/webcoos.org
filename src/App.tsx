@@ -15,6 +15,7 @@ import Feedback from './Pages/Feedback'
 import ApiContext from '@/state/ApiContext'
 import apiContextDefault from '@/state/apiContextDefault'
 import CamerasLoader from '@/Pages/Cameras/Cameras'
+import CamerasNew from './Pages/Cameras/CamerasNew'
 
 
 const queryClient = new QueryClient()
@@ -26,9 +27,11 @@ const ProductDetail = (): ReactElement => {
 
 function App(site: SiteConfig) {
   return (
+    <div className='min-h-screen flex flex-col pt-[100px]'>
     <SiteContext value={site}>
         <BrowserRouter>
         <Header />
+        <div className='h-full flex-grow'>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/get-involved" element={<Markdown markdownFile="/md_content/get-involved.md" />} />
@@ -37,10 +40,13 @@ function App(site: SiteConfig) {
             <Route path="/products" element={<Markdown markdownFile="/md_content/products.md" />} />
             <Route path="/products/:productId" element={<ProductDetail />} />
             <Route path="/cameras" element={<CamerasLoader />} />
+            <Route path="/cameras-new" element={<CamerasNew />} />
           </Routes>
+          </div>
           <Footer />
         </BrowserRouter>
     </SiteContext>
+    </div>
   )
 }
 

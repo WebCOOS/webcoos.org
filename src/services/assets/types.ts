@@ -306,3 +306,62 @@ export type IWebCOOSParsedAsset = {
   has_archived_video: boolean;
   has_archived_images: boolean;
 };
+
+
+export type IWebCOOSApiRequestParams = {
+    apiUrl?: string,
+    apiVersion?: string,
+    source?: string,
+    token?: string,
+    allow_cached?: boolean,
+    signal?: AbortSignal
+}
+
+
+
+export interface IWebCOOSElementInventory {
+  uuid: string;
+  bucket_grouping: string;
+  bucket_count: number;
+  time_bucket: string;
+  type: string;
+  asset_uuid: string;
+  asset_label: string;
+  asset_slug: string;
+  asset_group: string;
+  feed_uuid: string;
+  feed_slug: string;
+  product_uuid: string;
+  product_slug: string;
+  service_uuid: string;
+  service_slug: string;
+  geom: GeoJSON.Point & {
+    crs: {
+      type: "name";
+      properties: {
+        name: string;
+      };
+    };
+  };
+};
+
+
+export type IPostgrestParams<T> = {
+    table: string
+    limit?: number
+    offset?: number
+    order?: {
+        column: keyof T
+        dir?: 'asc' | 'desc'
+    },
+    select?: {
+        column: keyof T
+        fn?: 'count' | 'sum' | 'avg' | 'min' | 'max'
+        as?: string
+    }[],
+    filters?: {
+        column: keyof T,
+        operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'ilike' | 'in' | 'is' | 'cs' | 'cd' | 'sl' | 'sr' | 'nxl' | 'nxr',
+        value: string | number | (string | number)[]
+    }[]
+}

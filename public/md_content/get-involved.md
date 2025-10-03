@@ -190,11 +190,9 @@ Contact us today!
 
 Email: [webcoos@secoora.org](mailto:webcoos@secoora.org)
 
-Website: [https://webcoos.org/](https://webcoos.org/)
-</div>
+Website: [https://webcoos.org](https://webcoos.org/)</div>
 
 <div>
-
 <img src="/SECOORA_Horizontal_FullColor_Transparent.png" alt="SECOORA" class="w-64" />
 
 *This is a SECOORA funded program.

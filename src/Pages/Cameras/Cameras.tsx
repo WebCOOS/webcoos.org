@@ -116,7 +116,7 @@ function Cameras(
 
     const sortMemo = useMemo(() => {
         // Copy so that we can sort and filter (without mutating original).
-        let sortedCameraList = [...(curCameras.length ? curCameras : parsedMetadata)];
+        const sortedCameraList = [...(curCameras.length ? curCameras : parsedMetadata)];
 
         let tempSortedBy = sortedBy;
 
@@ -142,7 +142,7 @@ function Cameras(
             const thenby_split = tempSortedBy.split(THENBY_SEP).reverse();
 
             sortedCameraList.sort((a, b) => {
-                let sorts = [...thenby_split];
+                const sorts = [...thenby_split];
 
                 let ret = 0;
 
@@ -234,7 +234,7 @@ function Cameras(
                         <div className='inline-block'>Cameras</div>
                     </SectionHeader>
 
-                    <div className='flex flex-row gap-4 mb-4'>
+                    <div className='flex flex-row gap-4 mb-4 sticky bg-white h-14 top-10 z-10 py-4'>
                         <div>
                             <label htmlFor='geography-filter' className='mr-2 font-bold text-sm'>
                                 Filter by Geography:
@@ -305,7 +305,7 @@ function Cameras(
                     </div>
 
                     <table className='w-full table-auto'>
-                        <thead>
+                        <thead className='sticky top-24 bg-primary-lighter z-10 shadow-md'>
                             <tr
                                 className={utils.makeClassName(
                                     {
@@ -681,7 +681,7 @@ const CamerasLoader = (): ReactElement => {
         apiUrl: apiContext.apiUrl
     })
     const { data: products, isLoading: productsLoading, error: productsError } = useYAML<Products>({ yamlFile: '/yaml_content/products.yaml' })
-    return (
+    return (    
        <ViewWithLoader isLoading={isLoading || productsLoading} error={error || productsError} data={data !== undefined && products !== undefined ? data : undefined}>
            {data !== undefined && products !== undefined && <Cameras parsedMetadata={data} products={products?.sections.products ?? []} />}
        </ViewWithLoader>

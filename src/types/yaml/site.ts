@@ -6,6 +6,7 @@ export type SiteConfig = {
     helpEmail?: string;
     header: {
         logoImage: string;
+        logoImageSmall: string;
         logoAltText: string;
         logoUrl: string;
         bannerText: string;

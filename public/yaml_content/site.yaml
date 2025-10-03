@@ -4,6 +4,7 @@ site:
 helpEmail:
 header:
     logoImage: /SECOORA_Horizontal_FullColor_Transparent.png
+    logoImageSmall: /SECOORA_logo_small.png
     logoAltText: SECOORA logo
     logoUrl: https://www.secoora.org
     bannerText: WebCOOS

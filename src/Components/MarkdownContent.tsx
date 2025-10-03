@@ -19,7 +19,7 @@ const MarkdownContent = ({
         return <span>{children}</span>
       }
       return (
-      <Link to={href} target={isExternal ? '_blank' : undefined} rel="noopener noreferrer" className="text-blue-500 hover:underline">{children}{isExternal ? '[nw]' : ''}</Link>
+      <Link to={href} target={isExternal ? '_blank' : undefined} rel="noopener noreferrer" className="text-blue-500 hover:underline">{children}{isExternal ? '' : ''}</Link>
       )
     },
     ul: ({ children }) => <ul className="list-disc list-inside ml-4 my-2">{children}</ul>,
