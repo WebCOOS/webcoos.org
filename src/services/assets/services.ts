@@ -1,4 +1,5 @@
-import type { IPostgrestParams, IWebCOOSApiRequestParams, IWebCOOSElementInventory, IWebCOOSRawAsset } from "@/services/assets/types";
+import type { IPostgrestParams, IWebCOOSApiRequestParams, IWebCOOSAssetElementView, IWebCOOSAssetSummaryView, IWebCOOSElementInventory, IWebCOOSRawAsset } from "@/services/assets/types";
+import { postgrestEndpoint } from "./endpoints";
 
 
 
@@ -67,8 +68,8 @@ export async function fetchAPIAssets({
 export async function fetchFromWebCOOSPostgrest<T>(
     {
         apiUrl,
-        apiVersion = 'v1',
-        source = 'webcoos',
+        apiVersion,
+        source,
         token,
         signal,
         params
@@ -79,22 +80,13 @@ export async function fetchFromWebCOOSPostgrest<T>(
     if (!token) {
         throw new MissingTokenError("API Token not provided, pass to fetchFromWebCOOSPostgrest or set env var NEXT_PUBLIC_WEBCOOS_API_TOKEN");
     }
+    const url = postgrestEndpoint<T>({
+        apiUrl,
+        apiVersion,
+        source,
+        params
+    });
 
-    const url = new URL(`${apiUrl}/${apiVersion}/${source}/postgrest/${params.table}`);
-    (params.filters ?? []).forEach(f => url.searchParams.append(String(f.column), `eq.${f.value}`));
-    if (params.limit !== undefined) {
-        url.searchParams.append('limit', params.limit.toString());
-    }
-    if (params.offset !== undefined) {
-        url.searchParams.append('offset', params.offset.toString());
-    }
-    if (params.order !== undefined) {
-        url.searchParams.append('order', `${String(params.order.column)}.${params.order.dir ?? 'asc'}`);
-    }
-    if (params.select !== undefined) {
-        const select = params.select.map(s => `${String(s.fn ? `${s.fn}(${String(s.column)})` : s.column)}${s.as ? `:${s.as}` : ''}`).join(',');
-        url.searchParams.append('select', select);
-    }
 
     const response = await fetch(url, {
         headers: {
@@ -109,7 +101,7 @@ export async function fetchFromWebCOOSPostgrest<T>(
     }
 
     const r = await response.json();
-    return r.results as T[];
+    return r as T[];
 }
 
 
@@ -132,7 +124,65 @@ export async function fetchWebCOOSElementInventory({
         source,
         token,
         signal,
-        params
+        params: {
+            ...params,
+            table: 'webcoos_elementinventory'
+        }
+    });
+    return results
+}
+
+export async function fetchWebCOOSAssetElementView({
+    apiUrl,
+    apiVersion,
+    source,
+    token,
+    signal,
+    params
+}: IWebCOOSApiRequestParams & {
+    params: IPostgrestParams<IWebCOOSAssetElementView>
+}): Promise<IWebCOOSAssetElementView[]> {
+
+    const results =  await fetchFromWebCOOSPostgrest<IWebCOOSAssetElementView>({
+        apiUrl,
+        apiVersion,
+        source,
+        token,
+        signal,
+        params: {
+            ...params,
+            table: 'asset_element_vw'
+        }
+    });
+    return results.map(r => ({
+        ...r,
+        product_uuid: r.product_uuid ?? r.produt_uuid
+    }))
+}
+
+
+export async function fetchWebCOOSAssetSummaryView({
+    apiUrl,
+    apiVersion,
+    source,
+    token,
+    signal,
+    params
+}: IWebCOOSApiRequestParams & {
+    params: Omit<IPostgrestParams<IWebCOOSAssetSummaryView>, 'table'>
+}): Promise<IWebCOOSAssetSummaryView[]> {
+
+
+    const results =  await fetchFromWebCOOSPostgrest<IWebCOOSAssetSummaryView>({
+        apiUrl,
+        apiVersion,
+        source,
+        token,
+        signal,
+        params: {
+            ...params,
+            table: 'asset_summary_vw'
+        }
     });
     return results
 }

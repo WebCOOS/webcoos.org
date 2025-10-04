@@ -313,10 +313,17 @@ export type IWebCOOSApiRequestParams = {
     apiVersion?: string,
     source?: string,
     token?: string,
-    allow_cached?: boolean,
     signal?: AbortSignal
 }
 
+type IWebCOOSPoint = GeoJSON.Point & {
+    crs: {
+      type: "name";
+      properties: {
+        name: string;
+      };
+    };
+  }
 
 
 export interface IWebCOOSElementInventory {
@@ -335,15 +342,69 @@ export interface IWebCOOSElementInventory {
   product_slug: string;
   service_uuid: string;
   service_slug: string;
-  geom: GeoJSON.Point & {
-    crs: {
-      type: "name";
-      properties: {
-        name: string;
-      };
-    };
-  };
+  geom: IWebCOOSPoint;
 };
+
+
+export interface IWebCOOSAssetElementView {
+  asset_uuid: string;
+  asset_slug: string;
+  asset_group: string;
+  asset_source: string;
+  feed_uuid: string;
+  feed_slug: string;
+  produt_uuid: string;
+  product_uuid: string;
+  product_slug: string;
+  service_uuid: string;
+  service_slug: string;
+  element_uuid: string;
+  element_type: string;
+  element_starting: string | null;
+  element_ending: string | null;
+}
+
+export interface IWebCOOSAssetSummaryView {
+  asset_uuid: string;
+  asset_label: string;
+  asset_slug: string;
+  asset_disposition_slug: string;
+  asset_operational_status: string;
+  asset_operational_status_note: string | null;
+  asset_operational_status_as_of: string;
+  asset_service_uuids: string[];
+  asset_service_types: string[];
+  asset_service_slugs: string[];
+  asset_service_labels: string[];
+  asset_product_uuids: string[];
+  asset_product_types: string[];
+  asset_product_slugs: string[];
+  asset_product_labels: string[];
+  asset_location: IWebCOOSPoint;
+  asset_description: string;
+  asset_timezone: string;
+  asset_group: string;
+  asset_source: string;
+  asset_region: string | null;
+  asset_state_or_territory: string;
+  asset_country: string;
+  asset_access_url: string | null;
+  asset_download_url: string | null;
+  asset_first_starting: string;
+  asset_last_ending: string;
+  asset_element_size: number;
+  asset_element_count: number;
+  package_uuid: string;
+  package_label: string;
+  package_slug: string;
+  package_location: IWebCOOSPoint;
+  package_description: string;
+  package_timezone: string;
+  package_group: string;
+  package_source: string;
+  package_access_url: string | null;
+  package_download_url: string | null;
+}
 
 
 export type IPostgrestParams<T> = {
