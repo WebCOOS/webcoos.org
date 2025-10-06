@@ -31,7 +31,7 @@ function App(site: SiteConfig) {
     <SiteContext value={site}>
         <BrowserRouter>
         <Header />
-        <div className='h-full flex-grow'>
+        <div className='h-full flex-grow relative'>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/get-involved" element={<Markdown markdownFile="/md_content/get-involved.md" />} />
