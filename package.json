@@ -20,6 +20,7 @@
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "duration-fns": "^3.0.2",
+    "jotai": "^2.15.0",
     "json-pointer": "^0.6.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

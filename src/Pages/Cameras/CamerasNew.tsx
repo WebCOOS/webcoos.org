@@ -1,7 +1,7 @@
-import { fetchWebCOOSAssetSummaryView } from "@/services/assets/services"
+import {  fetchWebCOOSCameraPageFiltered, type IWebCOOSCameraPageFiltered } from "@/services/assets/services"
 import type { IWebCOOSAssetSummaryView } from "@/services/assets/types"
 import ApiContext from "@/state/ApiContext"
-import { ViewWithLoader } from "@axdspub/axiom-ui-utilities"
+import { SelectInput, ViewWithLoader } from "@axdspub/axiom-ui-utilities"
 import { useQuery } from "@tanstack/react-query"
 import { useContext, type ReactElement } from "react"
 
@@ -11,13 +11,19 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import { atom, Provider, useAtom } from "jotai"
 
 
 
+const defaultFilterValue: Record<string, string | null> = {}
 
-const CameraTable = ({ data }: { data: IWebCOOSAssetSummaryView[] }): ReactElement => {
+const filterAtom = atom(defaultFilterValue)
 
-    const apiContext = useContext(ApiContext)
+
+
+const CameraTable = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactElement => {
+
+  const [filters, setFilters] = useAtom(filterAtom)
   const columnHelper = createColumnHelper<IWebCOOSAssetSummaryView>()
   const columns = [
     columnHelper.accessor('asset_label', {
@@ -37,7 +43,7 @@ const CameraTable = ({ data }: { data: IWebCOOSAssetSummaryView[] }): ReactEleme
         }
     }),
     columnHelper.accessor('asset_region', {
-        header: 'Geographpy',
+        header: 'Geography',
         cell: info => {
             const row = info.row.original
             return <>
@@ -66,7 +72,7 @@ const CameraTable = ({ data }: { data: IWebCOOSAssetSummaryView[] }): ReactEleme
                     .map(p => [p,p])        
                 )
             )
-            .map(slug => <p>{slug}</p>)
+            .map(slug => <p key={slug}>{slug}</p>)
     }),
     columnHelper.accessor('asset_disposition_slug', {
         header: 'Disposition',
@@ -86,14 +92,78 @@ const CameraTable = ({ data }: { data: IWebCOOSAssetSummaryView[] }): ReactEleme
     }),
   ]
   const table = useReactTable({
-    data,
+    data: data.assets,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
 
+  const filterViews = [
+    {
+      label:'Region',
+      id: 'region-filter',
+      column: 'asset_region',
+      options: data.regions
+    },
+    {
+      label:'State',
+      id: 'state-filter',
+      column: 'asset_state_or_territory',
+      options: data.states
+    },
+    {
+      label:'Product',
+      id: 'product-filter',
+      column: 'asset_service_slugs',
+      options: data.products
+    },
+    {
+      label:'Disposition',
+      id: 'disposition-filter',
+      column: 'asset_disposition_slug',
+      options: data.dispositions
+    },
+    {
+      label:'Status',
+      id: 'status-filter',
+      column: 'asset_operational_status',
+      options: data.statuses
+    }
+  ]
+
   return (
-      <table className='my-10 -mx-10'>
-        <thead className='sticky top-10 bg-white shadow-md z-10'>
+    <div className='flex flex-col'>
+      <div className='flex flex-row gap-8 pt-6 pb-4 -mx-10 px-10 bg-white sticky top-10'>
+        <p className='font-bold'>Filters</p>
+          {
+            filterViews.map(fv => {
+              return (
+                <div className='flex flex-row gap-2' key={fv.id}>
+                  <p className=''>{fv.label}:</p>
+                  <SelectInput
+                    defaultWrapperClassName="flex flex-row gap-2"
+                    id={fv.id}
+                    testId={fv.id}
+                    options={fv.options}
+                    size="xs"
+                    onChange={v => {
+                      const newFilters = {...filters}
+                      if(v?.value !== '' && v?.value !== null){
+                        newFilters[fv.column] = v?.value as string
+                      } else {
+                        delete newFilters[fv.column]
+                      }
+                      setFilters(newFilters)
+                    }}
+                  />
+                </div>
+              )
+            })
+          }
+          
+
+      </div>
+      <table className='-mx-10'>
+        <thead className='sticky top-24 bg-white shadow-md z-10'>
           {table.getHeaderGroups().map(headerGroup => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map(header => (
@@ -113,7 +183,7 @@ const CameraTable = ({ data }: { data: IWebCOOSAssetSummaryView[] }): ReactEleme
           {table.getRowModel().rows.map(row => (
             <tr key={row.id} className='odd:bg-slate-100 even:bg-white'>
               {row.getVisibleCells().map(cell => (
-                <td key={cell.id} className='p-4 align-top first:pl-10 last:pr-10 text-sm'>
+                <td key={cell.id} className='p-4 align-top first:pl-10 last:pr-10 text-sm border-r-2 border-slate-200 last:border-0'>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
@@ -121,6 +191,7 @@ const CameraTable = ({ data }: { data: IWebCOOSAssetSummaryView[] }): ReactEleme
           ))}
         </tbody>
       </table>
+    </div>
   )
 }
 
@@ -137,15 +208,27 @@ const apiContext = useContext(ApiContext)
         params: {}
     }) */
 
-    const { data, isLoading, error } = useQuery<IWebCOOSAssetSummaryView[]>({
-        queryKey: ['webcoos', 'assets', 'summary'],
+    const [filters] = useAtom(filterAtom)
+
+    const { data, isLoading, error } = useQuery<IWebCOOSCameraPageFiltered>({
+        queryKey: ['webcoos', 'assets', 'summary', JSON.stringify(filters)],
         queryFn: async ({signal}) => {
-            const results = await fetchWebCOOSAssetSummaryView({
+            const results = await fetchWebCOOSCameraPageFiltered({
                 apiUrl: apiContext.apiUrl,
                 apiVersion: 'v1',
                 source: 'webcoos',
                 token: apiContext.token,
-                params: {},
+                params: {
+                  filters: Object.keys(filters)
+                    .filter(k => filters[k as keyof typeof filters] !== null && filters[k as keyof typeof filters] !== '')
+                    .map(k => {
+                      return {
+                        column: k,
+                        value: filters[k as keyof typeof filters] as string,
+                        operator: 'eq'
+                      }
+                    })
+                },
                 signal
             })
             return results
@@ -153,15 +236,21 @@ const apiContext = useContext(ApiContext)
     })
 
     return (
-        <ViewWithLoader isLoading={isLoading} error={error} data={data} >
-            {data && (
-                <div className='p-10'>
-                    <h1 className='text-2xl font-bold'>Cameras New</h1>
-                    <CameraTable data={data} />
-                </div>
-            )}
-        </ViewWithLoader>
+          <ViewWithLoader isLoading={isLoading} error={error} data={data} >
+              {data && (
+                  <div className='p-10'>
+                      <h1 className='text-2xl font-bold'>Cameras New</h1>
+                      <CameraTable data={data} />
+                  </div>
+              )}
+          </ViewWithLoader>
     )
 }
 
-export default CamerasNew
+export default (): ReactElement => {
+  return (
+    <Provider>
+      <CamerasNew />
+    </Provider>
+  )
+}

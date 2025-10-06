@@ -186,3 +186,186 @@ export async function fetchWebCOOSAssetSummaryView({
     });
     return results
 }
+
+
+type ISelectItem = {label: string, value: string, count?: number}
+export type IWebCOOSCameraPageFiltered = {
+    assets: IWebCOOSAssetSummaryView[],
+    regions: Array<ISelectItem>,
+    states: Array<ISelectItem>,
+    products: Array<ISelectItem>,
+    dispositions: Array<ISelectItem>,
+    statuses: Array<ISelectItem>
+}
+
+export async function fetchWebCOOSSelectItems({
+    apiUrl,
+    apiVersion,
+    source,
+    token,
+    signal,
+    params,
+    valueColumn,
+    labelColumn
+}: IWebCOOSApiRequestParams & {
+    params: IPostgrestParams<ISelectItem>,
+    valueColumn: string
+    labelColumn?: string
+
+}): Promise<ISelectItem[]>{
+
+        const filters = params.filters?.filter(f => f.column !== valueColumn && f.column !== labelColumn) ?? [];
+        filters.push({
+            column: valueColumn,
+            operator: 'is',
+            value: 'not_null'
+        })
+
+        const results =  await fetchFromWebCOOSPostgrest<ISelectItem>({
+            apiUrl,
+            apiVersion,
+            source,
+            token,
+            signal,
+            params: {
+                ...params,
+                filters,
+                select: [
+                    { column: valueColumn, fn: 'count', as: 'count' },
+                    { column: labelColumn ?? valueColumn, as: 'label' },
+                    { column: valueColumn, as: 'value' }
+                ],
+                table: params.table,
+                order: { column: labelColumn ?? valueColumn, dir: 'asc' }
+            }
+        });
+        return results
+
+
+}
+
+export async function fetchWebCOOSCameraPageFiltered({
+    apiUrl,
+    apiVersion,
+    source,
+    token,
+    signal,
+    params
+}: IWebCOOSApiRequestParams & {
+    params: Omit<IPostgrestParams<IWebCOOSAssetSummaryView>, 'table'>
+}): Promise<IWebCOOSCameraPageFiltered> {
+
+    const out: IWebCOOSCameraPageFiltered = {
+        assets: [],
+        regions: [],
+        states: [],
+        products: [],
+        dispositions: [],
+        statuses: [] 
+    }
+
+    const props = {
+        apiUrl,
+        apiVersion,
+        source,
+        token,
+        signal
+    }
+
+    await Promise.all([
+        (async () => {
+            const results =  await fetchFromWebCOOSPostgrest<IWebCOOSAssetSummaryView>({
+                ...props,
+                params: {
+                    ...params,
+                    table: 'asset_summary_vw'
+                }
+            });
+            out.assets = results;
+        })(),
+        (async () => {
+            const results =  await fetchWebCOOSSelectItems({
+                ...props,
+                valueColumn: 'asset_region',
+                params: {
+                    ...params,
+                    table: 'asset_summary_vw'
+                }
+            });
+            out.regions = results;
+        })(),
+        (async () => {
+            const results =  await fetchWebCOOSSelectItems({
+                ...props,
+                valueColumn: 'asset_state_or_territory',
+                params: {
+                    ...params,
+                    table: 'asset_summary_vw'
+                }
+            });
+            out.states = results;
+        })(),
+        (async () => {
+            const results = await fetchWebCOOSSelectItems({
+                ...props,
+                valueColumn: 'asset_disposition_slug',
+                params: {
+                    ...params,
+                    table: 'asset_summary_vw'
+                }
+            });
+            out.dispositions = results;
+        })(),
+        (async () => {
+            const results =  await fetchWebCOOSSelectItems({
+                ...props,
+                valueColumn: 'asset_operational_status',
+                params: {
+                    ...params,
+                    table: 'asset_summary_vw'
+                }
+            });
+            out.statuses = results;
+        })(),
+        (async () => {
+            const results =  await fetchFromWebCOOSPostgrest<{
+                asset_service_slugs: string[]
+            }>({
+                apiUrl,
+                apiVersion,
+                source,
+                token,
+                signal,
+                params: {
+                    ...params,
+                    select: [
+                        { column: 'asset_service_slugs'},
+                        { column: 'asset_service_slugs', as: 'label' },
+                        { column: 'asset_service_slugs', as: 'value' }
+                    ],
+                    table: 'asset_summary_vw'
+                }
+            });
+            const products = results
+                .map(r => r.asset_service_slugs)
+                .flat()
+                .map(slug=> {
+                    if (slug.includes('rip') || slug.includes('current')) return 'rips';
+                        if (slug.includes('shoreline') || slug.includes('shore')) return 'shoreline';
+                        if (slug.includes('beach') || slug.includes('usage') || slug.includes('object')) return 'beach';
+                        if (slug.includes('flood') || slug.includes('water')) return 'flood';
+                        return null;
+                })
+                .filter(d=> d !== null)
+
+            const uniqueProducts = Object.keys(Object.fromEntries(products.map(p => [p,p]))).map(p=>p!);
+            out.products = uniqueProducts.map(p => ({label: p, value: p}))
+        })()
+    ])
+
+
+    return out
+
+
+
+}

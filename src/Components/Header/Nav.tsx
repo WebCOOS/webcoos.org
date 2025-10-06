@@ -1,10 +1,11 @@
 // hidden md:flex items-center
 
 import { useContext, type ReactElement } from "react"
-import { Link } from "react-router"
+import { Link, useLocation } from "react-router"
 import SiteContext from "@/state/SiteContext"
 
 function Nav({scrolled = false}: {scrolled: boolean}): ReactElement {
+  const location = useLocation()
   const siteContext = useContext(SiteContext)
   if(siteContext === undefined){
     return (<></>)
@@ -13,7 +14,9 @@ function Nav({scrolled = false}: {scrolled: boolean}): ReactElement {
   const linkClassNameScrolled = 'text-xs block py-2 mr-4 font-semibold text-[var(--color-primary-darker)] transition-all duration-100'
   return (<div className='hidden md:flex items-center'>{
     siteContext.header.menus.map((item) => {
-      return <Link key={item.label} to={item.to} className={scrolled ? linkClassNameScrolled : linkClassName}>{item.label}</Link>
+      const selected = location.pathname.search(item.to) === 0
+
+      return <Link key={item.label} to={item.to} className={`${scrolled ? linkClassNameScrolled : linkClassName}${selected ? ' underline underline-offset-8' : ''}`}>{item.label}</Link>
     })}</div>)
 }
 

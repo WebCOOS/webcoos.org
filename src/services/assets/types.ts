@@ -412,16 +412,16 @@ export type IPostgrestParams<T> = {
     limit?: number
     offset?: number
     order?: {
-        column: keyof T
+        column: string | keyof T
         dir?: 'asc' | 'desc'
     },
     select?: {
-        column: keyof T
+        column: string | keyof T
         fn?: 'count' | 'sum' | 'avg' | 'min' | 'max'
         as?: string
     }[],
     filters?: {
-        column: keyof T,
+        column: string | keyof T,
         operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'ilike' | 'in' | 'is' | 'cs' | 'cd' | 'sl' | 'sr' | 'nxl' | 'nxr',
         value: string | number | (string | number)[]
     }[]
