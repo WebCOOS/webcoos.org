@@ -5,6 +5,7 @@ import MarkdownContent from "@Components/MarkdownContent"
 import Page  from "@Components/Page";
 import Section from "@Components/Section/Section";
 import { Link } from "react-router";
+import MapDataLoader from "@/Components/Map/Map";
 
 
 function onLinkClick(event: React.MouseEvent<HTMLAnchorElement>, location: string) {
@@ -48,14 +49,14 @@ const HomePageContent = (content: HomePage) => {
                             content.sections.hero.buttons.map((button) => {
                                 const buttonClass = 'block text-center uppercase tracking-wide text-base md:text-sm border-2 rounded-md px-6 py-3 border-[var(--color-primary)] text-[var(--color-primary)]'
                                 return (
-                                    <a
+                                    <Link
                                         className="mr-4 mb-4"
                                         key={button.label}
-                                        href={button.to}
+                                        to={button.to}
                                         onClick={(event) => onLinkClick(event, button.to)}
                                     >
                                         <div className={buttonClass}>{button.label}</div>
-                                    </a>
+                                    </Link>
                                 );
                             })}
                     </div>
@@ -69,11 +70,11 @@ const HomePageContent = (content: HomePage) => {
 
             </Section>
             <Section shaded={true}>
-                    <h2 className="text-2xl font-bold mb-4">Cameras</h2>
-                    <div className='h-[500px] bg-white bg-opacity-50 p-4'>
-                        Map
+                <h2 className="text-2xl font-bold mb-4">Cameras</h2>
+                <div className='h-[800px] bg-white bg-opacity-50 p-4 relative'>
+                    <MapDataLoader />
+                    
                 </div>
-
             </Section>
             <Section>
                 <h2 className="text-2xl font-bold mb-4">News</h2>

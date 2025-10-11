@@ -11,7 +11,7 @@ const AboutContent = (about: AboutType): ReactElement => {
     const content = about;
     return (
         <>
-        <title>{about.sections.main.title}</title>
+        <title>{about.sections.main.title} | WebCOOS</title>
         <Page>
             <NarrativeSection
                 {...content.sections.main}

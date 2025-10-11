@@ -20,7 +20,10 @@ export const postgrestEndpoint = <T, >({
         url.searchParams.append('order', `${String(params.order.column)}.${params.order.dir ?? 'asc'}`);
     }
     if (params.select !== undefined) {
-        const select = params.select.map(s => `${s.as ? `${s.as}:` : ''}${String(s.column)}${s.fn !== undefined ? `.${s.fn}()` : ''}`).join(',');
+        const select = params.select.map(s => {
+            const o = typeof s === 'string' ? { column: s } : s;
+            return `${o.as ? `${o.as}:` : ''}${String(o.column)}${o.fn !== undefined ? `.${o.fn}()` : ''}`
+        }).join(',');
         url.searchParams.append('select', select);
     }
     return url.toString();

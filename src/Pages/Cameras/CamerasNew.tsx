@@ -7,6 +7,7 @@ import CamerasLoader from "./CamerasLoader"
 const CamerasNew =  (): ReactElement => {
   return (
     <Provider>
+      <title>Cameras | WebCOOS</title>
       <CamerasLoader />
     </Provider>
   )

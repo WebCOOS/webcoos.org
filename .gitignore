@@ -17,6 +17,8 @@ dist-ssr
 .next
 .env
 
+bundle-analysis.html
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

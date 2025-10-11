@@ -17,7 +17,11 @@ function YAML<T>(
 
     return (
         <ViewWithLoader isLoading={isLoading} error={error} data={data}>
-            {data && <Component {...data} />}
+            
+            {data && <>
+                <Component {...data} />
+                </>
+        }
         </ViewWithLoader>
     )
 

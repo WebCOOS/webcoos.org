@@ -4,7 +4,7 @@ import { BrowserRouter,  Route, Routes, useParams } from "react-router"
 import Home from './Pages/Home'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import YAML from './Layouts/YAML'
-import type { SiteConfig } from './types/yaml/site'
+import type { SiteConfig } from '@/types/yaml/site'
 import SiteContext from './state/SiteContext'
 import Header from './Components/Header/Header'
 import Markdown from './Layouts/Markdown'
@@ -22,7 +22,10 @@ const queryClient = new QueryClient()
 
 const ProductDetail = (): ReactElement => {
   const { productId } = useParams();
-  return <Markdown markdownFile={`/md_content/products/${productId}.md`} />
+  return <>
+    <title>Products | WebCOOS</title>
+    <Markdown markdownFile={`/md_content/products/${productId}.md`} />
+  </>
 }
 
 function App(site: SiteConfig) {
@@ -37,7 +40,12 @@ function App(site: SiteConfig) {
             <Route path="/get-involved" element={<Markdown markdownFile="/md_content/get-involved.md" />} />
             <Route path="/about" element={<About />} />
             <Route path="/feedback" element={<Feedback />} />
-            <Route path="/products" element={<Markdown markdownFile="/md_content/products.md" />} />
+            <Route path="/products" element={
+              <>
+                <title>Products | WebCOOS</title>
+                <Markdown markdownFile="/md_content/products.md" />
+              </>
+            } />
             <Route path="/products/:productId" element={<ProductDetail />} />
             <Route path="/cameras" element={<CamerasLoader />} />
             <Route path="/cameras-new" element={<CamerasNew />} />

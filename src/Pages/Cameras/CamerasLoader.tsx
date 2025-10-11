@@ -6,7 +6,6 @@ import { useAtom } from "jotai"
 import { type ReactElement, useContext, useEffect } from "react"
 import filterAtom from "./filterAtom"
 import CameraTable from "./CamerasTable"
-import { useParams } from "react-router"
 
 const CamerasLoader = (): ReactElement => {
 
@@ -44,6 +43,21 @@ const apiContext = useContext(ApiContext)
                 source: 'webcoos',
                 token: apiContext.token,
                 params: {
+                  select: [
+                    'asset_label',
+                    'asset_region',
+                    'asset_state_or_territory',
+                    'asset_slug',
+                    'asset_service_slugs',
+                    'asset_disposition_slug',
+                    'asset_operational_status',
+                    'asset_first_starting',
+                    'asset_last_ending',
+                    {
+                        column: 'asset_data->properties->thumbnails->base',
+                        as: 'asset_thumbnails'
+                    }
+                  ],
                   filters: Object.keys(filters)
                     .filter(k => filters[k as keyof typeof filters] !== null && filters[k as keyof typeof filters] !== undefined && filters[k as keyof typeof filters] !== '')
                     .map(k => {

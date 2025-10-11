@@ -226,7 +226,7 @@ function Cameras(
 
     return (
         <>
-            <title>Cameras</title>
+            <title>Cameras | WebCOOS</title>
         
             <Page title='Cameras'>
                 <Section>

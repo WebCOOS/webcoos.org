@@ -9,6 +9,17 @@ export type IWebCOOSRawAssetServiceStream = {
     provider: string;
 }
 
+
+type IWebCOOSThumbnails = {
+  lqip: string;
+  rect_large: string;
+  rect_small: string;
+  rect_medium: string;
+  square_large: string;
+  square_small: string;
+  square_medium: string;
+}
+
 export type IWebCOOSRawAsset =  {
     uuid: string;
     created_at: string;
@@ -37,15 +48,7 @@ export type IWebCOOSRawAsset =  {
         wedge: Polygon | null;
         timezone: string;
         thumbnails: {
-          base: {
-            lqip: string;
-            rect_large: string;
-            rect_small: string;
-            rect_medium: string;
-            square_large: string;
-            square_small: string;
-            square_medium: string;
-          };
+            base: IWebCOOSThumbnails;
         };
       };
     };
@@ -169,7 +172,7 @@ export type IWebCOOSRawAsset =  {
           location: Point;
           timezone: string;
           thumbnails: {
-            base: null;
+            base: IWebCOOSThumbnails | null;
           };
         };
       };
@@ -404,8 +407,37 @@ export interface IWebCOOSAssetSummaryView {
   package_source: string;
   package_access_url: string | null;
   package_download_url: string | null;
+  asset_thumbnails?: IWebCOOSThumbnails | null;
+  asset_data: {
+    kind: string;
+    type: string;
+    uuid: string;
+    common: {
+      slug: string;
+      label: string;
+      comments: string;
+      description: string;
+      access_level: string;
+      statistics_level: string;
+    };
+    system: string;
+    version: string;
+    uuid_slug: string;
+    uuid_type: string;
+    properties: {
+      group: string;
+      wedge: GeoJSON.Polygon | null;
+      source: string;
+      location: Record<string, unknown>;
+      timezone: string;
+      thumbnails: {
+        base: IWebCOOSThumbnails | null
+      };
+    };
+  }
 }
 
+export type IWebCOOSMapAsset = Pick<IWebCOOSAssetSummaryView, 'asset_location' | 'asset_label' | 'asset_description' | 'asset_operational_status' | 'asset_disposition_slug' | 'asset_thumbnails'>
 
 export type IPostgrestParams<T> = {
     table: string
@@ -413,13 +445,13 @@ export type IPostgrestParams<T> = {
     offset?: number
     order?: {
         column: string | keyof T
-        dir?: 'asc' | 'desc'
+        dir: 'asc' | 'desc'
     },
-    select?: {
+    select?: (string | {
         column: string | keyof T
         fn?: 'count' | 'sum' | 'avg' | 'min' | 'max'
         as?: string
-    }[],
+    })[],
     filters?: {
         column: string | keyof T,
         operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'ilike' | 'in' | 'is' | 'cs' | 'cd' | 'sl' | 'sr' | 'nxl' | 'nxr',

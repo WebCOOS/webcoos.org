@@ -3,25 +3,83 @@ import type { IWebCOOSAssetSummaryView } from "@/services/assets/types"
 import { SelectInput } from "@axdspub/axiom-ui-utilities"
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
 import { useAtom } from "jotai"
-import type { ReactElement } from "react"
+import { useState, type ReactElement } from "react"
 import filterAtom from "./filterAtom"
+import { IconCamera } from "@/Components/Icon"
+import { useNavigate } from "react-router"
+
+
+const CameraPreviewImage = ({ rectSmall, squareSmall, assetLabel }: { rectSmall?: string; squareSmall?: string; assetLabel: string }): ReactElement => {
+    const [errorLoading, setErrorLoading] = useState(!rectSmall && !squareSmall)
+    return <>
+      {(rectSmall || squareSmall) && (
+          <img
+              src={rectSmall || squareSmall}
+              alt={assetLabel}
+              className={`w-24 lg:w-40 rounded shadow ${errorLoading ? 'hidden' : ''}`}
+              onError={(e) => {
+                  // If rect_small fails, try square_small as fallback
+                  const img = e.target as HTMLImageElement;
+                  if (
+                      img.src === rectSmall &&
+                      squareSmall
+                  ) {
+                      img.src = squareSmall;
+                  } else {
+                      // If both fail, hide the image and show placeholder
+                      setErrorLoading(true);
+                  }
+              }}
+          />
+      )}
+      {
+        errorLoading && 
+          <div
+            className={`w-24 h-16 lg:w-40 lg:h-24 bg-gray-100 rounded shadow flex items-center justify-center border-2 border-dashed border-gray-300`}
+          >
+              <div className='text-center text-gray-500 text-xs px-2'>
+                  <div className='mb-1'>
+                      <IconCamera size={4} extraClasses='mx-auto' paddingx={0} />
+                  </div>
+                  <div className='font-medium'>No Image</div>
+                  <div className='text-gray-400'>Available</div>
+              </div>
+          </div>
+      }
+                
+    </>
+}
+
 
 const CameraTable = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactElement => {
 
+ const navigate = useNavigate()
   const [filters, setFilters] = useAtom(filterAtom)
   const columnHelper = createColumnHelper<IWebCOOSAssetSummaryView>()
   const columns = [
+    columnHelper.accessor('asset_thumbnails', {
+        header: '',
+        size: 150,
+        minSize: 150,
+        maxSize: 150,
+        cell: info => {
+            const row = info.row.original
+            const rectSmall = row?.asset_thumbnails?.rect_small
+            const squareSmall = row?.asset_thumbnails?.square_small
+            return <>
+                <CameraPreviewImage rectSmall={rectSmall} squareSmall={squareSmall} assetLabel={row.asset_label} />
+            </>
+        }
+    }),
     columnHelper.accessor('asset_label', {
         header: 'Camera',
+        size: 400,
+        minSize: 400,
+        maxSize: 600,
         cell: info => {
+
             return <>
 
-                {/* <img
-                    src={`${apiContext.apiUrl}/webcoos/api/v1/services/${info.row.original.asset_slug}/elements/latest/redirect/`}
-                    alt={info.getValue()}
-                    className='w-24 lg:w-40 rounded shadow'
-                    
-                /> */}
 
                 <p>{info.getValue()}</p>
             </>
@@ -167,9 +225,21 @@ const CameraTable = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactEleme
         </thead>
         <tbody>
           {table.getRowModel().rows.map(row => (
-            <tr key={row.id} className='odd:bg-slate-100 even:bg-white'>
+            <tr 
+                key={row.id} 
+                className='odd:bg-slate-100 even:bg-white' 
+                data-asset-slug={row.original.asset_slug}
+                onClick={(e) => {
+                    const target = e.target as HTMLElement
+                    if(target.tagName !== 'A' && !target.closest('a')) {
+                        const url = `/cameras/${row.original.asset_slug}`
+                        navigate(url)
+                    }
+                }}
+                
+            >
               {row.getVisibleCells().map(cell => (
-                <td key={cell.id} className='p-4 align-top first:pl-10 last:pr-10 text-sm border-r-2 border-slate-200 last:border-0'>
+                <td key={cell.id} className='p-4 align-top first:pl-10 last:pr-10 text-sm border-r-2 border-slate-200 last:border-0 first:border-0'>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
