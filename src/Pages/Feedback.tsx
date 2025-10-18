@@ -3,6 +3,7 @@ import Page from "@Components/Page"
 import SectionHeader from "@Components/Section/SectionHeader"
 import Section from "@Components/Section/Section"
 import { Loader } from "@axdspub/axiom-ui-utilities"
+import PageTitle from "@/Components/PageTitle"
 
 const Feedback = (): ReactElement => {
     const feedbackURL = import.meta.env.VITE_PUBLIC_FEEDBACK_URL
@@ -10,6 +11,8 @@ const Feedback = (): ReactElement => {
         throw new Error("Feedback URL is not defined")
     }
     return (
+        <>
+            <PageTitle>Feedback</PageTitle>
             <Page>
 
             <Section shaded={false}>
@@ -30,6 +33,7 @@ const Feedback = (): ReactElement => {
                 </div>
             </Section>
         </Page>
+        </>
     )
 }
 

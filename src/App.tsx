@@ -16,6 +16,8 @@ import ApiContext from '@/state/ApiContext'
 import apiContextDefault from '@/state/apiContextDefault'
 import CamerasLoader from '@/Pages/Cameras/Cameras'
 import CamerasNew from './Pages/Cameras/CamerasNew'
+import CameraDetail from './Pages/CameraDetail/CameraDetail'
+import PageTitle from './Components/PageTitle'
 
 
 const queryClient = new QueryClient()
@@ -23,7 +25,7 @@ const queryClient = new QueryClient()
 const ProductDetail = (): ReactElement => {
   const { productId } = useParams();
   return <>
-    <title>Products | WebCOOS</title>
+    <PageTitle>Products | WebCOOS</PageTitle>
     <Markdown markdownFile={`/md_content/products/${productId}.md`} />
   </>
 }
@@ -42,13 +44,14 @@ function App(site: SiteConfig) {
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/products" element={
               <>
-                <title>Products | WebCOOS</title>
+                <PageTitle>Products | WebCOOS</PageTitle>
                 <Markdown markdownFile="/md_content/products.md" />
               </>
             } />
             <Route path="/products/:productId" element={<ProductDetail />} />
             <Route path="/cameras" element={<CamerasLoader />} />
             <Route path="/cameras-new" element={<CamerasNew />} />
+            <Route path="/cameras/:slug" element={<CameraDetail />} />
           </Routes>
           </div>
           <Footer />

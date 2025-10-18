@@ -17,6 +17,9 @@ dist-ssr
 .next
 .env
 
+.yalc
+yalc.lock
+
 bundle-analysis.html
 
 # Editor directories and files

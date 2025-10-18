@@ -13,7 +13,18 @@ export default defineConfig({
     visualizer({ open: true, filename: 'bundle-analysis.html' })
   ],
   build: {
-    sourcemap: true
+    sourcemap: true,
+    reportCompressedSize: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'lodash-es':['lodash-es'],
+          'react': ['react'],
+          'react-dom': ['react-dom'],
+          '@axdspub/axiom-ui-utilities': ['@axdspub/axiom-ui-utilities']
+        }
+      }
+    }
   },
   resolve: {
         alias: {

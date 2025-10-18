@@ -16,6 +16,7 @@ import { utils, ViewWithLoader } from '@axdspub/axiom-ui-utilities';
 import { Link } from 'react-router';
 import { useWebCOOSAssets } from '@/services/assets/useWebCOOSAssets';
 import { useYAML } from '@/services/yaml/hooks/useYAML';
+import PageTitle from '@/Components/PageTitle';
 
 const formatInTimeZone = (date: string | number, fmt: string, tz: string) => format(toZonedTime(date, tz), fmt, { timeZone: tz });
 
@@ -226,7 +227,7 @@ function Cameras(
 
     return (
         <>
-            <title>Cameras | WebCOOS</title>
+            <PageTitle>Cameras</PageTitle>
         
             <Page title='Cameras'>
                 <Section>

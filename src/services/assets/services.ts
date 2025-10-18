@@ -17,8 +17,7 @@ export class MissingTokenError extends Error {
     }
 }
 
-
-export async function fetchAPIAssets({
+export async function fetchAPIAsset({
     apiUrl,
     apiVersion = 'v1',
     source = 'webcoos',
@@ -32,7 +31,52 @@ export async function fetchAPIAssets({
     source?: string,
     token?: string,
     allow_cached?: boolean,
-    slug?: string,
+    slug: string,
+    signal?: AbortSignal
+}): Promise<IWebCOOSRawAsset> {
+    if (!token) {
+        throw new MissingTokenError("API Token not provided, pass to fetchAPIAssets or set env var NEXT_PUBLIC_WEBCOOS_API_TOKEN");
+    }
+
+    const parts = [
+        apiUrl,
+        apiVersion,
+        'assets',
+        ...(slug ? [slug] : []),
+        `?source=${source}${(allow_cached ? '' : '&_nocache=true')}`
+    ],
+        url = parts.join('/');
+
+     const cameraMetadataResponse = await fetch(url, {
+         headers: {
+             Authorization: `Token ${token}`,
+             Accept: 'application/json',
+         },
+         signal
+     });
+
+     if (!cameraMetadataResponse.ok) {
+        throw new ResponseNotOkError(`API response (${url}) not ok: ${cameraMetadataResponse.toString()}`);
+     }
+
+    const r = await cameraMetadataResponse.json();
+    return r as IWebCOOSRawAsset;
+}
+
+
+export async function fetchAPIAssets({
+    apiUrl,
+    apiVersion = 'v1',
+    source = 'webcoos',
+    token,
+    allow_cached = true,
+    signal
+}: {
+    apiUrl?: string,
+    apiVersion?: string,
+    source?: string,
+    token?: string,
+    allow_cached?: boolean,
     signal?: AbortSignal
 } = {}): Promise<IWebCOOSRawAsset[]> {
     if (!token) {
@@ -43,7 +87,6 @@ export async function fetchAPIAssets({
         apiUrl,
         apiVersion,
         'assets',
-        ...(slug ? [slug] : []),
         `?source=${source}${(allow_cached ? '' : '&_nocache=true')}`
     ],
         url = parts.join('/');
@@ -240,6 +283,41 @@ export async function fetchWebCOOSSelectItems({
             }
         });
         return results
+
+
+}
+
+export async function fetchWebCOOSCameraDetail({
+    apiUrl,
+    apiVersion,
+    source,
+    token,
+    signal,
+    params,
+    slug
+}: IWebCOOSApiRequestParams & {
+    params?: Omit<IPostgrestParams<IWebCOOSAssetSummaryView>, 'table'>,
+    slug: string
+}): Promise<IWebCOOSAssetSummaryView> {
+
+    const result =  await fetchFromWebCOOSPostgrest<IWebCOOSAssetSummaryView>({
+        apiUrl,
+        apiVersion,
+        source,
+        token,
+        signal,
+        params: {
+            ...params,
+            table: 'asset_summary_vw',
+            filters: (params?.filters ?? []).concat({
+                column: 'asset_slug',
+                operator: 'eq',
+                value: slug
+            })
+        }
+
+    });
+    return result[0]
 
 
 }

@@ -6,12 +6,13 @@ import type { ReactElement } from 'react';
 import YAML from '@Layouts/YAML';
 import Page from '@Components/Page';
 import { PartnerLogos } from './PartnerLogos';
+import PageTitle from '@/Components/PageTitle';
 
 const AboutContent = (about: AboutType): ReactElement => {
     const content = about;
     return (
         <>
-        <title>{about.sections.main.title} | WebCOOS</title>
+        <PageTitle>{about.sections.main.title}</PageTitle>
         <Page>
             <NarrativeSection
                 {...content.sections.main}

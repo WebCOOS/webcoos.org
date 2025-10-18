@@ -1,5 +1,6 @@
 import type { IWebCOOSMapAsset } from '@/services/assets/types'
-import { LatLonBounds, openlayers as Map } from '@axdspub/axiom-maps'
+import { LatLonBounds, MapLoader } from '@axdspub/axiom-maps'
+import { Loader } from '@axdspub/axiom-ui-utilities'
 import type { ReactElement } from 'react'
 
 
@@ -27,9 +28,12 @@ const LoadedMap = ({data}: {data: IWebCOOSMapAsset[]}): ReactElement => {
     const maxLat = Math.max(...lats)
     const minLon = Math.min(...lons)
     const maxLon = Math.max(...lons)
-    return <Map.MapComponent 
+    return <MapLoader
+        Loader={<Loader className='pt-20' />}
+        mapLibraryKey='maplibre'
         className='h-full' 
         height='100%'
+        baseLayerKey='mb_bathymetry'
         onMapLoaded = {(e) => {
             if(e.data?.map === undefined) return
             e.data.map.setBounds(

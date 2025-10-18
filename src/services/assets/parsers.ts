@@ -117,6 +117,61 @@ function findStream( streams: IWebCOOSRawAssetServiceStream[], stream_protocol: 
 }
 
 
+export const serviceToGalleryService = (
+    {
+        label, 
+        uuid, 
+        slug, 
+        type
+    }:{
+        label: string,
+        uuid: string,
+        slug: string,
+        type: string
+    }
+): false | {
+    label: string,
+    type: string,
+    uuid: string,
+    sortOrder: number,
+    svcType: 'img' | 'video'
+} => {
+    if(type.match(/streamingservice$/i)){
+        return false
+    }
+    if(slug.indexOf('-results') === -1){
+        return false
+    }
+
+    let sortOrder = 0
+    const isStillImageGallery = slug.indexOf('-stills') !== -1;
+    const isAnnotatedImageGallery = slug.indexOf('annotated-image') !== -1;
+    const isImageIshGallery = (isStillImageGallery || isAnnotatedImageGallery );
+    if( isImageIshGallery ) {
+
+    if( isStillImageGallery ) {
+        sortOrder = 1;
+    } else if ( isAnnotatedImageGallery ) {
+        sortOrder = 2;
+    }
+
+    } else {
+        sortOrder = 3;
+    }
+
+
+    return {
+        label,
+        type,
+        uuid,
+        svcType: isImageIshGallery ? 'img' : 'video',
+        sortOrder
+    }
+
+
+}
+
+
 /**
  * Parses a WebCOOS asset single entry from the API into something multiple
  * components can use.
@@ -192,6 +247,7 @@ export function parseWebCOOSAsset(item: IWebCOOSRawAsset, statusNow=undefined): 
                   return {
                       uuid: service.uuid,
                       common: service.data.common,
+                      slug: service.data.common.slug,
                       elements: service.elements,
                       sortOrder: sortOrder,
                       svcType: ( isImageIshGallery ? 'img' : 'video' ),
@@ -200,7 +256,7 @@ export function parseWebCOOSAsset(item: IWebCOOSRawAsset, statusNow=undefined): 
                           period: freqPeriod,
                       },
                   };
-              })
+              }).sort((a,b) => a.sortOrder - b.sortOrder)
         : [];
 
     const has_archived_video = galleryServices.some(s => s.svcType === 'video');

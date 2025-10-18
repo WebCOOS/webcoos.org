@@ -8,6 +8,13 @@ import filterAtom from "./filterAtom"
 import { IconCamera } from "@/Components/Icon"
 import { useNavigate } from "react-router"
 
+import { toZonedTime, format } from 'date-fns-tz';
+
+
+const defaultTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
+const formatInTimeZone = (date: string | number, fmt: string, tz: string) => format(toZonedTime(date, tz), fmt, { timeZone: tz });
+
+
 
 const CameraPreviewImage = ({ rectSmall, squareSmall, assetLabel }: { rectSmall?: string; squareSmall?: string; assetLabel: string }): ReactElement => {
     const [errorLoading, setErrorLoading] = useState(!rectSmall && !squareSmall)
@@ -53,7 +60,7 @@ const CameraPreviewImage = ({ rectSmall, squareSmall, assetLabel }: { rectSmall?
 
 const CameraTable = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactElement => {
 
- const navigate = useNavigate()
+  const navigate = useNavigate()
   const [filters, setFilters] = useAtom(filterAtom)
   const columnHelper = createColumnHelper<IWebCOOSAssetSummaryView>()
   const columns = [
@@ -98,7 +105,13 @@ const CameraTable = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactEleme
     }),
     columnHelper.accessor('asset_slug', {
         header: 'Data Access Slug',
-        cell: info => <p>{info.getValue()}</p>
+        cell: info => <div className='hover:border-red-200 hover:border-2 h-full' onClick={(e)=>{
+          e.preventDefault()
+          e.stopPropagation()
+          
+        }}>
+          {info.getValue()}
+        </div>
     }),
     columnHelper.accessor('asset_service_slugs', {
         header: 'Products',
@@ -127,11 +140,29 @@ const CameraTable = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactEleme
     }),
     columnHelper.accessor('asset_first_starting', {
         header: 'Starting',
-        cell: info => <p>{info.getValue()}</p>
+        minSize: 150,
+        cell: info => {
+          return <p>{
+            formatInTimeZone(
+                info.row.original.asset_first_starting,
+                'yyyy-MM-dd',
+                info.row.original.asset_timezone  ?? defaultTimeZone
+            )
+          }</p>
+        }
     }),
     columnHelper.accessor('asset_last_ending', {
         header: 'Ending',
-        cell: info => <p>{info.getValue()}</p>
+        cell: info => {
+          const date = new Date(info.row.original.asset_last_ending)
+          return <p>{
+            formatInTimeZone(
+                Number(date),
+                'yyyy-MM-dd',
+                info.row.original.asset_timezone  ?? defaultTimeZone
+            )
+          }</p>
+        }
     }),
   ]
   const table = useReactTable({
@@ -227,7 +258,7 @@ const CameraTable = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactEleme
           {table.getRowModel().rows.map(row => (
             <tr 
                 key={row.id} 
-                className='odd:bg-slate-100 even:bg-white' 
+                className='odd:bg-slate-100 even:bg-white hover:bg-slate-50 cursor-pointer' 
                 data-asset-slug={row.original.asset_slug}
                 onClick={(e) => {
                     const target = e.target as HTMLElement

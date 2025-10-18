@@ -2,12 +2,13 @@ import { type ReactElement } from "react"
 
 import { Provider } from "jotai"
 import CamerasLoader from "./CamerasLoader"
+import PageTitle from "@/Components/PageTitle"
 
 
 const CamerasNew =  (): ReactElement => {
   return (
     <Provider>
-      <title>Cameras | WebCOOS</title>
+      <PageTitle>Cameras</PageTitle>
       <CamerasLoader />
     </Provider>
   )

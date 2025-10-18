@@ -30,7 +30,6 @@ const apiContext = useContext(ApiContext)
             }
         })
         window.history.pushState({}, '', url.toString())
-        console.log('Filters changed:', filters)
     }, [filters])
 
 
