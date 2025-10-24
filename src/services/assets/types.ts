@@ -20,6 +20,7 @@ type IWebCOOSThumbnails = {
   square_medium: string;
 }
 
+
 export type IWebCOOSRawAsset =  {
     uuid: string;
     created_at: string;
@@ -100,49 +101,7 @@ export type IWebCOOSRawAsset =  {
           uuid_type: string;
           properties: Record<string, unknown>;
         };
-        services: Array<{
-          uuid: string;
-          created_at: string;
-          updated_at: string;
-          attrs: Record<string, unknown>;
-          data: {
-            kind: string;
-            type: string;
-            uuid: string;
-            common: {
-              slug: string;
-              label: string;
-              comments: string;
-              description: string;
-              access_level: string;
-              statistics_level: string;
-            };
-            system: string;
-            version: string;
-            uuid_slug: string;
-            uuid_type: string;
-            properties: {
-              url?: string;
-              path?: string;
-              bucket?: string;
-              region?: string;
-              base_url?: string;
-              frequency: {
-                type: string;
-                value: string | null;
-              };
-              connections?: IWebCOOSRawAssetServiceStream[];
-            };
-          };
-          elements: {
-            count: number;
-            size: number | null;
-            first_starting: string | null;
-            last_starting: string | null;
-            first_ending: string | null;
-            last_ending: string | null;
-          };
-        }>;
+        services: Array<IWebCOOSParsedAssetService>;
       }>;
     }>;
     package: {
@@ -261,6 +220,44 @@ export type IWebCOOSParsedGalleryService =  {
     };
 }
 
+export type IWebCOOSElement = {
+  uuid: string;
+  data: {
+    kind: string;
+    type: string;
+    uuid: string;
+    common: {
+      slug: string;
+      label: string;
+      comments: string;
+      description: string;
+      access_level: string;
+      statistics_level: string;
+    };
+    system: string;
+    extents: {
+      temporal: {
+        min: string;
+      };
+    };
+    version: string;
+    uuid_slug: string;
+    uuid_type: string;
+    properties: {
+      url: string;
+      size: number;
+      duration: number | null;
+      thumbnails: {
+        base: {
+          lqip: string;
+          rect_small: string;
+          rect_medium: string;
+        };
+      };
+    };
+  };
+};
+
 export type IWebCOOSParsedAsset = {
   uuid: string;
   slug: string;
@@ -289,6 +286,7 @@ export type IWebCOOSParsedAsset = {
   services: IWebCOOSParsedAssetService[];
   dateBounds: (string | null)[];
   galleryServices: IWebCOOSParsedGalleryService[];
+  stillImageService: IWebCOOSParsedAssetService | null;
   wedge: Polygon | null;
   status: {
     slug: string;

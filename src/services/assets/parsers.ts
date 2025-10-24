@@ -1,4 +1,4 @@
-import type { IWebCOOSParsedAsset, IWebCOOSRawAsset, IWebCOOSRawAssetServiceStream } from "@/services/assets/types";
+import type { IWebCOOSParsedAsset, IWebCOOSParsedAssetService, IWebCOOSRawAsset, IWebCOOSRawAssetServiceStream } from "@/services/assets/types";
 import { differenceInDays } from "date-fns";
 import * as duration from 'duration-fns';
 
@@ -171,6 +171,10 @@ export const serviceToGalleryService = (
 
 }
 
+const isStillImageService = (service: IWebCOOSParsedAssetService): boolean => {
+    return service.data.common.slug.indexOf('-stills') !== -1;
+}
+
 
 /**
  * Parses a WebCOOS asset single entry from the API into something multiple
@@ -226,7 +230,7 @@ export function parseWebCOOSAsset(item: IWebCOOSRawAsset, statusNow=undefined): 
                   let sortOrder = 0;
 
                   // a service of un-modified still images
-                  const isStillImageGallery = service.data.common.slug.indexOf('-stills') !== -1;
+                  const isStillImageGallery = isStillImageService(service);
                   // a service of modifified (annotated) still images
                   const isAnnotatedImageGallery = service.data.common.slug.indexOf('annotated-image') !== -1;
 
@@ -261,6 +265,9 @@ export function parseWebCOOSAsset(item: IWebCOOSRawAsset, statusNow=undefined): 
 
     const has_archived_video = galleryServices.some(s => s.svcType === 'video');
     const has_archived_images = galleryServices.some(s => s.svcType === 'img');
+
+    const stillImageService = services.find((service) => isStillImageService(service)) ?? null;
+
 
     let cameraProducts: Array<string | null> = [];
     if (services) {
@@ -320,7 +327,8 @@ export function parseWebCOOSAsset(item: IWebCOOSRawAsset, statusNow=undefined): 
         embed_stream: embedStream,
         services,
         dateBounds,
-        galleryServices: galleryServices,
+        galleryServices,
+        stillImageService,
         wedge: wedge,
         status: status,
         products: cameraProducts,

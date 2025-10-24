@@ -121,7 +121,7 @@ export const ShakaPlayerComponent: React.FC<ShakaPlayerProps> = ({ src }) => {
       ref={videoRef}
       controls
       autoPlay // Or manage autoplay with state/props
-      style={{ width: '100%', height: 'auto' }}
+      style={{ width: '100%', height: '100%' }}
     />
   );
 };

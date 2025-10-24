@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query"
 import type { ReactElement } from "react"
 import { Link, useParams } from "react-router"
 import StreamingPlayerOld from "./StreamingPlayerOld"
+import LatestImage from "@/Components/Media/LatestImage"
 
 
 
@@ -63,7 +64,17 @@ const CameraDetail =  ():ReactElement =>{
         }).sort((a,b)=>a.sortOrder - b.sortOrder): [] */
 
 
-    const stream = data?.hls_stream ?? data?.dash_stream
+    // has data within last 6 hours
+    const hasLiveData = data?.dateBounds[1] !== null && data?.dateBounds[1] !== undefined && (new Date(data.dateBounds[1])).getTime() > (Date.now() - 1000 * 60 * 60 * 6)
+    // has data within last 24 hours
+    const hasRecentData = data?.dateBounds[1] !== null && data?.dateBounds[1] !== undefined && (new Date(data.dateBounds[1])).getTime() > (Date.now() - 1000 * 60 * 60 * 24 * 60)
+
+    const liveStream = hasLiveData ? data?.hls_stream ?? data?.dash_stream : null
+    const stillImageService = hasRecentData && data.stillImageService ? data.stillImageService : null
+    const wedgeFeature = data?.wedge
+        ? JSON.stringify({"type": "Feature","properties": {},"geometry": data.wedge})
+        : null
+
     return (
         <>
         
@@ -73,18 +84,28 @@ const CameraDetail =  ():ReactElement =>{
                 data !== undefined && <>
                     <PageTitle>{data.label}</PageTitle>
                     <h1 className='text-2xl font-bold'><Link to='/cameras' className='text-primary hover:underline'>Cameras</Link> | {data.label}</h1>
-                    <div className='flex flex-row p-10 bg-slate-200 my-10'>
+                    <div className='flex flex-row p-10 bg-slate-200 my-10 gap-10'>
                         {
                             data.description && 
-                                <MarkdownContent className="flex-grow">{data.description}</MarkdownContent>
+                                <MarkdownContent className="flex-grow text-sm">{data.description}</MarkdownContent>
                                 
-                        }  
+                        }
+                        <div className='flex-none w-[650px] h-[365px] justify-end bg-white'>
                         {
-                            stream !== null && stream !== undefined && 
-                            <div className='flex-none w-[650px] h-[365px] justify-end'>
-                                <StreamingPlayerOld src={stream.url}  />
-                            </div>
-                        } 
+                            liveStream !== null && liveStream !== undefined 
+                            ? <StreamingPlayerOld src={liveStream.url}  /> 
+                            : stillImageService && <LatestImage 
+                                service={stillImageService}
+                                assetLabel={data.label}
+                                />
+                            
+                        }
+                        </div>
+                        <div className='flex-none w-[380px] h-full p-5 bg-slate-600'>
+                            <img src={`https://api.mapbox.com/styles/v1/mapbox/light-v10/static/geojson({"type":"Feature","properties":{},"geometry":(${JSON.stringify(wedgeFeature)})/${data.latitude},${data.longitude},10,0,0/374x210?access_token=${import.meta.env.VITE_PUBLIC_MAPBOX_TOKEN}`} />
+
+
+                        </div>
                         
                     </div>  
                     {data.galleryServices.length > 0 && <Table

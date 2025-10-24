@@ -1,7 +1,7 @@
 import type { IPostgrestParams, IWebCOOSApiRequestParams } from "./types";
 
 export const postgrestEndpoint = <T, >({
-    apiUrl = import.meta.env.VITE_WEBCOOS_API_URL || 'https://api.webcoos.org',
+    apiUrl = import.meta.env.VITE_WEBCOOS_API_URL,
     apiVersion = 'v1',
     source = 'webcoos',
     params
@@ -26,5 +26,42 @@ export const postgrestEndpoint = <T, >({
         }).join(',');
         url.searchParams.append('select', select);
     }
+    return url.toString();
+}
+
+export const latestAssetMediaEndpoint = ({
+    apiUrl = import.meta.env.VITE_WEBCOOS_API_URL,
+    apiVersion = 'v1',
+    assetIdentifier,
+    type
+}: Omit<IWebCOOSApiRequestParams, 'token' | 'signal'> & {
+    assetIdentifier: string
+    type?: 'image' | 'video'
+}): string => {
+    const url = new URL(`${apiUrl}/${apiVersion}/assets/${assetIdentifier}/elements/latest/${type ?? 'image'}`);
+    return url.toString();
+}
+
+export const latestServiceMediaEndpoint = ({
+    apiUrl = import.meta.env.VITE_WEBCOOS_API_URL,
+    apiVersion = 'v1',
+    serviceIdentifier
+}: Omit<IWebCOOSApiRequestParams, 'token' | 'signal'> & {
+    serviceIdentifier: string
+}): string => {
+    const url = new URL(`${apiUrl}/${apiVersion}/services/${serviceIdentifier}/elements/latest`);
+    return url.toString();
+}
+
+
+
+export const latestMediaRedirectEndpoint = ({
+    apiUrl = import.meta.env.VITE_WEBCOOS_API_URL,
+    apiVersion = 'v1',
+    assetIdentifier
+}: Omit<IWebCOOSApiRequestParams, 'token' | 'signal'> & {
+    assetIdentifier: string
+}): string => {
+    const url = new URL(`${apiUrl}/${apiVersion}/elements/${assetIdentifier}/redirect`);
     return url.toString();
 }

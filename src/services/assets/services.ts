@@ -1,5 +1,5 @@
-import type { IPostgrestParams, IWebCOOSApiRequestParams, IWebCOOSAssetElementView, IWebCOOSAssetSummaryView, IWebCOOSElementInventory, IWebCOOSRawAsset } from "@/services/assets/types";
-import { postgrestEndpoint } from "./endpoints";
+import type { IPostgrestParams, IWebCOOSApiRequestParams, IWebCOOSAssetElementView, IWebCOOSAssetSummaryView, IWebCOOSElement, IWebCOOSElementInventory, IWebCOOSRawAsset } from "@/services/assets/types";
+import { latestAssetMediaEndpoint, latestServiceMediaEndpoint, postgrestEndpoint } from "./endpoints";
 
 
 
@@ -106,6 +106,74 @@ export async function fetchAPIAssets({
      const r = await cameraMetadataResponse.json();
     return r.results as IWebCOOSRawAsset[];
 }
+
+
+export async function fetchLatestAssetMedia({
+        apiUrl,
+        apiVersion,
+        token,
+        signal,
+        assetIdentifier,
+        type
+    }: IWebCOOSApiRequestParams & {
+        assetIdentifier: string
+        type?: 'image' | 'video'
+    }): Promise<IWebCOOSElement> {
+
+        const url = latestAssetMediaEndpoint({
+            apiUrl,
+            apiVersion,
+            assetIdentifier,
+            type
+        });
+
+        const response = await fetch(url, {
+            headers: {
+                Authorization: `Token ${token}`,
+                Accept: 'application/json',
+            },
+            signal
+        });
+        if (!response.ok) {
+            throw new ResponseNotOkError(`API response (${url}) not ok: ${response.toString()}`);
+        }
+        const r = await response.json();
+        return r as IWebCOOSElement;
+
+    }
+
+export async function fetchLatestServiceMedia({
+        apiUrl,
+        apiVersion,
+        token,
+        signal,
+        serviceIdentifier
+    }: IWebCOOSApiRequestParams & {
+        serviceIdentifier: string
+    }): Promise<IWebCOOSElement> {
+
+        const url = latestServiceMediaEndpoint({
+            apiUrl,
+            apiVersion,
+            serviceIdentifier
+        });
+
+        const response = await fetch(url, {
+            headers: {
+                Authorization: `Token ${token}`,
+                Accept: 'application/json',
+            },
+            signal
+        });
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw new ResponseNotOkError(`API response (${url}) not ok: ${response.toString()}`);
+            }
+        }
+        const r = await response.json();
+        return r as IWebCOOSElement;
+
+    }
 
 
 export async function fetchFromWebCOOSPostgrest<T>(
