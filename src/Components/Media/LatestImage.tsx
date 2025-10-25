@@ -12,7 +12,7 @@ const LatestImage = ({service, assetLabel}: {service: IWebCOOSParsedAssetService
 
     return <ViewWithLoader isLoading={isLoading} error={error} data={data}>
         {data !== null && data !== undefined ? (
-            <div className='relative'>
+            <div className='relative w-full h-full'>
                 <img 
                     alt={assetLabel ? `Latest image for ${assetLabel}` : 'Latest Image'}
                     className='object-contain w-full h-full'

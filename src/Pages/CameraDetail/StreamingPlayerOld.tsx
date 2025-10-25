@@ -14,7 +14,7 @@ function VideoStreamPlayer({
     const containerRef = useRef<HTMLDivElement | null>(null);
     const videoRef = useRef(null);
 
-    const [videoError, setVideoError] = useState(null);
+    const [videoError, setVideoError] = useState<Error | null>(null);
 
     useEffect(() => {
         const player = new shaka.Player(videoRef.current)
@@ -61,7 +61,7 @@ function VideoStreamPlayer({
 
                         <details className='text-gray-600 text-xs overflow-y'>
                             <summary className='cursor-pointer'>Technical Details</summary>
-                            <code className='font-mono'>{videoError.toString()}</code>
+                            <code className='font-mono'>{videoError?.toString()}</code>
                         </details>
                     </div>
                 </div>

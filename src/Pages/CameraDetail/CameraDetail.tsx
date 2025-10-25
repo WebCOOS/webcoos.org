@@ -8,8 +8,8 @@ import { Table, ViewWithLoader } from "@axdspub/axiom-ui-utilities"
 import { useQuery } from "@tanstack/react-query"
 import type { ReactElement } from "react"
 import { Link, useParams } from "react-router"
-import StreamingPlayerOld from "./StreamingPlayerOld"
 import LatestImage from "@/Components/Media/LatestImage"
+import VideoPlayer from "@/Components/Media/VideoPlayer"
 
 
 
@@ -65,11 +65,11 @@ const CameraDetail =  ():ReactElement =>{
 
 
     // has data within last 6 hours
-    const hasLiveData = data?.dateBounds[1] !== null && data?.dateBounds[1] !== undefined && (new Date(data.dateBounds[1])).getTime() > (Date.now() - 1000 * 60 * 60 * 6)
+    // const hasLiveData = data?.dateBounds[1] !== null && data?.dateBounds[1] !== undefined && (new Date(data.dateBounds[1])).getTime() > (Date.now() - 1000 * 60 * 60 * 6)
     // has data within last 24 hours
     const hasRecentData = data?.dateBounds[1] !== null && data?.dateBounds[1] !== undefined && (new Date(data.dateBounds[1])).getTime() > (Date.now() - 1000 * 60 * 60 * 24 * 60)
 
-    const liveStream = hasLiveData ? data?.hls_stream ?? data?.dash_stream : null
+    const liveStream = data?.hls_stream ?? data?.dash_stream
     const stillImageService = hasRecentData && data.stillImageService ? data.stillImageService : null
     const wedgeFeature = data?.wedge
         ? JSON.stringify({"type": "Feature","properties": {},"geometry": data.wedge})
@@ -93,7 +93,7 @@ const CameraDetail =  ():ReactElement =>{
                         <div className='flex-none w-[650px] h-[365px] justify-end bg-white'>
                         {
                             liveStream !== null && liveStream !== undefined 
-                            ? <StreamingPlayerOld src={liveStream.url}  /> 
+                            ? <VideoPlayer options={{ sources: [liveStream.url] }} />
                             : stillImageService && <LatestImage 
                                 service={stillImageService}
                                 assetLabel={data.label}

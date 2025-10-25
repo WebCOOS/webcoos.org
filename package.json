@@ -17,6 +17,7 @@
     "@tanstack/react-query": "^5.89.0",
     "@tanstack/react-table": "^8.21.3",
     "@types/geojson": "^7946.0.16",
+    "@types/video.js": "^7.3.58",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
@@ -31,6 +32,7 @@
     "rehype-raw": "^7.0.0",
     "shaka-player": "^4.16.5",
     "tailwindcss": "^4.1.13",
+    "video.js": "^8.23.4",
     "yaml": "^2.8.1"
   },
   "devDependencies": {
