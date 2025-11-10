@@ -9,15 +9,7 @@ import CameraTable from "./CamerasTable"
 
 const CamerasLoader = (): ReactElement => {
 
-const apiContext = useContext(ApiContext)
-    /* const { data, isLoading, error } = useWEBCOOSAssetSummaryView({
-        token: apiContext.token,
-        apiUrl: apiContext.apiUrl,
-        source: 'webcoos',
-        apiVersion: 'v1',
-        params: {}
-    }) */
-
+    const apiContext = useContext(ApiContext)
     const [filters] = useAtom(filterAtom)
     useEffect(() => {
         const url = new URL(window.location.href)

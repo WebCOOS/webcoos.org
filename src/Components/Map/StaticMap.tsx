@@ -1,5 +1,8 @@
-import type { Polygon } from 'geojson';
-import React, { useMemo } from 'react';
+import type { Feature, Polygon } from 'geojson';
+import { useMemo } from 'react';
+import { circle, union, featureCollection, polygon as turfPolygon } from "@turf/turf";
+import { utils } from '@axdspub/axiom-ui-utilities';
+
 //import classNames from 'classnames';
 
 //import circle from "@turf/circle";
@@ -16,7 +19,7 @@ function StaticMap({
     markerSymbol = undefined,
     color,
     extraClasses,
-    decimalPlaces = undefined,
+    decimalPlaces = 4,
     extraStyle = {},
     wedgePolygon
 }: {
@@ -28,22 +31,22 @@ function StaticMap({
     style: string,
     mapboxAccessToken?: string,
     markerSymbol?: string,
-    extraClasses: string,
+    extraClasses?: string,
     decimalPlaces?: number,
-    extraStyle: object,
-    color: string,
-    wedgePolygon: Polygon
+    extraStyle?: object,
+    color?: string,
+    wedgePolygon?: Polygon
 }) {
     const overlay = useMemo(() => {
         if (!(longitude && latitude)) {
             return null;
         }
-        const sym = markerSymbol ? `-${markerSymbol}` : '',
+        /* const sym = markerSymbol ? `-${markerSymbol}` : '',
             col = color ? `+${color.replace('#', '')}` : '';
 
         if (zoom < 8) {
             return `pin-l${sym}${col}(${longitude},${latitude})`;
-        }
+        } */
         const radius = 0.2 + (Math.max(0, 11 - zoom) * 0.3),
             feature = circle([longitude, latitude], radius, {
                 units: 'kilometers',
@@ -55,7 +58,7 @@ function StaticMap({
                         : {}),
                 },
             });
-        return feature;
+        return feature as Feature<Polygon>;
     }, [longitude, latitude, markerSymbol, zoom]);
 
     const wedgeOverlay = useMemo(() => {
@@ -63,7 +66,7 @@ function StaticMap({
             return null;
         }
         if (zoom < 10) { return null; }
-        const feature = {
+        /* const feature = {
             type: 'Feature',
             properties: {
                 'stroke-opacity': 0.1,
@@ -82,24 +85,43 @@ function StaticMap({
                     ]),
                 ],
             },
-        };
+        }; */
+        const feature = turfPolygon(
+            [
+                wedgePolygon.coordinates[0].map((cPair) => [
+                    parseFloat(cPair[0].toPrecision(6)),
+                    parseFloat(cPair[1].toPrecision(6)),
+                ]),
+            ],
+            {
+                'stroke-opacity': 0.1,
+                ...(color
+                    ? {
+                          fill: color,
+                      }
+                    : {}),
+            },
+            )
         return feature;
     }, [wedgePolygon, zoom]);
 
-    const gj = (feature) => `geojson(${encodeURIComponent(JSON.stringify(feature))})`;
+    const gj = (feature:Feature) => `geojson(${encodeURIComponent(JSON.stringify(feature))})`;
 
     const imgSrc = useMemo(() => {
         const overlayUnion =
                 wedgeOverlay && overlay
-                    ? union(overlay, wedgeOverlay, {
-                          properties: {
-                              ...(color
-                                  ? {
-                                        fill: color,
-                                    }
-                                  : {}),
-                          },
-                      })
+                    ? union(featureCollection([
+                            overlay, 
+                            wedgeOverlay
+                        ]), {
+                            properties: {
+                                ...(color
+                                    ? {
+                                            fill: color,
+                                        }
+                                    : {}),
+                            },
+                        })
                     : overlay,
             overlayJoined = typeof overlayUnion === 'string' || !overlayUnion ? overlayUnion : gj(overlayUnion),
             overlayPortion = overlayJoined ? `${overlayJoined}/` : '',
@@ -127,8 +149,15 @@ function StaticMap({
 
     return (
         <div
-            className={classNames('bg-white border border-gray-200 relative', extraClasses)}
-            style={{ width: `${width}px`, height: `${height}px`, ...extraStyle }}
+            className={utils.makeClassName({
+                defaultClassName: 'bg-white border border-gray-200 relative', 
+                className: extraClasses
+            })}
+            style={{ 
+                width: `${width}px`, 
+                height: `${height}px`, 
+                ...extraStyle 
+            }}
         >
             <img src={imgSrc} alt={`Map showing ${lonDisp} ${latDisp}`} width={width} height={height} />
 

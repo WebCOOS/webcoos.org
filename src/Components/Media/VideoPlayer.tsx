@@ -11,7 +11,7 @@ interface VideoPlayerProps {
 }
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({ options }) => {
-  const videoRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<Player | null>(null);
 
   useEffect(() => {
@@ -21,6 +21,16 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ options }) => {
       if (videoElement) {
         playerRef.current = videojs(videoElement, options, () => {
           console.log('player is ready');
+        });
+        const player = playerRef.current;
+
+        player.on('error', () => {
+          const error = player.error();
+          if (error) {
+            console.error('Video.js Error:', error.code, error.message);
+            // Implement custom error handling logic here
+            // e.g., display a user-friendly message, retry stream, etc.
+          }
         });
       }
     } else {
@@ -37,13 +47,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ options }) => {
       if (player && !player.isDisposed()) {
         player.dispose();
         playerRef.current = null;
+        console.log('player disposed');
       }
     };
   }, [playerRef]);
 
   return (
     <div data-vjs-player className='w-full h-full'>
-      <div ref={videoRef} className="video-js vjs-big-play-centered w-full h-full" />
+      <video ref={videoRef} className="video-js vjs-big-play-centered w-full h-full" />
     </div>
   );
 };
