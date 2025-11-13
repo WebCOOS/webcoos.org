@@ -12,6 +12,17 @@ const CameraPicker = ({data, View} : {data: IWebCOOSCameraPageFiltered, View: Re
     const selectedSlug = searchParams.get('camera_slug') ?? undefined
     const selectedCamera = data.assets.find(c => c.asset_slug === selectedSlug) ?? undefined
 
+    const updateUrl = (slug: string | undefined) => {
+        const newSearchParams = new URLSearchParams(searchParams.toString());
+        if(slug !== undefined){
+            newSearchParams.set('camera_slug', slug);
+            setSearchParams(newSearchParams, { replace: true });
+        } else {
+            newSearchParams.delete('camera_slug');
+            setSearchParams(newSearchParams, { replace: true });
+        }
+    }
+
     return (
         <>
             <div className='flex flex-row gap-4 w-full'>
@@ -20,7 +31,7 @@ const CameraPicker = ({data, View} : {data: IWebCOOSCameraPageFiltered, View: Re
                     testId="camera-select"
                     value={selectedSlug}
                     onChange={e => {
-                        setSearchParams({ camera_slug: String(e.value) })
+                        updateUrl(e?.value !== undefined ? String(e.value) : undefined)
                     }}
                     options={data.assets.map(c => ({
                         label: c.asset_label,
@@ -32,7 +43,7 @@ const CameraPicker = ({data, View} : {data: IWebCOOSCameraPageFiltered, View: Re
                     type='none'
                     className={`p-0 border-0 bg-none text-2xl cursor-pointer ${selectedCamera === undefined ? 'invisible' : 'visible'}`}
                     onClick={() => {
-                        setSearchParams({})
+                        updateUrl(undefined)
                     }}
                 >
                     &times;
