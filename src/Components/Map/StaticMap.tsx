@@ -15,7 +15,7 @@ function StaticMap({
     height = 128,
     zoom = 8,
     style = 'mapbox/light-v10',
-    mapboxAccessToken = process.env.VITE_APP_MAPBOX_TOKEN,
+    mapboxAccessToken = import.meta.env.VITE_APP_MAPBOX_TOKEN,
     markerSymbol = undefined,
     color,
     extraClasses,

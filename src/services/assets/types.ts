@@ -369,8 +369,8 @@ export interface IWebCOOSAssetSummaryView {
   asset_uuid: string;
   asset_label: string;
   asset_slug: string;
-  asset_disposition_slug: string;
-  asset_disposition_label: string;
+  asset_disposition_slug: string | null;
+  asset_disposition_label: string | null;
   asset_operational_status_slug: string;
   asset_operational_status_label: string;
   asset_operational_status_note: string | null;
@@ -383,7 +383,7 @@ export interface IWebCOOSAssetSummaryView {
   asset_product_types: string[];
   asset_product_slugs: string[];
   asset_product_labels: string[];
-  asset_location: IWebCOOSPoint;
+  asset_location: IWebCOOSPoint | null;
   asset_description: string;
   asset_timezone: string;
   asset_group: string;
@@ -437,7 +437,7 @@ export interface IWebCOOSAssetSummaryView {
   }
 }
 
-export type IWebCOOSMapAsset = Pick<IWebCOOSAssetSummaryView, 'asset_location' | 'asset_label' | 'asset_description' | 'asset_operational_status_slug' | 'asset_operational_status_label' | 'asset_operational_status_note' | 'asset_disposition_slug' | 'asset_disposition_label' | 'asset_thumbnails'>
+export type IWebCOOSMapAsset = {asset_slug: string} & Pick<IWebCOOSAssetSummaryView, 'asset_location' | 'asset_label' | 'asset_description' | 'asset_operational_status_slug' | 'asset_operational_status_label' | 'asset_operational_status_note' | 'asset_disposition_slug' | 'asset_disposition_label' | 'asset_thumbnails'>
 
 export type IPostgrestParams<T> = {
     table: string

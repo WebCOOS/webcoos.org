@@ -9,20 +9,6 @@ import LoadedMap from "./LoadedMap"
 
 
 
-
-
-/* const MapLoader = ({data}: {data: IWebCOOSMapAsset[]}): ReactElement => {
-    const LoadedMap = lazy(async () => await import('./LoadedMap'))
-    return <Suspense fallback={<Loader className="h-16 w-16 pt-20 mx-auto" />}>
-        <div className="w-full h-full">
-            <LoadedMap data={data} />
-        </div>
-    </Suspense>
-
-
-}
- */
-
 const MapDataLoader = ():ReactElement => {
     const apiContext = useAPIContext()
     const { data, isLoading, isFetching, error } = useQuery<IWebCOOSMapAsset[]>({
@@ -36,11 +22,16 @@ const MapDataLoader = ():ReactElement => {
                 params: {
                   table: 'asset_summary_vw',
                   select: [
+                    'asset_slug',
                     'asset_label',
                     'asset_location',
                     'asset_description',
-                    'asset_operational_status',
+                    'asset_operational_status_slug',
                     'asset_disposition_slug',
+                    'asset_disposition_label',
+                    'asset_operational_status_label',
+                    'asset_uuid',
+                    'asset_slug',
                     {
                         column: 'asset_data->properties->thumbnails->base',
                         as: 'asset_thumbnails'

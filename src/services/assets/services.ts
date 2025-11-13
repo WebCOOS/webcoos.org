@@ -398,7 +398,7 @@ export async function fetchWebCOOSCameraPageFiltered({
     signal,
     params
 }: IWebCOOSApiRequestParams & {
-    params: Omit<IPostgrestParams<IWebCOOSAssetSummaryView>, 'table'>
+    params?: Omit<IPostgrestParams<IWebCOOSAssetSummaryView>, 'table'>
 }): Promise<IWebCOOSCameraPageFiltered> {
 
     const out: IWebCOOSCameraPageFiltered = {
@@ -417,6 +417,25 @@ export async function fetchWebCOOSCameraPageFiltered({
         token,
         signal
     }
+
+    params = params ?? {};
+    params.select = params.select ??  [
+                    'asset_label',
+                    'asset_region',
+                    'asset_state_or_territory',
+                    'asset_slug',
+                    'asset_service_slugs',
+                    'asset_disposition_slug',
+                    'asset_disposition_label',
+                    'asset_operational_status_slug',
+                    'asset_operational_status_label',
+                    'asset_first_starting',
+                    'asset_last_ending',
+                    {
+                        column: 'asset_data->properties->thumbnails->base',
+                        as: 'asset_thumbnails'
+                    }
+                  ]
 
     await Promise.all([
         (async () => {
@@ -465,7 +484,7 @@ export async function fetchWebCOOSCameraPageFiltered({
         (async () => {
             const results =  await fetchWebCOOSSelectItems({
                 ...props,
-                valueColumn: 'asset_operational_status',
+                valueColumn: 'asset_operational_status_slug',
                 params: {
                     ...params,
                     table: 'asset_summary_vw'

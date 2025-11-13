@@ -18,6 +18,7 @@ import CamerasLoader from '@/Pages/Cameras/Cameras'
 import CamerasNew from './Pages/Cameras/CamerasNew'
 import CameraDetail from './Pages/CameraDetail/CameraDetail'
 import PageTitle from './Components/PageTitle'
+import Demo from './Demo/Demo'
 
 
 const queryClient = new QueryClient()
@@ -28,6 +29,11 @@ const ProductDetail = (): ReactElement => {
     <PageTitle>Products | WebCOOS</PageTitle>
     <Markdown markdownFile={`/md_content/products/${productId}.md`} />
   </>
+}
+
+const CameraDetailWrapper = (): ReactElement => {
+    const { slug } = useParams();
+    return <CameraDetail slug={slug!} />
 }
 
 function App(site: SiteConfig) {
@@ -51,7 +57,9 @@ function App(site: SiteConfig) {
             <Route path="/products/:productId" element={<ProductDetail />} />
             <Route path="/cameras" element={<CamerasLoader />} />
             <Route path="/cameras-new" element={<CamerasNew />} />
-            <Route path="/cameras/:slug" element={<CameraDetail />} />
+            <Route path="/cameras/:slug" element={<CameraDetailWrapper />} />
+            <Route path="/demo" element={<Demo />} />
+            <Route path="/demo/:groupId/:itemId" element={<Demo />} />
           </Routes>
           </div>
           <Footer />

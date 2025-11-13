@@ -134,7 +134,7 @@ const CameraTable = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactEleme
         header: 'Disposition',
         cell: info => <p>{info.getValue()}</p>,
     }),
-    columnHelper.accessor('asset_operational_status', {
+    columnHelper.accessor('asset_operational_status_label', {
         header: 'Status',
         cell: info => <p>{info.getValue()}</p>
     }),
@@ -199,7 +199,7 @@ const CameraTable = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactEleme
     {
       label:'Status',
       id: 'status-filter',
-      column: 'asset_operational_status',
+      column: 'asset_operational_status_slug',
       options: data.statuses
     }
   ]
