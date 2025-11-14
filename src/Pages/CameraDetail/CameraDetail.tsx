@@ -1,7 +1,7 @@
 import MarkdownContent from "@/Components/MarkdownContent"
 import PageTitle from "@/Components/PageTitle"
 import { parseWebCOOSAsset } from "@/services/assets/parsers"
-import {  fetchAPIAsset, fetchWebCOOSCameraDetail } from "@/services/assets/services"
+import {  fetchAPIAsset, fetchWebCOOSCameraSummary } from "@/services/assets/services"
 import type { IWebCOOSAssetSummaryView, IWebCOOSParsedAsset, IWebCOOSParsedAssetService, IWebCOOSRawAssetServiceStream } from "@/services/assets/types"
 import { useAPIContext } from "@/state/ApiContext"
 import { Table, Tabs, ViewWithLoader } from "@axdspub/axiom-ui-utilities"
@@ -11,6 +11,7 @@ import { Link } from "react-router"
 import LatestImage from "@/Components/Media/LatestImage"
 import VideoPlayer from "@/Components/Media/VideoPlayer"
 import StaticMap from "@/Components/Map/StaticMap"
+import { useWebCOOSCameraSummary } from "@/services/assets/useWebCOOSCameraSummary"
 
 
 
@@ -66,8 +67,6 @@ const CameraDetailView = ({
                                         latitude={detail.latitude}
                                         width={mapWidth}
                                         height={mapHeight}
-                                        zoom={10}
-                                        style="mapbox/light-v10"
                                         mapboxAccessToken={import.meta.env.VITE_PUBLIC_MAPBOX_TOKEN}
                                         wedgePolygon={detail.wedge ?? undefined}
                                         extraClasses="max-w-full shadow-md"                          />
@@ -112,6 +111,28 @@ const CameraDetailView = ({
 
 }
 
+export const CameraSummaryLoader =  ({
+    slug,
+    View
+}: {
+    slug: string,
+    View: React.FC<{
+        summary: IWebCOOSAssetSummaryView
+    }>
+}):ReactElement =>{
+    const { data, isLoading, error } = useWebCOOSCameraSummary(slug)
+
+    return <ViewWithLoader isLoading={isLoading} data={data} error={error}>
+        {
+            data !== undefined && (
+                <View summary={data} />
+            )
+        }
+        </ViewWithLoader>
+
+
+}
+
 
 const CameraDetail =  ({
     slug,
@@ -133,7 +154,7 @@ const CameraDetail =  ({
             detail: IWebCOOSParsedAsset,
             summary: IWebCOOSAssetSummaryView
          } | undefined> => {
-            const summary = await fetchWebCOOSCameraDetail({
+            const summary = await fetchWebCOOSCameraSummary({
                 ...apiContext,
                 signal,
                 slug: slug ?? 'na'

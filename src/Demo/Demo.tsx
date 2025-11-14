@@ -1,37 +1,49 @@
 import CameraCard from "@/Components/Cameras/CameraCard"
+import StaticMap from "@/Components/Map/StaticMap"
+import LatestImage from "@/Components/Media/LatestImage"
+import CameraDetail, { CameraSummaryLoader } from "@/Pages/CameraDetail/CameraDetail"
 import { fetchWebCOOSCameraPageFiltered, type IWebCOOSCameraPageFiltered } from "@/services/assets/services"
 import type { IWebCOOSAssetSummaryView } from "@/services/assets/types"
 import ApiContext from "@/state/ApiContext"
-import { Button, SelectInput, ViewWithLoader } from "@axdspub/axiom-ui-utilities"
+import { Button, SelectInput, Table, ViewWithLoader } from "@axdspub/axiom-ui-utilities"
 import { useQuery } from "@tanstack/react-query"
-import  {useContext, type ReactElement } from "react"
-import { Link, useParams, useSearchParams } from "react-router"
+import { atom, useAtom } from "jotai"
+import  {Fragment, useContext, type ReactElement } from "react"
+import Markdown from "react-markdown"
+import { Link, useParams } from "react-router"
+
+const urlParams = new URLSearchParams(window.location.search)
+const initialCameraSlug = urlParams.get('camera_slug') ?? undefined
+const selectedCameraSlugAtom = atom<string | undefined>(initialCameraSlug)
 
 const CameraPicker = ({data, View} : {data: IWebCOOSCameraPageFiltered, View: React.FC<{data: IWebCOOSCameraPageFiltered, camera: IWebCOOSAssetSummaryView}>}): ReactElement => {
-    const [searchParams, setSearchParams] = useSearchParams()
-    const selectedSlug = searchParams.get('camera_slug') ?? undefined
-    const selectedCamera = data.assets.find(c => c.asset_slug === selectedSlug) ?? undefined
 
+    const [selectedSlug, setSelectedSlug] = useAtom(selectedCameraSlugAtom)
+    const selectedCamera = data.assets.find(c => c.asset_slug === selectedSlug) ?? undefined
     const updateUrl = (slug: string | undefined) => {
-        const newSearchParams = new URLSearchParams(searchParams.toString());
+        const newSearchParams = new URLSearchParams(window.location.search);
         if(slug !== undefined){
-            newSearchParams.set('camera_slug', slug);
-            setSearchParams(newSearchParams, { replace: true });
+            newSearchParams.set('camera_slug', slug);    
         } else {
             newSearchParams.delete('camera_slug');
-            setSearchParams(newSearchParams, { replace: true });
         }
+        window.history.replaceState({}, '', `${window.location.pathname}?${newSearchParams.toString()}`);
+    }
+    if(selectedSlug !== undefined){
+        updateUrl(selectedSlug)
     }
 
     return (
         <>
-            <div className='flex flex-row gap-4 w-full'>
+            <div className='flex flex-row gap-4 w-full relative'>
                 <SelectInput
                     id='camera-select'
                     testId="camera-select"
                     value={selectedSlug}
                     onChange={e => {
-                        updateUrl(e?.value !== undefined ? String(e.value) : undefined)
+                        const slug = e?.value !== undefined ? String(e.value) : undefined
+                        updateUrl(slug)
+                        setSelectedSlug(slug)
                     }}
                     options={data.assets.map(c => ({
                         label: c.asset_label,
@@ -44,16 +56,19 @@ const CameraPicker = ({data, View} : {data: IWebCOOSCameraPageFiltered, View: Re
                     className={`p-0 border-0 bg-none text-2xl cursor-pointer ${selectedCamera === undefined ? 'invisible' : 'visible'}`}
                     onClick={() => {
                         updateUrl(undefined)
+                        setSelectedSlug(undefined)
                     }}
                 >
                     &times;
                 </Button>
             </div>
+            <div className='relative'>
             {
                 selectedCamera === undefined
                 ? <p className="mt-4">Please select a camera to view its details.</p>
                 : <View data={data} camera={selectedCamera} />
             }
+            </div>
         </>
 
     )
@@ -69,17 +84,17 @@ const groups = [
             {
                 label: 'Table',
                 id: 'table',
-                content: ({data}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <>TABLE</>,
+                content: ({}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <>TABLE</>,
             },
             {
                 label: 'Map',
                 id: 'map',
-                content: ({data}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <>MAP</>,
+                content: ({}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <>MAP</>,
             },
             {
                 label: 'Inventory',
                 id: 'inventory',
-                content: ({data}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <>INVENTORY</>,
+                content: ({}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <>INVENTORY</>,
             }
         ]
     },
@@ -90,29 +105,166 @@ const groups = [
             {
                 label: 'Card',
                 id: 'card',
-                content: ({data}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <CameraPicker data={data} View={({data, camera}): ReactElement => <div className='w-[400px] rounded-md shadow-2xl overflow-hidden'>
+                content: ({data}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <CameraPicker data={data} View={({camera}): ReactElement => <div className='w-[400px] rounded-md shadow-2xl overflow-hidden min-h-[300px] relative'>
                     <CameraCard slug={camera.asset_slug} />
                 </div>} />,
             },
             {
                 label: 'Map',
                 id: 'map',
-                content: ({data}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <>MAP</>
+                content: ({data}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <CameraPicker data={data} View={({camera}): ReactElement => {
+
+
+                return <div className='relative w-[600px] h-[400px] shadow-md'><CameraDetail slug={camera.asset_slug} View={({summary}): ReactElement => {
+                    const point = summary.asset_data.properties.location as GeoJSON.Point | null
+                    return (<>{
+                        point !== null 
+                        ? <StaticMap 
+                            latitude={point.coordinates[1]}
+                            longitude={point.coordinates[0]}
+                            wedgePolygon={summary.asset_data.properties.wedge ?? undefined}
+                            width={600}
+                            height={400}
+                            zoom={10}                
+                        /> 
+                        : <p>No location data available</p>
+                        }</>)}} />
+                    </div>
+                }} />
+                
             },
             {
                 label: 'Details',
                 id: 'details',
-                content: ({data}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <>DETAILS</>
+                content: ({data}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <CameraPicker data={data} View={({camera}): ReactElement => {
+                    return <CameraSummaryLoader slug={camera.asset_slug} View={({summary}): ReactElement => {
+                        return (
+                            <Table
+                                rowClassName="even:bg-slate-50 odd:bg-slate-200"
+                                columns={[
+                                    {
+                                        id: 'label', 
+                                        label: 'Label',
+                                        cellClassName: 'font-bold align-top border-r-2 border-slate-300 border-b-0',
+                                    },
+                                    {
+                                        id: 'value', 
+                                        label: 'Value', accessor: (row) => <div className="break-words">{row.value}</div>
+                                    }
+                                ]}
+                                data={[
+                                    {
+                                        label: 'label',
+                                        value: summary.asset_label
+                                    },
+                                    {
+                                        label: 'slug',
+                                        value: summary.asset_slug
+                                    },
+                                    {
+                                        label: 'description',
+                                        value: <Markdown>{summary.asset_description}</Markdown>
+                                    },
+                                    {
+                                        label: 'lat/lon',
+                                        value: summary.asset_data.properties.location !== null
+                                            ? `${(summary.asset_data.properties.location as GeoJSON.Point).coordinates[1]}, ${(summary.asset_data.properties.location as GeoJSON.Point).coordinates[0]}`
+                                            : 'N/A'
+                                    },
+                                    {
+                                        label: 'start/end date',
+                                        value: summary.asset_first_starting && summary.asset_last_ending
+                                            ? `${new Date(summary.asset_first_starting).toLocaleDateString()} to ${new Date(summary.asset_last_ending).toLocaleDateString()}`
+                                            : 'N/A'
+                                    },
+                                    {
+                                        label: 'element size',
+                                        value: summary.asset_element_size
+                                    },
+                                    {
+                                        label: 'element count',
+                                        value: summary.asset_element_count
+                                    },
+                                    {
+                                        label: 'package',
+                                        value: summary.package_label
+                                    },
+                                    {
+                                        label: 'package group',
+                                        value: summary.package_group
+                                    },
+                                    {
+                                        label: 'package timezone',
+                                        value: summary.package_timezone
+                                    },
+                                    {
+                                        label: 'country',
+                                        value: summary.asset_country
+                                    },
+                                    {
+                                        label: 'state',
+                                        value: summary.asset_state_or_territory
+                                    },
+                                    {
+                                        label: 'operational status',
+                                        value: summary.asset_operational_status_label
+                                    },
+                                    {
+                                        label: 'disposition',
+                                        value: summary.asset_disposition_label
+                                    },
+                                    {
+                                        label: 'kind',
+                                        value: summary.asset_data.kind
+                                    },
+                                    {
+                                        
+                                    }
+                                ]}    
+                            />
+                        )
+                    }} />
+                }} />
             },
             {
                 label: 'Latest',
                 id: 'latest',
-                content: ({data}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <>LATEST IMAGE</>
+                content: ({data}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <CameraPicker data={data} View={({camera}): ReactElement => <div className='relative'>
+                    <CameraDetail slug={camera.asset_slug} View={({detail}): ReactElement => <>{
+                    detail.stillImageService !== null
+                    ? <LatestImage
+                        service={detail.stillImageService}
+                        assetLabel={detail.label}
+                        className='shadow-md border-gray-400 min-h-[400px]'
+                    />
+                    : 'N/A'
+                }</>} />
+                
+                
+                </div>} />,
             },
             {
                 label: 'Thumb image',
                 id: 'thumb-image',
-                content: ({data}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <>THUMB IMAGE</>
+                content:  ({data}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <CameraPicker data={data} View={({camera}): ReactElement => {
+                    return <CameraSummaryLoader slug={camera.asset_slug} View={({summary}): ReactElement => {
+                        return (
+                            <>{
+                                summary.asset_data.properties.thumbnails?.base !== null && summary.asset_data.properties.thumbnails?.base !== undefined
+                                        ? <div className='flex flex-col gap-4'>
+                                            {
+                                                ['rect_large', 'rect_medium', 'rect_small', 'square_large', 'square_medium', 'square_small'].map(sizeKey => {
+                                                    const imgUrl = (summary.asset_data.properties.thumbnails!.base as Record<string, string>)[sizeKey]
+                                                    const image = imgUrl !== undefined ? <div className=''><img key={sizeKey} src={imgUrl} alt={`${summary.asset_label} - ${sizeKey.replace('_', ' ')}`} className="shadow-md border border-gray-400" /><p>{sizeKey}</p></div> : null
+                                                    return <Fragment key={sizeKey}>{image}</Fragment>
+                                                })
+                                            }
+                                        </div>
+                                        : 'N/A'
+                            }</>
+                        )
+                    }} />
+                }} />,
             }
         ]
     }
@@ -172,7 +324,7 @@ const Demo = (): ReactElement => {
             {
                 selected 
                 ? <>
-                <h2 className='text-2xl font-bold bg-slate-200/80 sticky top-0 p-10 py-4 flex flex-row justify-between items-center gap-4'>
+                <h2 className='text-2xl font-bold bg-white sticky z-10 shadow-2xl top-0 p-10 py-4 flex flex-row justify-between items-center gap-4'>
                     <span>
                     <span className='text-slate-400'>
                         {selected.group.label} &raquo;&nbsp;

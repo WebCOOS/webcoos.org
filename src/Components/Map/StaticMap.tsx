@@ -11,31 +11,32 @@ import { utils } from '@axdspub/axiom-ui-utilities';
 function StaticMap({
     longitude,
     latitude,
-    width = 256,
-    height = 128,
-    zoom = 8,
+    wedgePolygon,
+    width = 600,
+    height = 400,
+    zoom = 10,
     style = 'mapbox/light-v10',
     mapboxAccessToken = import.meta.env.VITE_APP_MAPBOX_TOKEN,
     markerSymbol = undefined,
     color,
     extraClasses,
     decimalPlaces = 4,
-    extraStyle = {},
-    wedgePolygon
+    extraStyle = {}
 }: {
     longitude: number,
     latitude: number,
-    width: number,
-    height: number,
-    zoom: number,
-    style: string,
+    wedgePolygon?: Polygon,
+    width?: number,
+    height?: number,
+    zoom?: number,
+    style?: string,
     mapboxAccessToken?: string,
     markerSymbol?: string,
     extraClasses?: string,
     decimalPlaces?: number,
     extraStyle?: object,
     color?: string,
-    wedgePolygon?: Polygon
+    
 }) {
     const overlay = useMemo(() => {
         if (!(longitude && latitude)) {
@@ -162,8 +163,8 @@ function StaticMap({
             <img src={imgSrc} alt={`Map showing ${lonDisp} ${latDisp}`} width={width} height={height} />
 
             <div className="font-mono text-xs flex gap-2 justify-center absolute top-0 inset-x-0">
-                <div className="overflow-ellipsis overflow-x-hidden flex-shrink">{lonDisp}</div>
                 <div className="overflow-ellipsis overflow-x-hidden flex-shrink">{latDisp}</div>
+                <div className="overflow-ellipsis overflow-x-hidden flex-shrink">{lonDisp}</div>
             </div>
         </div>
     );

@@ -428,7 +428,7 @@ export interface IWebCOOSAssetSummaryView {
       group: string;
       wedge: GeoJSON.Polygon | null;
       source: string;
-      location: Record<string, unknown>;
+      location: GeoJSON.Point | null;
       timezone: string;
       thumbnails: {
         base: IWebCOOSThumbnails | null

@@ -3,10 +3,19 @@ import { utils } from "@axdspub/axiom-ui-utilities"
 import type { ReactElement } from "react"
 import { Link } from "react-router"
 import LatestImage from "@/Components/Media/LatestImage"
+import MarkdownContent from "../MarkdownContent"
 
 const CameraCard = ({
-    slug
-}: { slug: string }) => {
+    slug,
+    showDescription = false,
+    showLabel = true,
+    showImage = true
+}: { 
+    slug: string,
+    showDescription?: boolean,
+    showLabel?: boolean,
+    showImage?: boolean
+}) => {
 
     return <CameraDetail 
         slug={slug} 
@@ -19,22 +28,28 @@ const CameraCard = ({
         }): ReactElement => {
         return (<>
             <div className='flex flex-col gap-4'>
-                <div className='h-[225px]'>
                 {
-                    isLive && stillImageService !== null
-                    ? <LatestImage 
-                                service={stillImageService}
-                                assetLabel={detail.label}
-                                />
-                    : <img src={detail.thumbnail} alt={detail.label} className="w-full h-auto" />
+                    showImage &&
+                
+                    <div className='h-[225px]'>
+                        {
+                            isLive && stillImageService !== null
+                            ? <LatestImage 
+                                        service={stillImageService}
+                                        assetLabel={detail.label}
+                                        imageClassName="object-cover"
+                                        />
+                            : <img src={detail.thumbnail} alt={detail.label} className="w-full h-auto" />
+                        }
+                    </div>
                 }
-                </div>
                 <div className='p-4 flex flex-col gap-4'>
-                <h2 className='text-xl font-bold'>{detail.label}</h2>
+                    {showLabel && <h2 className='text-xl font-bold'>{detail.label}</h2>}
+                    {showDescription && detail.description && <p className='text-sm'><MarkdownContent>{detail.description}</MarkdownContent></p>}
                 <div>
                 <Link to={`/cameras/${summary.asset_slug}`} className={
                     utils.createButtonClass({
-                            size: 'md',
+                            size: 'med',
                             className:'bg-primary hover:bg-primary-dark text-white inline-block'
                         })
                     

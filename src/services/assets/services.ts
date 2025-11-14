@@ -1,5 +1,5 @@
 import type { IPostgrestParams, IWebCOOSApiRequestParams, IWebCOOSAssetElementView, IWebCOOSAssetSummaryView, IWebCOOSElement, IWebCOOSElementInventory, IWebCOOSRawAsset } from "@/services/assets/types";
-import { latestAssetMediaEndpoint, latestServiceMediaEndpoint, postgrestEndpoint } from "./endpoints";
+import { assetTimeSeriesEndpoint, latestAssetMediaEndpoint, latestServiceMediaEndpoint, postgrestEndpoint } from "./endpoints";
 
 
 
@@ -105,6 +105,49 @@ export async function fetchAPIAssets({
 
      const r = await cameraMetadataResponse.json();
     return r.results as IWebCOOSRawAsset[];
+}
+
+
+export async function fetchTimeseriesAssetMedia({
+    apiUrl,
+    apiVersion,
+    token,
+    signal,
+    serviceIdentifier,
+    start,
+    end
+}: {
+    apiUrl: string,
+    apiVersion: string,
+    token: string,
+    signal?: AbortSignal,
+    serviceIdentifier: string,
+    start: Date | string | number,
+    end: Date | string | number
+}): Promise<IWebCOOSElement[]> {
+
+    const url = assetTimeSeriesEndpoint({
+        apiUrl,
+        apiVersion,
+        serviceIdentifier,
+        start,
+        end
+    })
+
+    const response = await fetch(url.toString(), {
+        headers: {
+            Authorization: `Token ${token}`,
+            Accept: 'application/json',
+        },
+        signal
+    });
+
+    if (!response.ok) {
+        throw new ResponseNotOkError(`API response (${url}) not ok: ${response.toString()}`);
+    }
+
+    const r = await response.json();
+    return r.results as IWebCOOSElement[];
 }
 
 
@@ -355,7 +398,7 @@ export async function fetchWebCOOSSelectItems({
 
 }
 
-export async function fetchWebCOOSCameraDetail({
+export async function fetchWebCOOSCameraSummary<T = IWebCOOSAssetSummaryView>({
     apiUrl,
     apiVersion,
     source,
@@ -364,11 +407,11 @@ export async function fetchWebCOOSCameraDetail({
     params,
     slug
 }: IWebCOOSApiRequestParams & {
-    params?: Omit<IPostgrestParams<IWebCOOSAssetSummaryView>, 'table'>,
+    params?: Omit<IPostgrestParams<T>, 'table'>,
     slug: string
-}): Promise<IWebCOOSAssetSummaryView> {
+}): Promise<T> {
 
-    const result =  await fetchFromWebCOOSPostgrest<IWebCOOSAssetSummaryView>({
+    const result =  await fetchFromWebCOOSPostgrest<T>({
         apiUrl,
         apiVersion,
         source,

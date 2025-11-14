@@ -42,6 +42,34 @@ export const latestAssetMediaEndpoint = ({
     return url.toString();
 }
 
+export const assetTimeSeriesEndpoint = ({
+    apiUrl = import.meta.env.VITE_WEBCOOS_API_URL,
+    apiVersion = 'v1',
+    serviceIdentifier,
+    start,
+    end,
+    page = 1,
+    pageSize = 5000,
+    orderBy = 'starting',
+    orderDir = 'asc'
+}: Omit<IWebCOOSApiRequestParams, 'token' | 'signal'> & {
+    serviceIdentifier: string
+    start: Date | string | number
+    end: Date | string | number
+    page?: number
+    pageSize?: number
+    orderBy?: string
+    orderDir?: 'asc' | 'desc'
+}): string => {
+    const url = new URL(`${apiUrl}/${apiVersion}/services/${serviceIdentifier}/elements/timeseries`);
+    url.searchParams.set('starting_after', start instanceof Date ? start.toISOString() : new Date(start).toISOString());
+    url.searchParams.set('starting_before', end instanceof Date ? end.toISOString() : new Date(end).toISOString());
+    url.searchParams.set('page', page.toString());
+    url.searchParams.set('page_size', pageSize.toString());
+    url.searchParams.set('ordering', `${orderDir === 'asc' ? '-' : ''}${orderBy}`);
+    return url.toString();
+}
+
 export const latestServiceMediaEndpoint = ({
     apiUrl = import.meta.env.VITE_WEBCOOS_API_URL,
     apiVersion = 'v1',

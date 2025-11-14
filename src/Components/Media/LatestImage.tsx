@@ -1,9 +1,23 @@
 import type { IWebCOOSParsedAssetService } from "@/services/assets/types";
 import { useLatestServiceMedia } from "@/services/media/useLatestServiceMedia";
 import { useAPIContext } from "@/state/ApiContext";
-import { ViewWithLoader } from "@axdspub/axiom-ui-utilities";
+import { utils, ViewWithLoader } from "@axdspub/axiom-ui-utilities";
 
-const LatestImage = ({service, assetLabel}: {service: IWebCOOSParsedAssetService; assetLabel?: string}) => {
+const LatestImage = ({
+    service, 
+    assetLabel,
+    className,
+    defaultClassName = 'relative w-full h-full',
+    imageClassName,
+    defaultImageClassName = 'object-contain w-full h-full'
+}: {
+    service: IWebCOOSParsedAssetService; 
+    assetLabel?: string,
+    className?: string,
+    defaultClassName?: string,
+    imageClassName?: string,
+    defaultImageClassName?: string
+}) => {
     const apiContext =  useAPIContext()
     const { data, isLoading, error } = useLatestServiceMedia({
         ...apiContext,
@@ -12,10 +26,18 @@ const LatestImage = ({service, assetLabel}: {service: IWebCOOSParsedAssetService
 
     return <ViewWithLoader isLoading={isLoading} error={error} data={data}>
         {data !== null && data !== undefined ? (
-            <div className='relative w-full h-full'>
+            <div className={
+                utils.makeClassName({
+                    className,
+                    defaultClassName
+                })
+            }>
                 <img 
                     alt={assetLabel ? `Latest image for ${assetLabel}` : 'Latest Image'}
-                    className='object-contain w-full h-full'
+                    className={utils.makeClassName({
+                        className: imageClassName,
+                        defaultClassName: defaultImageClassName
+                    })}
                     src={data.data.properties.url}
                 />
                 <p className='absolute bottom-0 right-0 bg-slate-500/50 p-2 text-white'>
