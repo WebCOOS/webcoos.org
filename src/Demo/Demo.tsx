@@ -4,11 +4,12 @@ import LatestImage from "@/Components/Media/LatestImage"
 import CameraDetail, { CameraSummaryLoader } from "@/Pages/CameraDetail/CameraDetail"
 import { fetchWebCOOSCameraPageFiltered, type IWebCOOSCameraPageFiltered } from "@/services/assets/services"
 import type { IWebCOOSAssetSummaryView } from "@/services/assets/types"
-import ApiContext from "@/state/ApiContext"
+import { useTimeSeriesAssetMedia } from "@/services/media/useTimeSeriesAssetMedia"
+import ApiContext, { useAPIContext } from "@/state/ApiContext"
 import { Button, SelectInput, Table, ViewWithLoader } from "@axdspub/axiom-ui-utilities"
 import { useQuery } from "@tanstack/react-query"
 import { atom, useAtom } from "jotai"
-import  {Fragment, useContext, type ReactElement } from "react"
+import  {Fragment, useContext, useState, type ReactElement } from "react"
 import Markdown from "react-markdown"
 import { Link, useParams } from "react-router"
 
@@ -62,7 +63,7 @@ const CameraPicker = ({data, View} : {data: IWebCOOSCameraPageFiltered, View: Re
                     &times;
                 </Button>
             </div>
-            <div className='relative'>
+            <div className='relative h-full'>
             {
                 selectedCamera === undefined
                 ? <p className="mt-4">Please select a camera to view its details.</p>
@@ -261,6 +262,74 @@ const groups = [
                                             }
                                         </div>
                                         : 'N/A'
+                            }</>
+                        )
+                    }} />
+                }} />,
+            },
+            {
+                label: 'Service time series',
+                id: 'service-time-series',
+                content:  ({data}: {data: IWebCOOSCameraPageFiltered}): ReactElement => <CameraPicker data={data} View={({camera}): ReactElement => {
+                    return <CameraDetail slug={camera.asset_slug} View={({detail}): ReactElement => {
+                        const serviceByUUID: Record<string, typeof detail.galleryServices[0]> = Object.fromEntries(detail.galleryServices.map(s => [s.uuid, s]))
+                        const apiContext = useAPIContext()
+                        const [serviceUUID, setServiceUUID] = useState<string | undefined>(undefined)
+                        const selectedService  = serviceUUID !== undefined ? serviceByUUID[serviceUUID] : undefined
+                        const end = new Date(selectedService?.elements.last_ending ?? selectedService?.elements.last_starting ?? new Date())
+                        const start = new Date(+end - 24*60*60*1000)
+                        const { data, isLoading, isFetching, error } = useTimeSeriesAssetMedia({
+                            serviceIdentifier: serviceUUID ?? '',
+                            ...apiContext,
+                            start: start,
+                            end: end,
+                            enabled: selectedService !== undefined
+                        })
+                        return (
+                            <>{
+                                detail.galleryServices.length > 0
+                                    ? <div className='flex flex-col gap-4 h-full'>
+                                        <div className='flex flex-row gap-4'>
+                                        {
+                                            detail.galleryServices.map(service => (
+                                                <div key={service.uuid} className={`p-4 border border-gray-400 shadow-md cursor-pointer  ${service.uuid === serviceUUID ? 'bg-slate-800 text-white' : 'hover:bg-slate-100'}`} onClick={() => {
+                                                    setServiceUUID(service.uuid)
+                                                }}>
+                                                    <h3 className='font-bold mb-2'>Service: {service.common.label}</h3>
+                                                    <div className='text-xs'>
+                                                        <p><strong>Type:</strong> {service.svcType}</p>
+                                                        <p><strong>Slug:</strong> {service.common.slug}</p>
+                                                        <p><strong>Time:</strong> {service.elements.first_starting} - {service.elements.last_ending ?? service.elements.last_starting}</p>
+                                                        <p><strong>Frequency:</strong> {service.frequency.type}</p>
+                                                        <p><strong>Count:</strong> {service.elements.count?.toLocaleString()}</p>
+                                                        <p><strong>Size:</strong> {service.elements.size?.toLocaleString()}</p>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        }
+                                        </div>
+                                        <div className='relative h-full overflow-auto'>{
+                                                
+                                                    selectedService !== undefined 
+                                                    ? <ViewWithLoader data={data} isLoading={isLoading} isFetching={isFetching} error={error}>
+                                                        {
+                                                            data && data.length > 0
+                                                            ? <div className='grid grid-cols-4 gap-4'>
+                                                                {data.map(element => (
+                                                                    <div key={element.uuid} className=''>
+                                                                        <p className='mb-2 font-bold'>Element starting: {new Date(element.data.extents.temporal.min).toLocaleString()}</p>
+                                                                        <img src={element.data.properties.thumbnails.base.rect_small} alt={`Element ${element.uuid} thumbnail`} className="shadow-md border border-gray-400 max-w-full h-auto" />
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                            : <p>No elements found for the selected time range.</p>
+                                                        }
+                                                    </ViewWithLoader>
+                                                    : <>Pick one</>
+                                                }</div>
+                                    </div>
+                                    
+                                    : 'N/A'
                             }</>
                         )
                     }} />

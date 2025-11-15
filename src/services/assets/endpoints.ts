@@ -61,7 +61,8 @@ export const assetTimeSeriesEndpoint = ({
     orderBy?: string
     orderDir?: 'asc' | 'desc'
 }): string => {
-    const url = new URL(`${apiUrl}/${apiVersion}/services/${serviceIdentifier}/elements/timeseries`);
+    const url = new URL(`${apiUrl}/${apiVersion}/elements`)
+    url.searchParams.set('service', serviceIdentifier);
     url.searchParams.set('starting_after', start instanceof Date ? start.toISOString() : new Date(start).toISOString());
     url.searchParams.set('starting_before', end instanceof Date ? end.toISOString() : new Date(end).toISOString());
     url.searchParams.set('page', page.toString());
