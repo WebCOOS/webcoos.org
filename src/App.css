@@ -9,9 +9,9 @@
     --color-secondary: #002b80;
     --color-secondary-lighter: #8aa8e6;
     --color-secondary-darker: #001133;
-    --gridTemplateColumns-camera: 2.5fr 4.5fr 2.5fr;
-    --maxWidth-75w: 75vw;
+    --max-width-75w: 75vw;
     --height-128: 32rem;
+    --grid-cols-camera: '2.5fr,4.5fr,2.5fr';
 
 }
 

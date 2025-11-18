@@ -32,27 +32,27 @@ const CameraDetailView = ({
 
     const mapWidth = 374
     const mapHeight = isLive
-        ? 210
-        : 337
+        ? 250
+        : 500
 
     return (
         <div className='p-10'>
                     <PageTitle>{detail.label}</PageTitle>
                     <h1 className='text-2xl font-bold sticky top-10 bg-white py-2'><Link to='/cameras' className='text-primary hover:underline'>Cameras</Link> | {detail.label}</h1>
-                    <div className='flex flex-row p-4 bg-primary-lighter my-10 gap-1 md:gap-4'>
+                    <div className='max-w-screen-2xl grid grid-cols-1 gap-1 p-2 lg:grid-cols-[2.5fr_4.5fr_2.5fr] md:gap-4 md:p-4 bg-primary-lighter'>
                         {
                             detail.description && 
                                 <MarkdownContent className="flex-grow text-sm">{detail.description}</MarkdownContent>
                                 
                         }
-                        <div className='flex-none w-[650px] justify-end'>
+                        <div>
                         {
                             isLive 
                             ? liveStream !== null && liveStream !== undefined 
-                            ? <>
+                            ? <div className='h-full w-full bg-pink-200'>
                                 VIDEO
                                 <VideoPlayer options={{ sources: [liveStream.url] }} />
-                            </>
+                            </div>
                             : stillImageService && <LatestImage 
                                 service={stillImageService}
                                 assetLabel={detail.label}
@@ -61,7 +61,7 @@ const CameraDetailView = ({
                             
                         }
                         </div>
-                        <div className='flex-none flex w-[374px] flex-col gap-2'>
+                        <div className={`hidden lg:flex flex-col gap-4 h-full`}>
                             <StaticMap
                                         longitude={detail.longitude}
                                         latitude={detail.latitude}
@@ -69,10 +69,10 @@ const CameraDetailView = ({
                                         height={mapHeight}
                                         mapboxAccessToken={import.meta.env.VITE_PUBLIC_MAPBOX_TOKEN}
                                         wedgePolygon={detail.wedge ?? undefined}
-                                        extraClasses="max-w-full shadow-md"                          />
+                                        extraClasses="max-w-full shadow-md max-w-full"                          />
                         {
                             isLive
-                                ?  <img src={detail.thumbnail} alt={detail.label} className="w-full h-auto shadow-md" />
+                                ?  <div><img src={detail.thumbnail} alt={detail.label} className="shadow-md" /></div>
                                 : null
                         }
                            
