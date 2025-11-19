@@ -62,7 +62,18 @@ const CameraTable = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactEleme
 
   const navigate = useNavigate()
   const [filters, setFilters] = useAtom(filterAtom)
+  const [sortColumns, setSortColumns] = useState<{ id: string; desc: boolean }[]>([])
   const columnHelper = createColumnHelper<IWebCOOSAssetSummaryView>()
+  const getNextSortOb = (id: string): { id: string; desc: boolean } | null => {
+    const existing = sortColumns.find(sc => sc.id === id)
+    if(!existing) {
+      return { id, desc: false }
+    } else if(existing && !existing.desc) {
+      return { id, desc: true }
+    } else {
+      return null
+    }
+  }
   const columns = [
     columnHelper.accessor('asset_thumbnails', {
         header: '',
@@ -79,26 +90,45 @@ const CameraTable = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactEleme
         }
     }),
     columnHelper.accessor('asset_label', {
-        header: 'Camera',
-        size: 400,
-        minSize: 400,
-        maxSize: 600,
+        header: () => {
+            return <p onClick={() => {
+              const nextSort = getNextSortOb('asset_label')
+              if(nextSort === null) {
+                setSortColumns(sortColumns.filter(sc => sc.id !== 'asset_label'))
+                return
+              }
+              const newSorts = sortColumns.filter(sc => sc.id !== 'asset_label')
+              newSorts.push(nextSort)
+              setSortColumns(newSorts)
+            }}>Camera</p>
+        },
+        size: 200,
+        maxSize: 250,
+        sortingFn: 'alphanumeric',
         cell: info => {
 
             return <>
-
-
                 <p>{info.getValue()}</p>
             </>
         }
     }),
+    
     columnHelper.accessor('asset_region', {
-        header: 'Geography',
+        header: 'Region',
         cell: info => {
             const row = info.row.original
             return <>
-              {row.asset_region && <p className="font-bold">{row.asset_region}</p>}
-              {row.asset_state_or_territory && <p>{row.asset_state_or_territory}</p>}
+              <p>{row.asset_region ?? 'NA'}</p>
+
+            </>
+        }
+    }),
+    columnHelper.accessor('asset_state_or_territory', {
+        header: 'State',
+        cell: info => {
+            const row = info.row.original
+            return <>
+              <p>{row.asset_state_or_territory ?? 'NA'}</p>
 
             </>
         }
@@ -242,7 +272,7 @@ const CameraTable = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactEleme
           {table.getHeaderGroups().map(headerGroup => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map(header => (
-                <th key={header.id} className="p-4 text-left first:pl-10 last:pr-10">
+                <th key={header.id} className="p-4 text-left first:pl-10 last:pr-10" style={{width: header.getSize()}}>
                   {header.isPlaceholder
                     ? null
                     : flexRender(

@@ -16,8 +16,8 @@ export const postgrestEndpoint = <T, >({
     if (params.offset !== undefined) {
         url.searchParams.append('offset', params.offset.toString());
     }
-    if (params.order !== undefined) {
-        url.searchParams.append('order', `${String(params.order.column)}.${params.order.dir ?? 'asc'}`);
+    if (params.order !== undefined && params.order.length > 0) {
+        url.searchParams.append('order', params.order.map(o => `${String(o.column)}.${String(o.dir)}`).join(','));
     }
     if (params.select !== undefined) {
         const select = params.select.map(s => {

@@ -390,7 +390,7 @@ export async function fetchWebCOOSSelectItems({
                     { column: valueColumn, as: 'value' }
                 ],
                 table: params.table,
-                order: { column: labelColumn ?? valueColumn, dir: 'asc' }
+                order: [{ column: labelColumn ?? valueColumn, dir: 'asc' }]
             }
         });
         return results
@@ -497,6 +497,7 @@ export async function fetchWebCOOSCameraPageFiltered({
                 valueColumn: 'asset_region',
                 params: {
                     ...params,
+                    order: [{ column: 'asset_region', dir: 'asc' }],
                     table: 'asset_summary_vw'
                 }
             });
@@ -508,6 +509,7 @@ export async function fetchWebCOOSCameraPageFiltered({
                 valueColumn: 'asset_state_or_territory',
                 params: {
                     ...params,
+                    order: [{ column: 'asset_state_or_territory', dir: 'asc' }],
                     table: 'asset_summary_vw'
                 }
             });
@@ -519,6 +521,7 @@ export async function fetchWebCOOSCameraPageFiltered({
                 valueColumn: 'asset_disposition_slug',
                 params: {
                     ...params,
+                    order: [{ column: 'asset_disposition_label', dir: 'asc' }],
                     table: 'asset_summary_vw'
                 }
             });
@@ -530,6 +533,7 @@ export async function fetchWebCOOSCameraPageFiltered({
                 valueColumn: 'asset_operational_status_slug',
                 params: {
                     ...params,
+                    order: [{ column: 'asset_operational_status_label', dir: 'asc' }],
                     table: 'asset_summary_vw'
                 }
             });

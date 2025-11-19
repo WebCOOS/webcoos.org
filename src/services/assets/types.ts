@@ -443,10 +443,10 @@ export type IPostgrestParams<T> = {
     table: string
     limit?: number
     offset?: number
-    order?: {
+    order?: ({
         column: string | keyof T
         dir: 'asc' | 'desc'
-    },
+    })[],
     select?: (string | {
         column: string | keyof T
         fn?: 'count' | 'sum' | 'avg' | 'min' | 'max'

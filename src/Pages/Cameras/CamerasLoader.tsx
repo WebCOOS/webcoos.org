@@ -4,8 +4,9 @@ import { ViewWithLoader } from "@axdspub/axiom-ui-utilities"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { type ReactElement, useContext, useEffect } from "react"
-import filterAtom from "./filterAtom"
+import filterAtom, { filterPrefix } from "./filterAtom"
 import CameraTable from "./CamerasTable"
+import sortAtom, { sortPrefix } from "./sortAtom"
 
 const CamerasLoader = ({
     View = CameraTable
@@ -15,22 +16,39 @@ const CamerasLoader = ({
 
     const apiContext = useContext(ApiContext)
     const [filters] = useAtom(filterAtom)
+    const [sorts] = useAtom(sortAtom)
     useEffect(() => {
         const url = new URL(window.location.href)
         const allKeys = Array.from(url.searchParams.keys())
         Object.keys(filters).concat(allKeys).forEach(k => {
+            const fk = `${filterPrefix}${k}`
             if (filters[k as keyof typeof filters] !== null && filters[k as keyof typeof filters] !== '' && filters[k as keyof typeof filters] !== undefined) {
-                url.searchParams.set(k, filters[k as keyof typeof filters] as string)
+                url.searchParams.set(fk, filters[k as keyof typeof filters] as string)
             } else {
-                url.searchParams.delete(k)
+                url.searchParams.delete(fk)
             }
         })
         window.history.pushState({}, '', url.toString())
     }, [filters])
 
+    useEffect(() => {
+        const url = new URL(window.location.href)
+        const allKeys = Array.from(url.searchParams.keys())
+        const sortsMap = Object.fromEntries(sorts.map(s => [s.column, s]))
+        sorts.map(s => s.column).concat(allKeys).forEach(k => {
+            const sk = `${sortPrefix}${k}`
+            if (sortsMap[k]?.dir !== undefined) {
+                url.searchParams.set(sk, sortsMap[k].dir === 'asc' ? 'true' : 'false')
+            } else {
+                url.searchParams.delete(sk)
+            }
+        })
+        window.history.pushState({}, '', url.toString())
+    }, [sorts])
+
 
     const { data, isLoading, isFetching, error } = useQuery<IWebCOOSCameraPageFiltered>({
-        queryKey: ['webcoos', 'assets', 'summary', JSON.stringify(filters)],
+        queryKey: ['webcoos', 'assets', 'summary', JSON.stringify(filters), JSON.stringify(sorts)],
         queryFn: async ({signal}) => {
             const results = await fetchWebCOOSCameraPageFiltered({
                 apiUrl: apiContext.apiUrl,
@@ -46,7 +64,8 @@ const CamerasLoader = ({
                         value: filters[k as keyof typeof filters] as string,
                         operator: 'eq'
                       }
-                    })
+                    }),
+                  order: sorts
                 },
                 signal
             })
