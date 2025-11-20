@@ -331,7 +331,7 @@ function Cameras(
                                         className='flex items-center uppercase text-sm leading-normal font-bold'
                                     >
                                         Camera
-                                        <SortedIcon />
+                                        <SortedIcon direction={isSortDirectionAscending ? "asc" : "desc"} />
                                     </button>
                                 </th>
                                 <th className='py-2 px-1 lg:px-2 text-left hidden md:table-cell'>

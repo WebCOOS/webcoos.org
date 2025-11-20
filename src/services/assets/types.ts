@@ -408,6 +408,7 @@ export interface IWebCOOSAssetSummaryView {
   package_access_url: string | null;
   package_download_url: string | null;
   asset_thumbnails?: IWebCOOSThumbnails | null;
+  asset_wedge?: GeoJSON.Polygon | null;
   asset_data: {
     kind: string;
     type: string;
@@ -437,7 +438,7 @@ export interface IWebCOOSAssetSummaryView {
   }
 }
 
-export type IWebCOOSMapAsset = {asset_slug: string} & Pick<IWebCOOSAssetSummaryView, 'asset_location' | 'asset_label' | 'asset_description' | 'asset_operational_status_slug' | 'asset_operational_status_label' | 'asset_operational_status_note' | 'asset_disposition_slug' | 'asset_disposition_label' | 'asset_thumbnails'>
+export type IWebCOOSMapAsset = {asset_slug: string} & Pick<IWebCOOSAssetSummaryView, 'asset_location' | 'asset_wedge' | 'asset_label' | 'asset_description' | 'asset_operational_status_slug' | 'asset_operational_status_label' | 'asset_operational_status_note' | 'asset_disposition_slug' | 'asset_disposition_label' | 'asset_thumbnails'>
 
 export type IPostgrestParams<T> = {
     table: string

@@ -1,7 +1,7 @@
 import CameraDetail from '@/Pages/CameraDetail/CameraDetail'
 import type { IWebCOOSMapAsset } from '@/services/assets/types'
 import { type IMap, LatLonBounds, MapLoader, type IGeoJSONLayerProps, type ILayerQueryEvent } from '@axdspub/axiom-maps'
-import { Checkbox, Loader, utils } from '@axdspub/axiom-ui-utilities'
+import { Loader, utils } from '@axdspub/axiom-ui-utilities'
 import { atom, useAtom } from 'jotai'
 import { useEffect, useLayoutEffect, useRef, useState, type ReactElement } from 'react'
 import LatestImage from '../Media/LatestImage'
@@ -47,7 +47,7 @@ const legendItems = [
 ]
 
 const hoverItemAtom = atom<ILayerQueryEvent | undefined>(undefined)
-const selectItemAtom = atom<ILayerQueryEvent | undefined>(undefined)
+const selectItemAtom = atom<IWebCOOSMapAsset | undefined>(undefined)
 
 const HoverView = ({
     properties,
@@ -96,8 +96,7 @@ const HoverView = ({
 }
 
 
-const HoverViewWrapper = (): ReactElement => {
-    const [hoverItem] = useAtom(hoverItemAtom)
+const HoverViewWrapper = ({hoverItem}: {hoverItem?: ILayerQueryEvent}): ReactElement => {
     const properties = hoverItem?.data?.feature?.properties ?? undefined
     const point = hoverItem?.data?.windowPoint ?? undefined
 
@@ -158,14 +157,16 @@ const SelectView = ({
 
 }
 
-const SelectViewWrapper = (): ReactElement => {
-    const [selectItem] = useAtom(selectItemAtom)
-    const properties = selectItem?.data?.feature?.properties ?? undefined
+const SelectViewWrapper = ({
+    selectedItem
+}:{
+    selectedItem?: IWebCOOSMapAsset
+}): ReactElement => {
     return (
-        properties !== undefined ? (        
-            <div className='absolute top-14 left-2 bg-white bg-opacity-75 rounded-lg shadow-md z-50 w-[400px] min-h-[300px] overflow-hidden'>
+        selectedItem !== undefined ? (        
+            <div className='absolute top-2 left-2 bg-white bg-opacity-75 rounded-lg shadow-md z-50 w-[400px] min-h-[300px] overflow-hidden'>
                 <SelectView 
-                    properties={properties as IWebCOOSMapAsset}
+                    properties={selectedItem as IWebCOOSMapAsset}
                 />
             </div>
         ) : <></>
@@ -174,10 +175,35 @@ const SelectViewWrapper = (): ReactElement => {
 
 
 
+const calcBounds = (features: GeoJSON.Feature[]) => {
+    const geometries = features.map(d => d.geometry).filter(g => g !== null && g.type === 'Point' && g.coordinates !== undefined) as {type: 'Point'; coordinates: [number, number]}[]
+    const lats = geometries.map(d => d.coordinates[1])
+    const lons = geometries.map(d => d.coordinates[0])
+    const minLat = Math.min(...lats)
+    const maxLat = Math.max(...lats)
+    const minLon = Math.min(...lons)
+    const maxLon = Math.max(...lons)
 
+    return {
+        minLat,
+        maxLat,
+        minLon,
+        maxLon
+    }
+}
 
-const LoadedMap = ({data}: {data: IWebCOOSMapAsset[]}): ReactElement => {
-    const geoJson: GeoJSON.Feature[] =  data
+const LoadedMap = ({
+    data,
+    SelectView = SelectViewWrapper,
+    HoverView = HoverViewWrapper,
+    onItemSelect
+}: {
+    data: IWebCOOSMapAsset[],
+    SelectView?: React.FC<{ selectedItem: IWebCOOSMapAsset | undefined }>,
+    HoverView?: React.FC<{ hoverItem?: ILayerQueryEvent | undefined }>,
+    onItemSelect?: (item: IWebCOOSMapAsset | undefined) => void
+}): ReactElement => {
+    const makeGeojson = (): GeoJSON.Feature[] =>  data
         .filter(d => d.asset_location !== null && Array.isArray(d.asset_location?.coordinates) && d.asset_location.coordinates.length === 2)
         .map(d => {
             const legendItem = legendItems.find(item => item.filter(d))
@@ -185,7 +211,7 @@ const LoadedMap = ({data}: {data: IWebCOOSMapAsset[]}): ReactElement => {
                 type: "Feature",
                 properties: {
                     color: legendItem?.hexColor ?? legendItem?.color,
-                    stroke: '#FFF',
+                    stroke:'#FFF',
                     'stroke-width': 2,
                     'point-radius': 5,
                     ...d
@@ -196,60 +222,160 @@ const LoadedMap = ({data}: {data: IWebCOOSMapAsset[]}): ReactElement => {
                 }
             }
         })
-    const geometries = geoJson.map(d => d.geometry).filter(g => g !== null && g.type === 'Point' && g.coordinates !== undefined) as {type: 'Point'; coordinates: [number, number]}[]
-    const lats = geometries.map(d => d.coordinates[1])
-    const lons = geometries.map(d => d.coordinates[0])
-    const minLat = Math.min(...lats)
-    const maxLat = Math.max(...lats)
-    const minLon = Math.min(...lons)
-    const maxLon = Math.max(...lons)
-    const [, setHoverItem] = useAtom(hoverItemAtom)
-    const [, setSelectItem] = useAtom(selectItemAtom)
+    
+    const makePolygonGeojson = (): GeoJSON.Feature[] =>  data
+        .filter(d => d.asset_wedge !== null && d.asset_wedge !== undefined)
+        .map( d=> {
+            const legendItem = legendItems.find(item => item.filter(d))
+            return {
+                type: 'Feature',
+                properties: {
+                    color:legendItem?.hexColor ?? legendItem?.color,
+                    opacity: .5,
+                    ...d
+                },
+                geometry: d.asset_wedge as GeoJSON.Polygon
+            }
+        })
+
+    const geoJson = makeGeojson()
+    const {
+        minLon, maxLon, minLat, maxLat
+    } = calcBounds(geoJson)
+    const polygonGeoJson = makePolygonGeojson()
+
+    const [hoverItem, setHoverItem] = useAtom(hoverItemAtom)
+    const [selectedItem, setSelectItem] = useAtom(selectItemAtom)
     const [map, setMap] = useState<IMap | undefined>(undefined)
     useEffect(() => {
-        console.log('map changed', map)
-    }, [map])
-    const onAssetSelect = (e: ILayerQueryEvent) => {
-        if(e?.data?.feature?.properties !== undefined) {
-                setSelectItem(e)
-                const coords = e.data.feature.geometry.type === 'Point' ? e.data.feature.geometry.coordinates as [number, number] : undefined
-                if(map !== undefined && coords !== undefined) {
-                    map.setCenter({lon: coords[0], lat: coords[1]})
-                }
-            } else {
-                setSelectItem(undefined)
+        if(map !== undefined) {
+            const coords = selectedItem?.asset_location?.coordinates
+            if(map !== undefined && coords !== undefined) {
+                map.setMapCenter({lon: coords[0], lat: coords[1]})
             }
-    }
-    const layer: IGeoJSONLayerProps  = {
-        id: 'assets',
-        type: 'geoJson',
-        options: {
-            geoJson
-        },
-        label: '',
-        zIndex: 0,
-        isBaseLayer: false,
-        onMouseOver: (e) => {
-            if (e?.data?.feature?.properties !== undefined) {
-                setHoverItem(e)
-            } else {
-                console.log('out')
-                setHoverItem(undefined)
-            }
-        },
-        onMouseOut: () => {
-            setHoverItem(undefined)
-        },
-        onSelect: onAssetSelect
+        }
+    }, [map, selectedItem])
+    const layers: IGeoJSONLayerProps[]  = 
+        [
+            {
+                id: 'assets',
+                type: 'geoJson',
+                options: {
+                    geoJson
+                },
+                label: '',
+                zIndex: 10,
+                isBaseLayer: false,
+                onMouseOver: (e: ILayerQueryEvent) => {
+                    if (e?.data?.feature?.properties !== undefined) {
+                        setHoverItem(e)
+                    } else {
+                        console.log('out')
+                        setHoverItem(undefined)
+                    }
+                },
+                onMouseOut: () => {
+                    setHoverItem(undefined)
+                },
+                onSelect: function(e: ILayerQueryEvent){
+                    setSelectItem(e?.data?.feature?.properties as IWebCOOSMapAsset | undefined)
+                    if(onItemSelect) {
+                        onItemSelect(e?.data?.feature?.properties as IWebCOOSMapAsset | undefined)
+                    }
 
-    }
+                    
+                }
+
+            },
+            {
+                id: 'wedges',
+                type: 'geoJson',
+                options: {
+                    geoJson: polygonGeoJson
+                },
+                label: '',
+                zIndex: 0,
+                isBaseLayer: false,
+                onMouseOver: (e: ILayerQueryEvent) => {
+                    if (e?.data?.feature?.properties !== undefined) {
+                        setHoverItem(e)
+                    } else {
+                        console.log('out')
+                        setHoverItem(undefined)
+                    }
+                },
+                onMouseOut: () => {
+                    setHoverItem(undefined)
+                },
+                onSelect: function(e: ILayerQueryEvent){
+                    setSelectItem(e?.data?.feature?.properties as IWebCOOSMapAsset | undefined)
+                    if(onItemSelect) {
+                        onItemSelect(e?.data?.feature?.properties as IWebCOOSMapAsset | undefined)
+                    }
+
+                    
+                }
+
+            }
+        ]
+    useEffect(() => {
+        if(map !== undefined) {
+            const newGeojson = makeGeojson()
+            const { minLon, maxLon, minLat, maxLat } = calcBounds(newGeojson)
+            const newPolygonGeojson = makePolygonGeojson()
+            map.removeLayer('assets')
+            map.removeLayer('wedges')
+            const layersById = Object.fromEntries(layers.map(l => [l.id, l]))
+            if(layersById.assets){
+                map.addLayer({
+                    layer: layersById.assets,
+                    options: {
+                        geoJson: newGeojson
+                    },
+                    id: '',
+                    type: 'geoJson',
+                    label: '',
+                    zIndex: 0,
+                    isBaseLayer: false
+                })
+            }
+            if(layersById.wedges){
+                map.addLayer({
+                    layer: layersById.wedges,
+                    options: {
+                        geoJson: newPolygonGeojson
+                    },
+                    id: '',
+                    type: 'geoJson',
+                    label: '',
+                    zIndex: 0,
+                    isBaseLayer: false
+                })
+            }
+            map.setBounds(
+                    new LatLonBounds({
+                        sw:{lat: minLat, lon: minLon},
+                        ne:{lat: maxLat, lon: maxLon}
+                    }),
+                    {
+                        padding: {
+                            top: 100,
+                            bottom: 100,
+                            left: 100,
+                            right: 100
+                        }
+                    }
+                )
+        }
+    }, [data])
     return <div className='relative h-full w-full'>
             <MapLoader
             Loader={<Loader className='pt-20' />}
-            mapLibraryKey='mapbox'
+            mapLibraryKey='maplibre'
             className='h-full' 
             height='100%'
             baseLayerKey='mb_bathymetry'
+            setState={setMap}
             onMapLoaded = {(e) => {
                 if(e.data?.map === undefined) return
                 e.data.map.setBounds(
@@ -266,23 +392,27 @@ const LoadedMap = ({data}: {data: IWebCOOSMapAsset[]}): ReactElement => {
                         }
                     }
                 )
-                e.data.map.addLayer(layer)
-                setMap(e.data.map)
+                e.data.map.addLayer(layers[0])
+                e.data.map.addLayer(layers[1])
             }}
             
             />
-            <div className='legend absolute top-2 left-2 bg-[#FFF]/80 p-2 rounded shadow-md z-50 flex flex-row gap-8'>
+            <div className='legend absolute top-2 right-2 bg-white px-4 py-2 rounded shadow-md z-50 flex flex-row gap-4'>
                 {
                     legendItems.map(item => (
                         <div key={item.id} className='flex flex-row items-center gap-2 mb-1 text-sm'>
-                            <Checkbox id={`legend-item-${item.id}`} testId={`legend-item-${item.id}`} label={<>{item.label} <span className={`w-4 h-4 -mb-[2px] rounded-2xl inline-block ml-1 shadow-2xl border-white border-2 ${item.color}`}></span></>} value={true} onChange={() => { } } />
+                            <p>{item.label} <span className={`w-4 h-4 -mb-[2px] rounded-2xl inline-block ml-1 shadow-2xl border-white border-2 ${item.color}`}></span></p>
                             
                         </div>
                     ))
                 }
             </div>
-            <HoverViewWrapper />
-            <SelectViewWrapper />
+            {
+                HoverView && <HoverView hoverItem={hoverItem} />
+            }
+            {
+                SelectView && <SelectView selectedItem={selectedItem} />
+            }
         </div>
 }
 

@@ -1,7 +1,7 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
-@source "../node_modules/@axdspub/axiom-ui-utilities";
+@source "../node_modules/@axdspub";
 
+@plugin "@tailwindcss/typography";
 @theme {
     --color-primary: #32899e;
     --color-primary-lighter: #d5e1e6;
@@ -15,7 +15,26 @@
 
 }
 
+/* .absolute{
+  position:absolute;
+}
+.top-0{
+  top:0;
+}
+.left-0{
+  left:0;
+}
+.right-0{
+  right:0;
+}
+.bottom-0{
+  bottom:0;
+}
 
+.bg-white{
+  background-color:#FFFFFF99
+}
+ */
 .prose-fix-images img {
   margin-top: 0;
   margin-bottom: 0;

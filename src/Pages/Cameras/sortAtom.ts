@@ -14,7 +14,7 @@ allKeys.forEach(k => {
     const v = url.searchParams.get(k)
     if(v !== null && v !== '') {
         const r:RegExp = new RegExp(`^${sortPrefix}`)
-        defaultSortValue.push({ column: k.replace(r, ''), dir: v === 'true' ? 'asc' : 'desc' })
+        defaultSortValue.push({ column: k.replace(r, ''), dir: v === 'asc' ? 'asc' : 'desc' })
     }
 })
 const sortAtom = atom(defaultSortValue)

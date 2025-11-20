@@ -33,7 +33,7 @@ const CameraDetailView = ({
     const mapWidth = 374
     const mapHeight = isLive
         ? 250
-        : 500
+        : 300
 
     return (
         <div className='p-10'>

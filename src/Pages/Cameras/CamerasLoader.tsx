@@ -5,11 +5,11 @@ import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { type ReactElement, useContext, useEffect } from "react"
 import filterAtom, { filterPrefix } from "./filterAtom"
-import CameraTable from "./CamerasTable"
 import sortAtom, { sortPrefix } from "./sortAtom"
+import CamerasView from "./CamerasView"
 
 const CamerasLoader = ({
-    View = CameraTable
+    View = CamerasView
 }: {
     View?: React.FC<{data: IWebCOOSCameraPageFiltered}>
 }): ReactElement => {
@@ -19,7 +19,11 @@ const CamerasLoader = ({
     const [sorts] = useAtom(sortAtom)
     useEffect(() => {
         const url = new URL(window.location.href)
-        const allKeys = Array.from(url.searchParams.keys())
+        const allKeys = Array.from(url.searchParams.keys()).map(k => {
+            if (k.startsWith(filterPrefix)) {
+                return k.replace(new RegExp(`^${filterPrefix}`), '')
+            }
+        }).filter(k => k !== undefined) as string[]
         Object.keys(filters).concat(allKeys).forEach(k => {
             const fk = `${filterPrefix}${k}`
             if (filters[k as keyof typeof filters] !== null && filters[k as keyof typeof filters] !== '' && filters[k as keyof typeof filters] !== undefined) {
@@ -33,18 +37,24 @@ const CamerasLoader = ({
 
     useEffect(() => {
         const url = new URL(window.location.href)
-        const allKeys = Array.from(url.searchParams.keys())
+        const allKeys = Array.from(url.searchParams.keys()).map(k => {
+            if (k.startsWith(sortPrefix)) {
+                return k.replace(new RegExp(`^${sortPrefix}`), '')
+            }
+        }).filter(k => k !== undefined) as string[]
         const sortsMap = Object.fromEntries(sorts.map(s => [s.column, s]))
         sorts.map(s => s.column).concat(allKeys).forEach(k => {
             const sk = `${sortPrefix}${k}`
             if (sortsMap[k]?.dir !== undefined) {
-                url.searchParams.set(sk, sortsMap[k].dir === 'asc' ? 'true' : 'false')
+                url.searchParams.set(sk, sortsMap[k].dir)
             } else {
                 url.searchParams.delete(sk)
             }
         })
         window.history.pushState({}, '', url.toString())
     }, [sorts])
+
+
 
 
     const { data, isLoading, isFetching, error } = useQuery<IWebCOOSCameraPageFiltered>({
@@ -79,23 +89,24 @@ const CamerasLoader = ({
     return (
         <div className='p-10 flex flex-col h-full'>
             <h1 className='text-2xl font-bold'>Cameras New</h1>
-            <div className='relative h-full'>
-          <ViewWithLoader 
-            isLoading={isLoading} 
-            isFetching={isFetching} 
-            error={error} 
-            data={data}
-            /* LoaderComponent={({className}): ReactElement => {
-                return <div className='absolute top-0 left-0 w-full h-full bg-white bg-opacity-40 z-30 -mx-10'>
-                    <Loader className={`${className} pt-30 pb-30`} />
-                </div>
-            }} */
-            >
-              {data !== undefined && data !== null && (
-                      <View data={data} />                  
-              )}
-          </ViewWithLoader>
-          </div>
+            <div className='relative h-full -mx-10 px-10'>
+                <ViewWithLoader 
+                    isLoading={isLoading} 
+                    isFetching={isFetching} 
+                    error={error} 
+                    keepExistingContentWhileLoading={true}
+                    data={data}
+                    /* LoaderComponent={({className}): ReactElement => {
+                        return <div className='absolute top-0 bottom-0 left-0 right-0 bg-white/60 z-30'>
+                            <Loader className={`${className} mx-auto mt-40 absolute top-0 left-0 right-0`} />
+                        </div>
+                    }} */
+                    >
+                    {data && (
+                        <View data={data} />                  
+                    )}
+                </ViewWithLoader>
+            </div>
           </div>
     )
 }

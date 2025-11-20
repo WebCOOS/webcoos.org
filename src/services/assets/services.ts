@@ -465,6 +465,7 @@ export async function fetchWebCOOSCameraPageFiltered({
     params.select = params.select ??  [
                     'asset_label',
                     'asset_region',
+                    'asset_location',
                     'asset_state_or_territory',
                     'asset_slug',
                     'asset_service_slugs',
@@ -474,6 +475,10 @@ export async function fetchWebCOOSCameraPageFiltered({
                     'asset_operational_status_label',
                     'asset_first_starting',
                     'asset_last_ending',
+                    {
+                        column: 'asset_data->properties->wedge',
+                        as: 'asset_wedge'
+                    },
                     {
                         column: 'asset_data->properties->thumbnails->base',
                         as: 'asset_thumbnails'
