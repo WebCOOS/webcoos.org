@@ -1,6 +1,6 @@
 import type { IWebCOOSCameraPageFiltered } from "@/services/assets/services"
 import type { IWebCOOSAssetSummaryView } from "@/services/assets/types"
-import { SelectInput, Tabs } from "@axdspub/axiom-ui-utilities"
+import { SelectInput, Tabs, utils } from "@axdspub/axiom-ui-utilities"
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
 import { useAtom } from "jotai"
 import { useState, type ReactElement } from "react"
@@ -145,7 +145,20 @@ const CameraFilters = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactEle
 
 
 
-const CameraTable = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactElement => {
+export const CamerasTable = ({ 
+  data, 
+  className, 
+  defaultClassName = '-mx-10', 
+  theadClassName, 
+  defaultTheadClassName = 'sticky top-35 bg-white shadow-md z-10'
+}: { 
+  data: IWebCOOSCameraPageFiltered,
+  className?: string,
+  defaultClassName?: string,
+  theadClassName?: string,
+  defaultTheadClassName?: string
+
+}): ReactElement => {
 
   const navigate = useNavigate()
   const [sorts, setSorts] = useAtom(sortAtom)
@@ -299,10 +312,19 @@ const CameraTable = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactEleme
   console.log('rows', table.getRowModel().rows)
 
   return (
-    <div className='flex flex-col'>
 
-      <table className='-mx-10'>
-        <thead className='sticky top-35 bg-white shadow-md z-10'>
+      <table className={
+        utils.makeClassName({
+          className,
+          defaultClassName
+        })
+      }>
+        <thead className={
+          utils.makeClassName({
+            className: theadClassName,
+            defaultClassName: defaultTheadClassName
+          })
+        }>
           {table.getHeaderGroups().map(headerGroup => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map(header => {
@@ -360,7 +382,7 @@ const CameraTable = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactEleme
           ))}
         </tbody>
       </table>
-    </div>
+
   )
 }
 
@@ -383,7 +405,7 @@ const CamerasView = ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactEleme
                         {
                             id: 'table',
                             label: 'Table View',
-                            content: <CameraTable data={data} />
+                            content: <CamerasTable data={data} />
                         },
                         {
                             id: 'map',

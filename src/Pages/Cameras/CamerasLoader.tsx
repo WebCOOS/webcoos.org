@@ -16,7 +16,6 @@ const CamerasLoader = ({
 
     const apiContext = useContext(ApiContext)
     const [filters] = useAtom(filterAtom)
-    const [sorts] = useAtom(sortAtom)
     useEffect(() => {
         const url = new URL(window.location.href)
         const allKeys = Array.from(url.searchParams.keys()).map(k => {
@@ -35,6 +34,8 @@ const CamerasLoader = ({
         window.history.pushState({}, '', url.toString())
     }, [filters])
 
+
+    const [sorts] = useAtom(sortAtom)
     useEffect(() => {
         const url = new URL(window.location.href)
         const allKeys = Array.from(url.searchParams.keys()).map(k => {
@@ -87,27 +88,23 @@ const CamerasLoader = ({
     })
 
     return (
-        <div className='p-10 flex flex-col h-full'>
-            <h1 className='text-2xl font-bold'>Cameras New</h1>
-            <div className='relative h-full -mx-10 px-10'>
-                <ViewWithLoader 
-                    isLoading={isLoading} 
-                    isFetching={isFetching} 
-                    error={error} 
-                    keepExistingContentWhileLoading={true}
-                    data={data}
-                    /* LoaderComponent={({className}): ReactElement => {
-                        return <div className='absolute top-0 bottom-0 left-0 right-0 bg-white/60 z-30'>
-                            <Loader className={`${className} mx-auto mt-40 absolute top-0 left-0 right-0`} />
-                        </div>
-                    }} */
-                    >
-                    {data && (
-                        <View data={data} />                  
-                    )}
-                </ViewWithLoader>
-            </div>
-          </div>
+
+        <ViewWithLoader 
+            isLoading={isLoading} 
+            isFetching={isFetching} 
+            error={error} 
+            keepExistingContentWhileLoading={true}
+            data={data}
+            /* LoaderComponent={({className}): ReactElement => {
+                return <div className='absolute top-0 bottom-0 left-0 right-0 bg-white/60 z-30'>
+                    <Loader className={`${className} mx-auto mt-40 absolute top-0 left-0 right-0`} />
+                </div>
+            }} */
+            >
+            {data && (
+                <View data={data} />                  
+            )}
+        </ViewWithLoader>
     )
 }
 

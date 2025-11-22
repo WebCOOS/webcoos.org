@@ -1,8 +1,7 @@
 import CameraDetail from '@/Pages/CameraDetail/CameraDetail'
-import type { IWebCOOSMapAsset } from '@/services/assets/types'
-import { type IMap, LatLonBounds, MapLoader, type IGeoJSONLayerProps, type ILayerQueryEvent } from '@axdspub/axiom-maps'
+import type { IMapViewProps, IWebCOOSMapAsset } from '@/services/assets/types'
+import { type IMap, LatLonBounds, MapLoader, type IGeoJSONLayerProps, type ILayerQueryEvent, type ILatLon } from '@axdspub/axiom-maps'
 import { Loader, utils } from '@axdspub/axiom-ui-utilities'
-import { atom, useAtom } from 'jotai'
 import { useEffect, useLayoutEffect, useRef, useState, type ReactElement } from 'react'
 import LatestImage from '../Media/LatestImage'
 import { Link } from 'react-router'
@@ -46,8 +45,6 @@ const legendItems = [
     }
 ]
 
-const hoverItemAtom = atom<ILayerQueryEvent | undefined>(undefined)
-const selectItemAtom = atom<IWebCOOSMapAsset | undefined>(undefined)
 
 const HoverView = ({
     properties,
@@ -192,28 +189,54 @@ const calcBounds = (features: GeoJSON.Feature[]) => {
     }
 }
 
+const LegendViewWrapper = (): ReactElement => {
+    return (
+        <div className='legend absolute top-2 right-2 bg-white px-4 py-2 rounded shadow-md z-50 flex flex-row gap-4'>
+            {
+                legendItems.map(item => (
+                    <div key={item.id} className='flex flex-row items-center gap-2 mb-1 text-sm'>
+                        <p>{item.label} <span className={`w-4 h-4 -mb-[2px] rounded-2xl inline-block ml-1 shadow-2xl border-white border-2 ${item.color}`}></span></p>
+                            
+                        </div>
+                    ))
+                }
+            </div>
+    )
+}
+
 const LoadedMap = ({
     data,
+    featureSort,
     SelectView = SelectViewWrapper,
     HoverView = HoverViewWrapper,
-    onItemSelect
-}: {
-    data: IWebCOOSMapAsset[],
-    SelectView?: React.FC<{ selectedItem: IWebCOOSMapAsset | undefined }>,
-    HoverView?: React.FC<{ hoverItem?: ILayerQueryEvent | undefined }>,
-    onItemSelect?: (item: IWebCOOSMapAsset | undefined) => void
-}): ReactElement => {
-    const makeGeojson = (): GeoJSON.Feature[] =>  data
+    LegendView = LegendViewWrapper,
+    onItemSelect,
+    center,
+    zoom,
+    selectedItemSlug,
+    stylePointFn = (asset: IWebCOOSMapAsset, defaultProps: Record<string, unknown>) => {
+        return defaultProps
+
+    },
+    styleWedgeFn = (asset: IWebCOOSMapAsset, defaultProps: Record<string, unknown>) => {
+        return defaultProps
+    }
+}: IMapViewProps): ReactElement => {
+    const makeGeojson = (): GeoJSON.Feature[] =>  {
+        const features = data
         .filter(d => d.asset_location !== null && Array.isArray(d.asset_location?.coordinates) && d.asset_location.coordinates.length === 2)
         .map(d => {
             const legendItem = legendItems.find(item => item.filter(d))
+            const defaultProps = {
+                color: legendItem?.hexColor ?? legendItem?.color,
+                stroke:'#FFF',
+                'stroke-width': 2,
+                'point-radius': 5,
+            }
             return {
                 type: "Feature",
                 properties: {
-                    color: legendItem?.hexColor ?? legendItem?.color,
-                    stroke:'#FFF',
-                    'stroke-width': 2,
-                    'point-radius': 5,
+                    ...stylePointFn(d, defaultProps),
                     ...d
                 },
                 geometry: {
@@ -221,31 +244,44 @@ const LoadedMap = ({
                     coordinates: d.asset_location!.coordinates as [number, number]
                 }
             }
-        })
+        }) as GeoJSON.Feature[]
+        if(featureSort !== undefined) {
+            features.sort((a, b) => featureSort(a.properties as IWebCOOSMapAsset, b.properties as IWebCOOSMapAsset))
+        }
+        return features
+
+    }
     
-    const makePolygonGeojson = (): GeoJSON.Feature[] =>  data
+    const makePolygonGeojson = (): GeoJSON.Feature[] =>  {
+        const features = data
         .filter(d => d.asset_wedge !== null && d.asset_wedge !== undefined)
         .map( d=> {
-            const legendItem = legendItems.find(item => item.filter(d))
+                const defaultProps = {
+                stroke: '#FFF',
+                'stroke-width': 2,
+                color:'#FFF',
+                opacity: .5,
+            }
             return {
                 type: 'Feature',
                 properties: {
-                    color:legendItem?.hexColor ?? legendItem?.color,
-                    opacity: .5,
+                    ...styleWedgeFn(d, defaultProps),
                     ...d
                 },
                 geometry: d.asset_wedge as GeoJSON.Polygon
             }
-        })
+        }) as GeoJSON.Feature[]
+        if(featureSort !== undefined) {
+            features.sort((a, b) => featureSort(a.properties as IWebCOOSMapAsset, b.properties as IWebCOOSMapAsset))
+        }
+        return features
+    }
 
     const geoJson = makeGeojson()
-    const {
-        minLon, maxLon, minLat, maxLat
-    } = calcBounds(geoJson)
     const polygonGeoJson = makePolygonGeojson()
 
-    const [hoverItem, setHoverItem] = useAtom(hoverItemAtom)
-    const [selectedItem, setSelectItem] = useAtom(selectItemAtom)
+    const [hoverItem, setHoverItem] = useState<ILayerQueryEvent | undefined>(undefined)
+    const [selectedItem, setSelectItem] = useState<IWebCOOSMapAsset | undefined>(data.find(d => d.asset_slug === selectedItemSlug))
     const [map, setMap] = useState<IMap | undefined>(undefined)
     useEffect(() => {
         if(map !== undefined) {
@@ -295,79 +331,58 @@ const LoadedMap = ({
                 },
                 label: '',
                 zIndex: 0,
-                isBaseLayer: false,
-                onMouseOver: (e: ILayerQueryEvent) => {
-                    if (e?.data?.feature?.properties !== undefined) {
-                        setHoverItem(e)
-                    } else {
-                        console.log('out')
-                        setHoverItem(undefined)
-                    }
-                },
-                onMouseOut: () => {
-                    setHoverItem(undefined)
-                },
-                onSelect: function(e: ILayerQueryEvent){
-                    setSelectItem(e?.data?.feature?.properties as IWebCOOSMapAsset | undefined)
-                    if(onItemSelect) {
-                        onItemSelect(e?.data?.feature?.properties as IWebCOOSMapAsset | undefined)
-                    }
-
-                    
-                }
+                isBaseLayer: false
 
             }
         ]
     useEffect(() => {
         if(map !== undefined) {
             const newGeojson = makeGeojson()
-            const { minLon, maxLon, minLat, maxLat } = calcBounds(newGeojson)
             const newPolygonGeojson = makePolygonGeojson()
-            map.removeLayer('assets')
-            map.removeLayer('wedges')
-            const layersById = Object.fromEntries(layers.map(l => [l.id, l]))
+            //map.removeLayer('assets')
+            //map.removeLayer('wedges')
+            const layersById = Object.fromEntries((map.layers ?? []).map(l => [l.id, l]))
             if(layersById.assets){
-                map.addLayer({
-                    layer: layersById.assets,
-                    options: {
-                        geoJson: newGeojson
-                    },
-                    id: '',
-                    type: 'geoJson',
-                    label: '',
-                    zIndex: 0,
-                    isBaseLayer: false
+                layersById.assets.implementation?.updateOptions({
+                    geoJson: newGeojson
                 })
             }
             if(layersById.wedges){
-                map.addLayer({
-                    layer: layersById.wedges,
-                    options: {
-                        geoJson: newPolygonGeojson
-                    },
-                    id: '',
-                    type: 'geoJson',
-                    label: '',
-                    zIndex: 0,
-                    isBaseLayer: false
+                layersById.wedges.implementation?.updateOptions({
+                    geoJson: newPolygonGeojson
                 })
             }
-            map.setBounds(
-                    new LatLonBounds({
-                        sw:{lat: minLat, lon: minLon},
-                        ne:{lat: maxLat, lon: maxLon}
-                    }),
-                    {
-                        padding: {
-                            top: 100,
-                            bottom: 100,
-                            left: 100,
-                            right: 100
+            if(center){
+                map.setCenter(center)
+                if(zoom){
+                    map.setZoom(zoom)
+                }
+            } else {
+                const { minLon, maxLon, minLat, maxLat } = calcBounds(newGeojson)
+                map.setBounds(
+                        new LatLonBounds({
+                            sw:{lat: minLat, lon: minLon},
+                            ne:{lat: maxLat, lon: maxLon}
+                        }),
+                        {
+                            padding: {
+                                top: 100,
+                                bottom: 100,
+                                left: 100,
+                                right: 100
+                            }
                         }
-                    }
-                )
+                    )
+            }
         }
     }, [data])
+    const props: {center?: ILatLon, zoom?: number} = {}
+    if(center){
+        props.center = center
+    }
+    if(zoom){
+        props.zoom = zoom
+    }
     return <div className='relative h-full w-full'>
             <MapLoader
             Loader={<Loader className='pt-20' />}
@@ -376,37 +391,47 @@ const LoadedMap = ({
             height='100%'
             baseLayerKey='mb_bathymetry'
             setState={setMap}
+            {...props}
             onMapLoaded = {(e) => {
                 if(e.data?.map === undefined) return
-                e.data.map.setBounds(
-                    new LatLonBounds({
-                        sw:{lat: minLat, lon: minLon},
-                        ne:{lat: maxLat, lon: maxLon}
-                    }),
-                    {
-                        padding: {
-                            top: 100,
-                            bottom: 100,
-                            left: 100,
-                            right: 100
-                        }
+                if(center) {
+                    e.data.map.setCenter(center)
+                    if(zoom){
+                        e.data.map.setZoom(zoom)
                     }
-                )
-                e.data.map.addLayer(layers[0])
-                e.data.map.addLayer(layers[1])
+                } else {
+                    const {
+                        minLon, maxLon, minLat, maxLat
+                    } = calcBounds(geoJson)
+                    e.data.map.setBounds(
+                        new LatLonBounds({
+                            sw:{lat: minLat, lon: minLon},
+                            ne:{lat: maxLat, lon: maxLon}
+                        }),
+                        {
+                            padding: {
+                                top: 100,
+                                bottom: 100,
+                                left: 100,
+                                right: 100
+                            }
+                        }
+                    )
+                }
+                if(e?.data?.map?.layers !== undefined){
+                    e.data.map.layers.forEach(l => {
+                        e?.data?.map.removeLayer(l.id)
+                    })
+                }
+                layers.forEach(l => {
+                    e?.data?.map.addLayer(l)
+                })
             }}
             
             />
-            <div className='legend absolute top-2 right-2 bg-white px-4 py-2 rounded shadow-md z-50 flex flex-row gap-4'>
-                {
-                    legendItems.map(item => (
-                        <div key={item.id} className='flex flex-row items-center gap-2 mb-1 text-sm'>
-                            <p>{item.label} <span className={`w-4 h-4 -mb-[2px] rounded-2xl inline-block ml-1 shadow-2xl border-white border-2 ${item.color}`}></span></p>
-                            
-                        </div>
-                    ))
-                }
-            </div>
+            {
+                LegendView && <LegendView />
+            }
             {
                 HoverView && <HoverView hoverItem={hoverItem} />
             }

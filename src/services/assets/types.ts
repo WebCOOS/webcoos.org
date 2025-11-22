@@ -1,5 +1,6 @@
 import type {  Point, Polygon } from "geojson";
 import { type Duration } from "date-fns";
+import type { ILayerQueryEvent, ILatLon } from "@axdspub/axiom-maps";
 
 export type IWebCOOSRawAssetServiceStream = {
     url: string;
@@ -458,4 +459,19 @@ export type IPostgrestParams<T> = {
         operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'ilike' | 'in' | 'is' | 'cs' | 'cd' | 'sl' | 'sr' | 'nxl' | 'nxr',
         value: string | number | (string | number)[]
     }[]
+}
+
+
+export type IMapViewProps = {
+    data: IWebCOOSMapAsset[],
+    featureSort?: (a: IWebCOOSMapAsset, b: IWebCOOSMapAsset) => number,
+    SelectView?: React.FC<{ selectedItem: IWebCOOSMapAsset | undefined }>,
+    LegendView?: React.FC,
+    HoverView?: React.FC<{ hoverItem?: ILayerQueryEvent | undefined }>,
+    onItemSelect?: (item: IWebCOOSMapAsset | undefined) => void,
+    center?: ILatLon,
+    zoom?: number
+    selectedItemSlug?: string
+    stylePointFn?: (item: IWebCOOSMapAsset, defaultProps: Record<string, unknown>) => Record<string, unknown>,
+    styleWedgeFn?: (item: IWebCOOSMapAsset, defaultProps: Record<string, unknown>) => Record<string, unknown>
 }

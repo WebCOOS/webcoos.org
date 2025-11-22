@@ -7,11 +7,12 @@ import { useAPIContext } from "@/state/ApiContext"
 import { Table, Tabs, ViewWithLoader } from "@axdspub/axiom-ui-utilities"
 import { useQuery } from "@tanstack/react-query"
 import type { ReactElement } from "react"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import LatestImage from "@/Components/Media/LatestImage"
 import VideoPlayer from "@/Components/Media/VideoPlayer"
 import StaticMap from "@/Components/Map/StaticMap"
 import { useWebCOOSCameraSummary } from "@/services/assets/useWebCOOSCameraSummary"
+import MapDataLoader from "@/Components/Map/Map"
 
 
 
@@ -30,10 +31,12 @@ const CameraDetailView = ({
 
 }): ReactElement => {
 
+    const navigate = useNavigate();
+
     const mapWidth = 374
     const mapHeight = isLive
         ? 250
-        : 300
+        : 305
 
     return (
         <div className='p-10'>
@@ -62,14 +65,63 @@ const CameraDetailView = ({
                         }
                         </div>
                         <div className={`hidden lg:flex flex-col gap-4 h-full`}>
-                            <StaticMap
+                            <div style={{ height: `${mapHeight}px` }} className="flex flex-col gap-2 items-center relative">
+                            <MapDataLoader
+                                center={detail.longitude && detail.latitude ? { lon: detail.longitude, lat: detail.latitude } : undefined}
+                                zoom={detail.longitude && detail.latitude ? 10 : 2}
+                                LegendView={(): ReactElement => <></>}
+                                onItemSelect={(item): void => {
+                                    navigate(`/cameras/${item?.asset_slug ?? ''}`)
+                                }}
+                                SelectView = {(): ReactElement => <></>}
+                                selectedItemSlug={detail.slug}
+                                featureSort={(a, b) => {
+                                    const aIsSelected = a.asset_slug === detail.slug ? 1 : 0
+                                    const bIsSelected = b.asset_slug === detail.slug ? 1 : 0
+                                    return aIsSelected - bIsSelected
+                                }}
+                                styleWedgeFn={(item, defaultProps): Record<string, unknown> => {
+                                    return {
+                                        ...defaultProps,
+                                        ...(
+                                            item.asset_slug === detail.slug
+                                            ? {
+                                                opacity: .6
+                                            } : {
+                                                opacity: .2,
+                                                'stroke-width': 1
+                                            }
+                                        )
+                                    }
+                                }}
+                                stylePointFn={(item, defaultProps): Record<string, unknown> => {
+                                    return {
+                                        ...defaultProps,
+                                        ...(
+                                            item.asset_slug === detail.slug
+                                            ? {
+                                                'point-radius':12,
+                                                'fill-opacity': .4,
+                                                opacity: .8
+
+                                            } : {
+                                                'point-radius': 3,
+                                                opacity: .4
+
+                                            }
+                                        )
+                                    }
+                                }}
+                            />
+                            </div>
+                            {/* <StaticMap
                                         longitude={detail.longitude}
                                         latitude={detail.latitude}
                                         width={mapWidth}
                                         height={mapHeight}
                                         mapboxAccessToken={import.meta.env.VITE_PUBLIC_MAPBOX_TOKEN}
                                         wedgePolygon={detail.wedge ?? undefined}
-                                        extraClasses="max-w-full shadow-md max-w-full"                          />
+                                        extraClasses="max-w-full shadow-md max-w-full"                          /> */}
                         {
                             isLive
                                 ?  <div><img src={detail.thumbnail} alt={detail.label} className="shadow-md" /></div>
