@@ -10,7 +10,6 @@ import type { ReactElement } from "react"
 import { Link, useNavigate } from "react-router"
 import LatestImage from "@/Components/Media/LatestImage"
 import VideoPlayer from "@/Components/Media/VideoPlayer"
-import StaticMap from "@/Components/Map/StaticMap"
 import { useWebCOOSCameraSummary } from "@/services/assets/useWebCOOSCameraSummary"
 import MapDataLoader from "@/Components/Map/Map"
 
@@ -33,7 +32,6 @@ const CameraDetailView = ({
 
     const navigate = useNavigate();
 
-    const mapWidth = 374
     const mapHeight = isLive
         ? 250
         : 305
