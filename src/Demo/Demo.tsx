@@ -12,9 +12,8 @@ import { useTimeSeriesAssetMedia } from "@/services/media/useTimeSeriesAssetMedi
 import ApiContext, { useAPIContext } from "@/state/ApiContext"
 import { Button, SelectInput, Table, Tabs, ViewWithLoader } from "@axdspub/axiom-ui-utilities"
 import { useQuery } from "@tanstack/react-query"
-import { set } from "date-fns"
 import { atom, useAtom } from "jotai"
-import { Fragment, useContext, useEffect, useState, type ReactElement } from "react"
+import { Fragment, useContext, useState, type ReactElement } from "react"
 import Markdown from "react-markdown"
 import { Link, useParams } from "react-router"
 
@@ -161,9 +160,11 @@ const GalleryGrid = ({ service }: { service?: IWebCOOSParsedGalleryService }): R
 const GalleryBrowse = ({ service }: { service?: IWebCOOSParsedGalleryService }): ReactElement => {
     const apiContext = useAPIContext()
     const startString = service?.elements.first_starting ?? service?.elements.first_ending ?? null
+    const endString = service?.elements.last_ending ?? service?.elements.last_starting ?? null
     const start = startString !== null ? makeUTCDate(startString) : undefined
+    const end = endString !== null ? makeUTCDate(endString) : undefined
     const [currentDate, setCurrentDate] = useState<Date | undefined>(undefined)
-    const [direction, setDirection] = useState<'previous' | 'next' | 'nearest'>('nearest')
+    const [direction, setDirection] = useState<'previous' | 'next' | 'nearest' | 'first' | 'last'>('first')
     const { data, isLoading, isFetching, error } = useTimeSeriesAssetBrowse({
         serviceIdentifier: service?.uuid ?? '',
         ...apiContext,
@@ -173,33 +174,48 @@ const GalleryBrowse = ({ service }: { service?: IWebCOOSParsedGalleryService }):
     })
 
     return (
-        <ViewWithLoader data={data} isLoading={isLoading} isFetching={isFetching} error={error}>
+        <>
             {
-                data && <div className='flex flex-row gap-4 items-center'>
-                    <Button
-                        type='create'
-                        onClick={() => {
-                            if (data.length > 0) {
-                                setDirection('previous')
-                                setCurrentDate(makeUTCDate(data[0].data.extents.temporal.min))
-                            }
-                        }}
-                    >Previous</Button>
-                    <p>{data[0].data.extents.temporal.min}</p>
-                    <Button
-                        type='create'
-                        onClick={() => {
-                            if (data.length > 0) {
-                                setDirection('next')
-                                setCurrentDate(makeUTCDate(data[0].data.extents.temporal.min))
+                start !== undefined && end !== undefined && <div className='flex flex-col gap-4'>
+                    <p>{startString} to {endString}</p>
+            
+                <ViewWithLoader data={data} isLoading={isLoading} isFetching={isFetching} error={error}>
+                    {
+                        data && 
+                            <div className='flex flex-row gap-4 items-center'>
+                                <Button
+                                    type='create'
+                                    disabled={new Date(data[0].data.extents.temporal.min).getTime() === +start}
+                                    onClick={() => {
+                                        if (data.length > 0) {
+                                            setDirection('previous')
+                                            if(data[0] !== undefined){
+                                                setCurrentDate(makeUTCDate(data[0].data.extents.temporal.min))
+                                            }
+                                        }
+                                    }}
+                                >Previous</Button>
+                                <p>{data[0]?.data.extents.temporal.min ?? 'NAN'}</p>
+                                <Button
+                                    type='create'
+                                    disabled={new Date(data[0].data.extents.temporal.min).getTime() === +end}
+                                    onClick={() => {
+                                        if (data.length > 0) {
+                                            setDirection('next')
+                                            if(data[0] !== undefined){
+                                                setCurrentDate(makeUTCDate(data[0].data.extents.temporal.min))
+                                            }
 
-                            }
-                        }}
-                    >Next</Button>
+                                        }
+                                    }}
+                                >Next</Button>
 
+                            </div>
+                    }
+                </ViewWithLoader>
                 </div>
             }
-        </ViewWithLoader>
+        </>
     )
 
 

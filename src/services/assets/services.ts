@@ -170,12 +170,13 @@ export async function fetchPreviousTimeseriesAssetMedia({
     count?: number
 }): Promise<IWebCOOSElement[]> {
 
+    const paddedBefore = new Date(makeUTCDate(before).getTime() - 1000).toISOString();
     const url = assetPreviousElementEndpoint({
         apiUrl,
         apiVersion,
         serviceIdentifier,
         count,
-        before
+        before: paddedBefore
     })
 
     const response = await fetch(url.toString(), {
@@ -212,12 +213,14 @@ export async function fetchNextTimeseriesAssetMedia({
     count?: number
 }): Promise<IWebCOOSElement[]> {
 
+    const paddedAfter = new Date(makeUTCDate(after).getTime() + 1000).toISOString();
+
     const url = assetNextElementEndpoint({
         apiUrl,
         apiVersion,
         serviceIdentifier,
         count,
-        after
+        after: paddedAfter
     })
 
     const response = await fetch(url.toString(), {
@@ -286,6 +289,44 @@ export async function fetchNearestTimeseriesAssetMedia({
     } else {
         throw new Error('No media elements found for the given date');
     }
+}
+
+export async function fetchFirstAssetMedia({
+    apiUrl,
+    apiVersion,
+    token,
+    signal,
+    serviceIdentifier,
+}: {
+    apiUrl: string,
+    apiVersion: string,
+    token: string,
+    signal?: AbortSignal,
+    serviceIdentifier: string
+
+}): Promise<IWebCOOSElement> {
+
+    const url = assetTimeSeriesEndpoint({
+        apiUrl,
+        apiVersion,
+        serviceIdentifier
+    })
+
+    const response = await fetch(url.toString(), {
+        headers: {
+            Authorization: `Token ${token}`,
+            Accept: 'application/json',
+        },
+        signal
+    });
+
+    if (!response.ok) {
+        throw new ResponseNotOkError(`API response (${url}) not ok: ${response.toString()}`);
+    }
+
+    const r = await response.json();
+    return r.results[0] as IWebCOOSElement;
+    
 }
 
 

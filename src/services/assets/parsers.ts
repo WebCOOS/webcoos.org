@@ -433,7 +433,7 @@ export const makeUTCDate = (dateInput?: Date | string | number): Date => {
         return new Date();
     }
     const dateInputUpdated = typeof dateInput === 'string'
-        ? dateInput.endsWith('Z')
+        ? dateInput.endsWith('Z') || dateInput.includes('+')
             ? dateInput
             : `${dateInput}Z`
         : dateInput;

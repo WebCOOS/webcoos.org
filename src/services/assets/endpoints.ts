@@ -56,8 +56,8 @@ export const assetTimeSeriesEndpoint = ({
     orderDir = 'asc'
 }: Omit<IWebCOOSApiRequestParams, 'token' | 'signal'> & {
     serviceIdentifier: string
-    start: Date | string | number
-    end: Date | string | number
+    start?: Date | string | number
+    end?: Date | string | number
     page?: number
     count?: number
     orderBy?: string
@@ -65,8 +65,12 @@ export const assetTimeSeriesEndpoint = ({
 }): string => {
     const url = new URL(`${apiUrl}/${apiVersion}/elements`)
     url.searchParams.set('service', serviceIdentifier);
-    url.searchParams.set('starting_after', start instanceof Date ? start.toISOString() : makeUTCDate(start).toISOString());
-    url.searchParams.set('starting_before', end instanceof Date ? end.toISOString() : makeUTCDate(end).toISOString());
+    if(start !== undefined){
+        url.searchParams.set('starting_after', start instanceof Date ? start.toISOString() : makeUTCDate(start).toISOString());
+    }
+    if(end !== undefined){
+        url.searchParams.set('starting_before', end instanceof Date ? end.toISOString() : makeUTCDate(end).toISOString());
+    }
     url.searchParams.set('page', page.toString());
     url.searchParams.set('page_size', count.toString());
     url.searchParams.set('ordering', `${orderDir === 'asc' ? '-' : ''}${orderBy}`);
@@ -79,23 +83,19 @@ export const assetNextElementEndpoint = ({
     serviceIdentifier,
     after,
     page = 1,
-    count = 1,
-    orderBy = 'starting',
-    orderDir = 'asc'
-}: Omit<IWebCOOSApiRequestParams, 'token' | 'signal'> & {
+    count = 1
+}: Omit<IWebCOOSApiRequestParams, 'token' | 'signal' | 'order' | 'orderBy'> & {
     serviceIdentifier: string
     after: Date | string | number
     page?: number
     count?: number
-    orderBy?: string
-    orderDir?: 'asc' | 'desc'
 }): string => {
     const url = new URL(`${apiUrl}/${apiVersion}/elements`)
     url.searchParams.set('service', serviceIdentifier);
     url.searchParams.set('starting_after', after instanceof Date ? after.toISOString() : makeUTCDate(after).toISOString());
     url.searchParams.set('page', page.toString());
     url.searchParams.set('page_size', count.toString());
-    url.searchParams.set('ordering', `${orderDir === 'asc' ? '-' : ''}${orderBy}`);
+    url.searchParams.set('ordering', 'starting');
     return url.toString();
 }
 
@@ -106,23 +106,19 @@ export const assetPreviousElementEndpoint = ({
     serviceIdentifier,
     before,
     page = 1,
-    count = 1,
-    orderBy = 'starting',
-    orderDir = 'desc'
-}: Omit<IWebCOOSApiRequestParams, 'token' | 'signal'> & {
+    count = 1
+}: Omit<IWebCOOSApiRequestParams, 'token' | 'signal' | 'order' |'orderBy'> & {
     serviceIdentifier: string
     before: Date | string | number
     page?: number
     count?: number
-    orderBy?: string
-    orderDir?: 'asc' | 'desc'
 }): string => {
     const url = new URL(`${apiUrl}/${apiVersion}/elements`)
     url.searchParams.set('service', serviceIdentifier);
     url.searchParams.set('starting_before', before instanceof Date ? before.toISOString() : makeUTCDate(before).toISOString());
     url.searchParams.set('page', page.toString());
     url.searchParams.set('page_size', count.toString());
-    url.searchParams.set('ordering', `${orderDir === 'asc' ? '-' : ''}${orderBy}`);
+    url.searchParams.set('ordering', '-starting');
     return url.toString();
 }
 

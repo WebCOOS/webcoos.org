@@ -1,4 +1,4 @@
-import { fetchPreviousTimeseriesAssetMedia, fetchNextTimeseriesAssetMedia, fetchNearestTimeseriesAssetMedia } from "@/services/assets/services"
+import { fetchPreviousTimeseriesAssetMedia, fetchNextTimeseriesAssetMedia, fetchNearestTimeseriesAssetMedia, fetchFirstAssetMedia, fetchLatestServiceMedia } from "@/services/assets/services"
 import type { IWebCOOSElement } from "@/services/assets/types"
 import { type UseQueryResult, useQuery } from "@tanstack/react-query"
 
@@ -8,7 +8,7 @@ export type WebCOOSBrowseMediaProps = {
     apiVersion: string
     serviceIdentifier: string
     date: Date | string | number
-    direction?: 'next' | 'previous' | 'nearest'
+    direction?: 'next' | 'previous' | 'nearest' | 'first' | 'last'
     count?: number
     enabled?: boolean
 }
@@ -18,6 +18,7 @@ export const useTimeSeriesAssetBrowse = ({ serviceIdentifier, count = 1, enabled
         queryKey: ['browse', serviceIdentifier, date, direction, enabled],
         enabled,
         queryFn: async ({ signal }): Promise<IWebCOOSElement[] | null> => {
+            console.log(`getting ${direction} from ${date}`)
             const elements = direction === 'previous'
                 ? await fetchPreviousTimeseriesAssetMedia({
                     ...props,
@@ -32,6 +33,18 @@ export const useTimeSeriesAssetBrowse = ({ serviceIdentifier, count = 1, enabled
                         serviceIdentifier,
                         after: date,
                     })
+                    : direction === 'first'
+                        ? await fetchFirstAssetMedia({
+                            ...props,
+                            signal,
+                            serviceIdentifier
+                        })
+                        : direction === 'last'
+                            ? await fetchLatestServiceMedia({
+                                ...props,
+                                signal,
+                                serviceIdentifier
+                            })
                     : await fetchNearestTimeseriesAssetMedia({
                         ...props,
                         signal,
