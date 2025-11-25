@@ -18,7 +18,7 @@ const MapDataLoader = ({
     const apiContext = useAPIContext()
 
     const { data, isLoading, isFetching, error } = useQuery<IWebCOOSCameraPageFiltered>({
-        queryKey: ['webcoos', 'assets', 'summary', 'unfiltered', 'unsorted', props.selectedItemSlug ?? 'no-item'],
+        queryKey: ['webcoos', 'assets', 'summary', 'unfiltered', 'unsorted'],
         queryFn: async ({signal}) => {
             const results = await fetchWebCOOSCameraPageFiltered({
                 apiUrl: apiContext.apiUrl,

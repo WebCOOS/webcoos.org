@@ -1,5 +1,6 @@
 import type { IPostgrestParams, IWebCOOSApiRequestParams, IWebCOOSAssetElementView, IWebCOOSAssetSummaryView, IWebCOOSElement, IWebCOOSElementInventory, IWebCOOSRawAsset } from "@/services/assets/types";
-import { assetTimeSeriesEndpoint, latestAssetMediaEndpoint, latestServiceMediaEndpoint, postgrestEndpoint } from "./endpoints";
+import { assetNextElementEndpoint, assetPreviousElementEndpoint, assetTimeSeriesEndpoint, latestAssetMediaEndpoint, latestServiceMediaEndpoint, postgrestEndpoint } from "./endpoints";
+import { makeUTCDate } from "@/services/assets/parsers";
 
 
 
@@ -47,17 +48,17 @@ export async function fetchAPIAsset({
     ],
         url = parts.join('/');
 
-     const cameraMetadataResponse = await fetch(url, {
-         headers: {
-             Authorization: `Token ${token}`,
-             Accept: 'application/json',
-         },
-         signal
-     });
+    const cameraMetadataResponse = await fetch(url, {
+        headers: {
+            Authorization: `Token ${token}`,
+            Accept: 'application/json',
+        },
+        signal
+    });
 
-     if (!cameraMetadataResponse.ok) {
+    if (!cameraMetadataResponse.ok) {
         throw new ResponseNotOkError(`API response (${url}) not ok: ${cameraMetadataResponse.toString()}`);
-     }
+    }
 
     const r = await cameraMetadataResponse.json();
     return r as IWebCOOSRawAsset;
@@ -91,19 +92,19 @@ export async function fetchAPIAssets({
     ],
         url = parts.join('/');
 
-     const cameraMetadataResponse = await fetch(url, {
-         headers: {
-             Authorization: `Token ${token}`,
-             Accept: 'application/json',
-         },
-         signal
-     });
+    const cameraMetadataResponse = await fetch(url, {
+        headers: {
+            Authorization: `Token ${token}`,
+            Accept: 'application/json',
+        },
+        signal
+    });
 
-     if (!cameraMetadataResponse.ok) {
+    if (!cameraMetadataResponse.ok) {
         throw new ResponseNotOkError(`API response (${url}) not ok: ${cameraMetadataResponse.toString()}`);
-     }
+    }
 
-     const r = await cameraMetadataResponse.json();
+    const r = await cameraMetadataResponse.json();
     return r.results as IWebCOOSRawAsset[];
 }
 
@@ -151,72 +152,211 @@ export async function fetchTimeseriesAssetMedia({
 }
 
 
-export async function fetchLatestAssetMedia({
+export async function fetchPreviousTimeseriesAssetMedia({
+    apiUrl,
+    apiVersion,
+    token,
+    signal,
+    serviceIdentifier,
+    before,
+    count
+}: {
+    apiUrl: string,
+    apiVersion: string,
+    token: string,
+    signal?: AbortSignal,
+    serviceIdentifier: string,
+    before: Date | string | number,
+    count?: number
+}): Promise<IWebCOOSElement[]> {
+
+    const url = assetPreviousElementEndpoint({
+        apiUrl,
+        apiVersion,
+        serviceIdentifier,
+        count,
+        before
+    })
+
+    const response = await fetch(url.toString(), {
+        headers: {
+            Authorization: `Token ${token}`,
+            Accept: 'application/json',
+        },
+        signal
+    });
+
+    if (!response.ok) {
+        throw new ResponseNotOkError(`API response (${url}) not ok: ${response.toString()}`);
+    }
+
+    const r = await response.json();
+    return r.results as IWebCOOSElement[];
+}
+
+export async function fetchNextTimeseriesAssetMedia({
+    apiUrl,
+    apiVersion,
+    token,
+    signal,
+    serviceIdentifier,
+    after,
+    count
+}: {
+    apiUrl: string,
+    apiVersion: string,
+    token: string,
+    signal?: AbortSignal,
+    serviceIdentifier: string,
+    after: Date | string | number,
+    count?: number
+}): Promise<IWebCOOSElement[]> {
+
+    const url = assetNextElementEndpoint({
+        apiUrl,
+        apiVersion,
+        serviceIdentifier,
+        count,
+        after
+    })
+
+    const response = await fetch(url.toString(), {
+        headers: {
+            Authorization: `Token ${token}`,
+            Accept: 'application/json',
+        },
+        signal
+    });
+
+    if (!response.ok) {
+        throw new ResponseNotOkError(`API response (${url}) not ok: ${response.toString()}`);
+    }
+
+    const r = await response.json();
+    return r.results as IWebCOOSElement[];
+}
+
+
+export async function fetchNearestTimeseriesAssetMedia({
+    apiUrl,
+    apiVersion,
+    token,
+    signal,
+    serviceIdentifier,
+    date
+}: {
+    apiUrl: string,
+    apiVersion: string,
+    token: string,
+    signal?: AbortSignal,
+    serviceIdentifier: string,
+    date: Date | string | number
+}): Promise<IWebCOOSElement> {
+
+    const prev = await fetchPreviousTimeseriesAssetMedia({
         apiUrl,
         apiVersion,
         token,
         signal,
+        serviceIdentifier,
+        before: date,
+        count: 1
+    });
+    const next = await fetchNextTimeseriesAssetMedia({
+        apiUrl,
+        apiVersion,
+        token,
+        signal,
+        serviceIdentifier,
+        after: date,
+        count: 1
+    });
+
+    const dateOb = makeUTCDate(date);
+    if (prev.length && prev[0].data.extents.temporal.min && next.length && next[0].data.extents.temporal.min) {
+        const prevDate = makeUTCDate(prev[0].data.extents.temporal.min)
+        const prevDiff = Math.abs(+prevDate - dateOb.getTime());
+        const nextDate = makeUTCDate(next[0].data.extents.temporal.min)
+        const nextDiff = Math.abs(+nextDate - dateOb.getTime());
+        return prevDiff <= nextDiff ? prev[0] : next[0];
+    } else if (prev.length) {
+        return prev[0];
+    } else if (next.length) {
+        return next[0];
+    } else {
+        throw new Error('No media elements found for the given date');
+    }
+}
+
+
+
+
+export async function fetchLatestAssetMedia({
+    apiUrl,
+    apiVersion,
+    token,
+    signal,
+    assetIdentifier,
+    type
+}: IWebCOOSApiRequestParams & {
+    assetIdentifier: string
+    type?: 'image' | 'video'
+}): Promise<IWebCOOSElement> {
+
+    const url = latestAssetMediaEndpoint({
+        apiUrl,
+        apiVersion,
         assetIdentifier,
         type
-    }: IWebCOOSApiRequestParams & {
-        assetIdentifier: string
-        type?: 'image' | 'video'
-    }): Promise<IWebCOOSElement> {
+    });
 
-        const url = latestAssetMediaEndpoint({
-            apiUrl,
-            apiVersion,
-            assetIdentifier,
-            type
-        });
-
-        const response = await fetch(url, {
-            headers: {
-                Authorization: `Token ${token}`,
-                Accept: 'application/json',
-            },
-            signal
-        });
-        if (!response.ok) {
-            throw new ResponseNotOkError(`API response (${url}) not ok: ${response.toString()}`);
-        }
-        const r = await response.json();
-        return r as IWebCOOSElement;
-
+    const response = await fetch(url, {
+        headers: {
+            Authorization: `Token ${token}`,
+            Accept: 'application/json',
+        },
+        signal
+    });
+    if (!response.ok) {
+        throw new ResponseNotOkError(`API response (${url}) not ok: ${response.toString()}`);
     }
+    const r = await response.json();
+    return r as IWebCOOSElement;
+
+}
 
 export async function fetchLatestServiceMedia({
+    apiUrl,
+    apiVersion,
+    token,
+    signal,
+    serviceIdentifier
+}: IWebCOOSApiRequestParams & {
+    serviceIdentifier: string
+}): Promise<IWebCOOSElement> {
+
+    const url = latestServiceMediaEndpoint({
         apiUrl,
         apiVersion,
-        token,
-        signal,
         serviceIdentifier
-    }: IWebCOOSApiRequestParams & {
-        serviceIdentifier: string
-    }): Promise<IWebCOOSElement> {
+    });
 
-        const url = latestServiceMediaEndpoint({
-            apiUrl,
-            apiVersion,
-            serviceIdentifier
-        });
-
-        const response = await fetch(url, {
-            headers: {
-                Authorization: `Token ${token}`,
-                Accept: 'application/json',
-            },
-            signal
-        });
-        if (!response.ok) {
-            if (response.status === 404) {
-                throw new ResponseNotOkError(`API response (${url}) not ok: ${response.toString()}`);
-            }
+    const response = await fetch(url, {
+        headers: {
+            Authorization: `Token ${token}`,
+            Accept: 'application/json',
+        },
+        signal
+    });
+    if (!response.ok) {
+        if (response.status === 404) {
+            throw new ResponseNotOkError(`API response (${url}) not ok: ${response.toString()}`);
         }
-        const r = await response.json();
-        return r as IWebCOOSElement;
-
     }
+    const r = await response.json();
+    return r as IWebCOOSElement;
+
+}
 
 
 export async function fetchFromWebCOOSPostgrest<T>(
@@ -272,7 +412,7 @@ export async function fetchWebCOOSElementInventory({
     params: IPostgrestParams<IWebCOOSElementInventory>
 }): Promise<IWebCOOSElementInventory[]> {
 
-    const results =  await fetchFromWebCOOSPostgrest<IWebCOOSElementInventory>({
+    const results = await fetchFromWebCOOSPostgrest<IWebCOOSElementInventory>({
         apiUrl,
         apiVersion,
         source,
@@ -297,7 +437,7 @@ export async function fetchWebCOOSAssetElementView({
     params: IPostgrestParams<IWebCOOSAssetElementView>
 }): Promise<IWebCOOSAssetElementView[]> {
 
-    const results =  await fetchFromWebCOOSPostgrest<IWebCOOSAssetElementView>({
+    const results = await fetchFromWebCOOSPostgrest<IWebCOOSAssetElementView>({
         apiUrl,
         apiVersion,
         source,
@@ -327,7 +467,7 @@ export async function fetchWebCOOSAssetSummaryView({
 }): Promise<IWebCOOSAssetSummaryView[]> {
 
 
-    const results =  await fetchFromWebCOOSPostgrest<IWebCOOSAssetSummaryView>({
+    const results = await fetchFromWebCOOSPostgrest<IWebCOOSAssetSummaryView>({
         apiUrl,
         apiVersion,
         source,
@@ -342,7 +482,7 @@ export async function fetchWebCOOSAssetSummaryView({
 }
 
 
-type ISelectItem = {label: string, value: string, count?: number}
+type ISelectItem = { label: string, value: string, count?: number }
 export type IWebCOOSCameraPageFiltered = {
     assets: IWebCOOSAssetSummaryView[],
     regions: Array<ISelectItem>,
@@ -366,34 +506,34 @@ export async function fetchWebCOOSSelectItems({
     valueColumn: string
     labelColumn?: string
 
-}): Promise<ISelectItem[]>{
+}): Promise<ISelectItem[]> {
 
-        const filters = params.filters?.filter(f => f.column !== valueColumn && f.column !== labelColumn) ?? [];
-        filters.push({
-            column: valueColumn,
-            operator: 'is',
-            value: 'not_null'
-        })
+    const filters = params.filters?.filter(f => f.column !== valueColumn && f.column !== labelColumn) ?? [];
+    filters.push({
+        column: valueColumn,
+        operator: 'is',
+        value: 'not_null'
+    })
 
-        const results =  await fetchFromWebCOOSPostgrest<ISelectItem>({
-            apiUrl,
-            apiVersion,
-            source,
-            token,
-            signal,
-            params: {
-                ...params,
-                filters,
-                select: [
-                    { column: valueColumn, fn: 'count', as: 'count' },
-                    { column: labelColumn ?? valueColumn, as: 'label' },
-                    { column: valueColumn, as: 'value' }
-                ],
-                table: params.table,
-                order: [{ column: labelColumn ?? valueColumn, dir: 'asc' }]
-            }
-        });
-        return results
+    const results = await fetchFromWebCOOSPostgrest<ISelectItem>({
+        apiUrl,
+        apiVersion,
+        source,
+        token,
+        signal,
+        params: {
+            ...params,
+            filters,
+            select: [
+                { column: valueColumn, fn: 'count', as: 'count' },
+                { column: labelColumn ?? valueColumn, as: 'label' },
+                { column: valueColumn, as: 'value' }
+            ],
+            table: params.table,
+            order: [{ column: labelColumn ?? valueColumn, dir: 'asc' }]
+        }
+    });
+    return results
 
 
 }
@@ -411,7 +551,7 @@ export async function fetchWebCOOSCameraSummary<T = IWebCOOSAssetSummaryView>({
     slug: string
 }): Promise<T> {
 
-    const result =  await fetchFromWebCOOSPostgrest<T>({
+    const result = await fetchFromWebCOOSPostgrest<T>({
         apiUrl,
         apiVersion,
         source,
@@ -450,7 +590,7 @@ export async function fetchWebCOOSCameraPageFiltered({
         states: [],
         products: [],
         dispositions: [],
-        statuses: [] 
+        statuses: []
     }
 
     const props = {
@@ -462,32 +602,32 @@ export async function fetchWebCOOSCameraPageFiltered({
     }
 
     params = params ?? {};
-    params.select = params.select ??  [
-                    'asset_label',
-                    'asset_region',
-                    'asset_location',
-                    'asset_state_or_territory',
-                    'asset_slug',
-                    'asset_service_slugs',
-                    'asset_disposition_slug',
-                    'asset_disposition_label',
-                    'asset_operational_status_slug',
-                    'asset_operational_status_label',
-                    'asset_first_starting',
-                    'asset_last_ending',
-                    {
-                        column: 'asset_data->properties->wedge',
-                        as: 'asset_wedge'
-                    },
-                    {
-                        column: 'asset_data->properties->thumbnails->base',
-                        as: 'asset_thumbnails'
-                    }
-                  ]
+    params.select = params.select ?? [
+        'asset_label',
+        'asset_region',
+        'asset_location',
+        'asset_state_or_territory',
+        'asset_slug',
+        'asset_service_slugs',
+        'asset_disposition_slug',
+        'asset_disposition_label',
+        'asset_operational_status_slug',
+        'asset_operational_status_label',
+        'asset_first_starting',
+        'asset_last_ending',
+        {
+            column: 'asset_data->properties->wedge',
+            as: 'asset_wedge'
+        },
+        {
+            column: 'asset_data->properties->thumbnails->base',
+            as: 'asset_thumbnails'
+        }
+    ]
 
     await Promise.all([
         (async () => {
-            const results =  await fetchFromWebCOOSPostgrest<IWebCOOSAssetSummaryView>({
+            const results = await fetchFromWebCOOSPostgrest<IWebCOOSAssetSummaryView>({
                 ...props,
                 params: {
                     ...params,
@@ -497,7 +637,7 @@ export async function fetchWebCOOSCameraPageFiltered({
             out.assets = results;
         })(),
         (async () => {
-            const results =  await fetchWebCOOSSelectItems({
+            const results = await fetchWebCOOSSelectItems({
                 ...props,
                 valueColumn: 'asset_region',
                 params: {
@@ -509,7 +649,7 @@ export async function fetchWebCOOSCameraPageFiltered({
             out.regions = results;
         })(),
         (async () => {
-            const results =  await fetchWebCOOSSelectItems({
+            const results = await fetchWebCOOSSelectItems({
                 ...props,
                 valueColumn: 'asset_state_or_territory',
                 params: {
@@ -533,7 +673,7 @@ export async function fetchWebCOOSCameraPageFiltered({
             out.dispositions = results;
         })(),
         (async () => {
-            const results =  await fetchWebCOOSSelectItems({
+            const results = await fetchWebCOOSSelectItems({
                 ...props,
                 valueColumn: 'asset_operational_status_slug',
                 params: {
@@ -545,7 +685,7 @@ export async function fetchWebCOOSCameraPageFiltered({
             out.statuses = results;
         })(),
         (async () => {
-            const results =  await fetchFromWebCOOSPostgrest<{
+            const results = await fetchFromWebCOOSPostgrest<{
                 asset_service_slugs: string[]
             }>({
                 apiUrl,
@@ -556,7 +696,7 @@ export async function fetchWebCOOSCameraPageFiltered({
                 params: {
                     ...params,
                     select: [
-                        { column: 'asset_service_slugs'},
+                        { column: 'asset_service_slugs' },
                         { column: 'asset_service_slugs', as: 'label' },
                         { column: 'asset_service_slugs', as: 'value' }
                     ],
@@ -566,17 +706,17 @@ export async function fetchWebCOOSCameraPageFiltered({
             const products = results
                 .map(r => r.asset_service_slugs)
                 .flat()
-                .map(slug=> {
+                .map(slug => {
                     if (slug.includes('rip') || slug.includes('current')) return 'rips';
-                        if (slug.includes('shoreline') || slug.includes('shore')) return 'shoreline';
-                        if (slug.includes('beach') || slug.includes('usage') || slug.includes('object')) return 'beach';
-                        if (slug.includes('flood') || slug.includes('water')) return 'flood';
-                        return null;
+                    if (slug.includes('shoreline') || slug.includes('shore')) return 'shoreline';
+                    if (slug.includes('beach') || slug.includes('usage') || slug.includes('object')) return 'beach';
+                    if (slug.includes('flood') || slug.includes('water')) return 'flood';
+                    return null;
                 })
-                .filter(d=> d !== null)
+                .filter(d => d !== null)
 
-            const uniqueProducts = Object.keys(Object.fromEntries(products.map(p => [p,p]))).map(p=>p!);
-            out.products = uniqueProducts.map(p => ({label: p, value: p}))
+            const uniqueProducts = Object.keys(Object.fromEntries(products.map(p => [p, p]))).map(p => p!);
+            out.products = uniqueProducts.map(p => ({ label: p, value: p }))
         })()
     ])
 

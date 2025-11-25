@@ -1,6 +1,7 @@
+import { makeUTCDate } from "@/services/assets/parsers";
 import type { IPostgrestParams, IWebCOOSApiRequestParams } from "./types";
 
-export const postgrestEndpoint = <T, >({
+export const postgrestEndpoint = <T,>({
     apiUrl = import.meta.env.VITE_WEBCOOS_API_URL,
     apiVersion = 'v1',
     source = 'webcoos',
@@ -42,6 +43,7 @@ export const latestAssetMediaEndpoint = ({
     return url.toString();
 }
 
+
 export const assetTimeSeriesEndpoint = ({
     apiUrl = import.meta.env.VITE_WEBCOOS_API_URL,
     apiVersion = 'v1',
@@ -49,7 +51,7 @@ export const assetTimeSeriesEndpoint = ({
     start,
     end,
     page = 1,
-    pageSize = 5000,
+    count = 5000,
     orderBy = 'starting',
     orderDir = 'asc'
 }: Omit<IWebCOOSApiRequestParams, 'token' | 'signal'> & {
@@ -57,19 +59,74 @@ export const assetTimeSeriesEndpoint = ({
     start: Date | string | number
     end: Date | string | number
     page?: number
-    pageSize?: number
+    count?: number
     orderBy?: string
     orderDir?: 'asc' | 'desc'
 }): string => {
     const url = new URL(`${apiUrl}/${apiVersion}/elements`)
     url.searchParams.set('service', serviceIdentifier);
-    url.searchParams.set('starting_after', start instanceof Date ? start.toISOString() : new Date(start).toISOString());
-    url.searchParams.set('starting_before', end instanceof Date ? end.toISOString() : new Date(end).toISOString());
+    url.searchParams.set('starting_after', start instanceof Date ? start.toISOString() : makeUTCDate(start).toISOString());
+    url.searchParams.set('starting_before', end instanceof Date ? end.toISOString() : makeUTCDate(end).toISOString());
     url.searchParams.set('page', page.toString());
-    url.searchParams.set('page_size', pageSize.toString());
+    url.searchParams.set('page_size', count.toString());
     url.searchParams.set('ordering', `${orderDir === 'asc' ? '-' : ''}${orderBy}`);
     return url.toString();
 }
+
+export const assetNextElementEndpoint = ({
+    apiUrl = import.meta.env.VITE_WEBCOOS_API_URL,
+    apiVersion = 'v1',
+    serviceIdentifier,
+    after,
+    page = 1,
+    count = 1,
+    orderBy = 'starting',
+    orderDir = 'asc'
+}: Omit<IWebCOOSApiRequestParams, 'token' | 'signal'> & {
+    serviceIdentifier: string
+    after: Date | string | number
+    page?: number
+    count?: number
+    orderBy?: string
+    orderDir?: 'asc' | 'desc'
+}): string => {
+    const url = new URL(`${apiUrl}/${apiVersion}/elements`)
+    url.searchParams.set('service', serviceIdentifier);
+    url.searchParams.set('starting_after', after instanceof Date ? after.toISOString() : makeUTCDate(after).toISOString());
+    url.searchParams.set('page', page.toString());
+    url.searchParams.set('page_size', count.toString());
+    url.searchParams.set('ordering', `${orderDir === 'asc' ? '-' : ''}${orderBy}`);
+    return url.toString();
+}
+
+
+export const assetPreviousElementEndpoint = ({
+    apiUrl = import.meta.env.VITE_WEBCOOS_API_URL,
+    apiVersion = 'v1',
+    serviceIdentifier,
+    before,
+    page = 1,
+    count = 1,
+    orderBy = 'starting',
+    orderDir = 'desc'
+}: Omit<IWebCOOSApiRequestParams, 'token' | 'signal'> & {
+    serviceIdentifier: string
+    before: Date | string | number
+    page?: number
+    count?: number
+    orderBy?: string
+    orderDir?: 'asc' | 'desc'
+}): string => {
+    const url = new URL(`${apiUrl}/${apiVersion}/elements`)
+    url.searchParams.set('service', serviceIdentifier);
+    url.searchParams.set('starting_before', before instanceof Date ? before.toISOString() : makeUTCDate(before).toISOString());
+    url.searchParams.set('page', page.toString());
+    url.searchParams.set('page_size', count.toString());
+    url.searchParams.set('ordering', `${orderDir === 'asc' ? '-' : ''}${orderBy}`);
+    return url.toString();
+}
+
+
 
 export const latestServiceMediaEndpoint = ({
     apiUrl = import.meta.env.VITE_WEBCOOS_API_URL,

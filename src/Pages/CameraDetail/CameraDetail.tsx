@@ -99,12 +99,12 @@ const CameraDetailView = ({
                                             item.asset_slug === detail.slug
                                             ? {
                                                 'point-radius':12,
-                                                'fill-opacity': .4,
-                                                opacity: .8
+                                                'fill-opacity': 1,
+                                                //opacity: .8
 
                                             } : {
-                                                'point-radius': 3,
-                                                opacity: .4
+                                                'point-radius': 6,
+                                                opacity: 1
 
                                             }
                                         )

@@ -1,4 +1,4 @@
-import { fetchLatestAssetMedia, fetchTimeseriesAssetMedia } from "@/services/assets/services"
+import { fetchNearestTimeseriesAssetMedia, fetchNextTimeseriesAssetMedia, fetchPreviousTimeseriesAssetMedia, fetchTimeseriesAssetMedia } from "@/services/assets/services"
 import type { IWebCOOSElement } from "@/services/assets/types"
 import { useQuery, type UseQueryResult } from "@tanstack/react-query"
 
@@ -8,17 +8,17 @@ export type WebCOOSAssetProps = {
     asset: string
 }
 
-function roundDateToNearest5Minutes(date:Date): Date {
-  const fiveMinutesInMilliseconds = 5 * 60 * 1000; // 5 minutes * 60 seconds/minute * 1000 milliseconds/second
+function roundDateToNearest5Minutes(date: Date): Date {
+    const fiveMinutesInMilliseconds = 5 * 60 * 1000; // 5 minutes * 60 seconds/minute * 1000 milliseconds/second
 
-  // Get the current date's time in milliseconds
-  const timeInMilliseconds = date.getTime();
+    // Get the current date's time in milliseconds
+    const timeInMilliseconds = date.getTime();
 
-  // Round the time to the nearest multiple of fiveMinutesInMilliseconds
-  const roundedTime = Math.round(timeInMilliseconds / fiveMinutesInMilliseconds) * fiveMinutesInMilliseconds;
+    // Round the time to the nearest multiple of fiveMinutesInMilliseconds
+    const roundedTime = Math.round(timeInMilliseconds / fiveMinutesInMilliseconds) * fiveMinutesInMilliseconds;
 
-  // Create a new Date object with the rounded time
-  return new Date(roundedTime);
+    // Create a new Date object with the rounded time
+    return new Date(roundedTime);
 }
 
 
@@ -32,7 +32,7 @@ export type WebCOOSLatestMediaProps = {
     enabled?: boolean
 }
 
-export const useTimeSeriesAssetMedia = ({serviceIdentifier, enabled=true, start, end, ...props}: WebCOOSLatestMediaProps): UseQueryResult<IWebCOOSElement[] | null> => {
+export const useTimeSeriesAssetMedia = ({ serviceIdentifier, enabled = true, start, end, ...props }: WebCOOSLatestMediaProps): UseQueryResult<IWebCOOSElement[] | null> => {
     const queryResult = useQuery({
         queryKey: ['timeseries', serviceIdentifier, start, end, enabled],
         enabled,
@@ -45,9 +45,11 @@ export const useTimeSeriesAssetMedia = ({serviceIdentifier, enabled=true, start,
                 end
             })
             return elements
-            
+
         }
     })
 
     return queryResult
 }
+
+

@@ -237,7 +237,8 @@ const LoadedMap = ({
                 type: "Feature",
                 properties: {
                     ...stylePointFn(d, defaultProps),
-                    ...d
+                    ...d,
+                    id: d.asset_slug
                 },
                 geometry: {
                     type: "Point",
@@ -266,7 +267,8 @@ const LoadedMap = ({
                 type: 'Feature',
                 properties: {
                     ...styleWedgeFn(d, defaultProps),
-                    ...d
+                    ...d,
+                    id: `wedge-${d.asset_slug}`
                 },
                 geometry: d.asset_wedge as GeoJSON.Polygon
             }
@@ -297,7 +299,8 @@ const LoadedMap = ({
                 id: 'assets',
                 type: 'geoJson',
                 options: {
-                    geoJson
+                    geoJson,
+                    locationIdProperty: 'id'
                 },
                 label: '',
                 zIndex: 10,
@@ -327,11 +330,31 @@ const LoadedMap = ({
                 id: 'wedges',
                 type: 'geoJson',
                 options: {
-                    geoJson: polygonGeoJson
+                    geoJson: polygonGeoJson,
+                    locationIdProperty: 'id'
                 },
                 label: '',
                 zIndex: 0,
-                isBaseLayer: false
+                isBaseLayer: false,
+                onMouseOver: (e: ILayerQueryEvent) => {
+                    if (e?.data?.feature?.properties !== undefined) {
+                        setHoverItem(e)
+                    } else {
+                        console.log('out')
+                        setHoverItem(undefined)
+                    }
+                },
+                onMouseOut: () => {
+                    setHoverItem(undefined)
+                },
+                onSelect: function(e: ILayerQueryEvent){
+                    setSelectItem(e?.data?.feature?.properties as IWebCOOSMapAsset | undefined)
+                    if(onItemSelect) {
+                        onItemSelect(e?.data?.feature?.properties as IWebCOOSMapAsset | undefined)
+                    }
+
+                    
+                }
 
             }
         ]
@@ -375,7 +398,7 @@ const LoadedMap = ({
                     )
             }
         }
-    }, [data])
+    }, [data,selectedItemSlug])
     const props: {center?: ILatLon, zoom?: number} = {}
     if(center){
         props.center = center

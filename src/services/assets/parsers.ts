@@ -55,7 +55,7 @@ const state_abbrevs = [
     'WY',
 ];
 
-function getStateFromCameraLabel(label?:string): string | null {
+function getStateFromCameraLabel(label?: string): string | null {
     if (!label) {
         return null;
     }
@@ -68,28 +68,28 @@ function getStateFromCameraLabel(label?:string): string | null {
     return null;
 }
 
-function findStream( streams: IWebCOOSRawAssetServiceStream[], stream_protocol: string, match_preference_url_regex?: RegExp | string ): IWebCOOSRawAssetServiceStream | undefined {
+function findStream(streams: IWebCOOSRawAssetServiceStream[], stream_protocol: string, match_preference_url_regex?: RegExp | string): IWebCOOSRawAssetServiceStream | undefined {
 
-    if( !streams ) {
+    if (!streams) {
         return undefined;
     }
 
-    if( !stream_protocol ) {
+    if (!stream_protocol) {
         console.warn(
             "Need to provide stream_protocol in order to find stream (findStream)"
         );
         return undefined;
     }
 
-    if( typeof match_preference_url_regex === 'undefined' ) {
-        match_preference_url_regex = RegExp( "." );
+    if (typeof match_preference_url_regex === 'undefined') {
+        match_preference_url_regex = RegExp(".");
     }
 
-    if( typeof match_preference_url_regex === 'string' ) {
-        match_preference_url_regex = RegExp( match_preference_url_regex );
+    if (typeof match_preference_url_regex === 'string') {
+        match_preference_url_regex = RegExp(match_preference_url_regex);
     }
 
-    if( typeof match_preference_url_regex.exec !== 'function' ) {
+    if (typeof match_preference_url_regex.exec !== 'function') {
         console.warn(
             `Passed match_preference_url_regex value is not of type RegExp: ${typeof match_preference_url_regex}`
         );
@@ -99,11 +99,11 @@ function findStream( streams: IWebCOOSRawAssetServiceStream[], stream_protocol: 
     let found = streams.find(
         (stream) => (
             stream.protocol === stream_protocol &&
-            match_preference_url_regex.test( stream.url )
+            match_preference_url_regex.test(stream.url)
         )
     );
 
-    if( typeof found === 'undefined' ) {
+    if (typeof found === 'undefined') {
         // Fall back to original searching behavior without regex match against
         // URL
         found = streams.find(
@@ -119,11 +119,11 @@ function findStream( streams: IWebCOOSRawAssetServiceStream[], stream_protocol: 
 
 export const serviceToGalleryService = (
     {
-        label, 
-        uuid, 
-        slug, 
+        label,
+        uuid,
+        slug,
         type
-    }:{
+    }: {
         label: string,
         uuid: string,
         slug: string,
@@ -136,24 +136,24 @@ export const serviceToGalleryService = (
     sortOrder: number,
     svcType: 'img' | 'video'
 } => {
-    if(type.match(/streamingservice$/i)){
+    if (type.match(/streamingservice$/i)) {
         return false
     }
-    if(slug.indexOf('-results') === -1){
+    if (slug.indexOf('-results') === -1) {
         return false
     }
 
     let sortOrder = 0
     const isStillImageGallery = slug.indexOf('-stills') !== -1;
     const isAnnotatedImageGallery = slug.indexOf('annotated-image') !== -1;
-    const isImageIshGallery = (isStillImageGallery || isAnnotatedImageGallery );
-    if( isImageIshGallery ) {
+    const isImageIshGallery = (isStillImageGallery || isAnnotatedImageGallery);
+    if (isImageIshGallery) {
 
-    if( isStillImageGallery ) {
-        sortOrder = 1;
-    } else if ( isAnnotatedImageGallery ) {
-        sortOrder = 2;
-    }
+        if (isStillImageGallery) {
+            sortOrder = 1;
+        } else if (isAnnotatedImageGallery) {
+            sortOrder = 2;
+        }
 
     } else {
         sortOrder = 3;
@@ -180,7 +180,7 @@ const isStillImageService = (service: IWebCOOSParsedAssetService): boolean => {
  * Parses a WebCOOS asset single entry from the API into something multiple
  * components can use.
  */
-export function parseWebCOOSAsset(item: IWebCOOSRawAsset, statusNow=undefined): IWebCOOSParsedAsset {
+export function parseWebCOOSAsset(item: IWebCOOSRawAsset, statusNow = undefined): IWebCOOSParsedAsset {
     /* This feels so hacky, the API should have an endpoint
         that returns all streaming URLs for a camera... and
         a much more simplified return object.
@@ -190,9 +190,9 @@ export function parseWebCOOSAsset(item: IWebCOOSRawAsset, statusNow=undefined): 
     const streamingService = services.find((service) => service.data.type === 'StreamingService');
     const streams = streamingService?.data.properties.connections || [];
 
-    const dashStream = findStream( streams, 'dash', /.*axds.co.*/ );
-    const hlsStream = findStream( streams, 'hls', /.*axds.co.*/ );
-    const embedStream = findStream( streams, 'embed', /.*axds.co.*/ );
+    const dashStream = findStream(streams, 'dash', /.*axds.co.*/);
+    const hlsStream = findStream(streams, 'hls', /.*axds.co.*/);
+    const embedStream = findStream(streams, 'embed', /.*axds.co.*/);
 
     const dashUrl = dashStream?.url;
     const hlsUrl = hlsStream?.url;
@@ -217,50 +217,50 @@ export function parseWebCOOSAsset(item: IWebCOOSRawAsset, statusNow=undefined): 
 
     const galleryServices = services
         ? services
-              .filter((service) => service.data.type !== 'StreamingService')
-              // Filtering out any 'results' services/products for now
-              .filter((service) => service.data.common.slug.indexOf('-results') === -1 )
-              .flatMap((service) => {
-                  // parse the frequency if it exists
-                  const freqType = service.data?.properties?.frequency?.type;
-                  const freqPeriod = service.data?.properties?.frequency?.value === 'periodic'
+            .filter((service) => service.data.type !== 'StreamingService')
+            // Filtering out any 'results' services/products for now
+            .filter((service) => service.data.common.slug.indexOf('-results') === -1)
+            .flatMap((service) => {
+                // parse the frequency if it exists
+                const freqType = service.data?.properties?.frequency?.type;
+                const freqPeriod = service.data?.properties?.frequency?.value === 'periodic'
                     ? duration.parse(service.data?.properties?.frequency?.value)
                     : service.data?.properties?.frequency?.value;
 
-                  let sortOrder = 0;
+                let sortOrder = 0;
 
-                  // a service of un-modified still images
-                  const isStillImageGallery = isStillImageService(service);
-                  // a service of modifified (annotated) still images
-                  const isAnnotatedImageGallery = service.data.common.slug.indexOf('annotated-image') !== -1;
+                // a service of un-modified still images
+                const isStillImageGallery = isStillImageService(service);
+                // a service of modifified (annotated) still images
+                const isAnnotatedImageGallery = service.data.common.slug.indexOf('annotated-image') !== -1;
 
-                  const isImageIshGallery = (isStillImageGallery || isAnnotatedImageGallery );
+                const isImageIshGallery = (isStillImageGallery || isAnnotatedImageGallery);
 
-                  if( isImageIshGallery ) {
+                if (isImageIshGallery) {
 
-                    if( isStillImageGallery ) {
+                    if (isStillImageGallery) {
                         sortOrder = 1;
-                    } else if ( isAnnotatedImageGallery ) {
+                    } else if (isAnnotatedImageGallery) {
                         sortOrder = 2;
                     }
 
-                  } else {
+                } else {
                     sortOrder = 3;
-                  }
+                }
 
-                  return {
-                      uuid: service.uuid,
-                      common: service.data.common,
-                      slug: service.data.common.slug,
-                      elements: service.elements,
-                      sortOrder: sortOrder,
-                      svcType: ( isImageIshGallery ? 'img' : 'video' ),
-                      frequency: {
-                          type: freqType,
-                          period: freqPeriod,
-                      },
-                  };
-              }).sort((a,b) => a.sortOrder - b.sortOrder)
+                return {
+                    uuid: service.uuid,
+                    common: service.data.common,
+                    slug: service.data.common.slug,
+                    elements: service.elements,
+                    sortOrder: sortOrder,
+                    svcType: (isImageIshGallery ? 'img' : 'video'),
+                    frequency: {
+                        type: freqType,
+                        period: freqPeriod,
+                    },
+                };
+            }).sort((a, b) => a.sortOrder - b.sortOrder)
         : [];
 
     const has_archived_video = galleryServices.some(s => s.svcType === 'video');
@@ -302,7 +302,7 @@ export function parseWebCOOSAsset(item: IWebCOOSRawAsset, statusNow=undefined): 
 
     // add a status description to the results
     const status = getStatus(
-        new Date(serviceDates[serviceDates.length - 1]),
+        makeUTCDate(serviceDates[serviceDates.length - 1]),
         statusNow,
         has_live_stream
     );
@@ -343,19 +343,19 @@ export function parseWebCOOSAsset(item: IWebCOOSRawAsset, statusNow=undefined): 
 }
 
 
-export 
-/**
- * Returns a status object for a given date.
- *
- * Status object contains a slug, bg color, fg color, border color, text description.
- * An 'age' field (in days) is added dynamically based on difference between `now` (or time of call)
- * and `mostRecentElement`.
- *
- * Status slugs are 'active', 'archive', 'live', or 'unknown'.
- *
- * You can specify a 'now', if not set, it will use the current timestamp at time of call.
- */
-function getStatus(mostRecentElement: Date, now: Date | undefined = undefined, hasLive = false) {
+export
+    /**
+     * Returns a status object for a given date.
+     *
+     * Status object contains a slug, bg color, fg color, border color, text description.
+     * An 'age' field (in days) is added dynamically based on difference between `now` (or time of call)
+     * and `mostRecentElement`.
+     *
+     * Status slugs are 'active', 'archive', 'live', or 'unknown'.
+     *
+     * You can specify a 'now', if not set, it will use the current timestamp at time of call.
+     */
+    function getStatus(mostRecentElement: Date, now: Date | undefined = undefined, hasLive = false) {
     const sobjs = {
         active: {
             slug: 'active',
@@ -425,4 +425,18 @@ function getStatus(mostRecentElement: Date, now: Date | undefined = undefined, h
         ...sobjs['active'],
         age: 0
     }
+}
+
+
+export const makeUTCDate = (dateInput?: Date | string | number): Date => {
+    if (typeof dateInput === 'undefined') {
+        return new Date();
+    }
+    const dateInputUpdated = typeof dateInput === 'string'
+        ? dateInput.endsWith('Z')
+            ? dateInput
+            : `${dateInput}Z`
+        : dateInput;
+    const date = new Date(dateInputUpdated);
+    return date;
 }
