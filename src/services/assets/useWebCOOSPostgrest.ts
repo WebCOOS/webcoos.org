@@ -1,4 +1,4 @@
-import { fetchFromWebCOOSPostgrest } from "@/services/assets/services"
+import { fetchFromWebCOOSPostgrest, fetchWebCOOSElementInventory } from "@/services/assets/services"
 import type { IPostgrestParams, IWebCOOSApiRequestParams, IWebCOOSAssetElementView, IWebCOOSAssetSummaryView, IWebCOOSElementInventory } from "@/services/assets/types"
 import { useQuery, type UseQueryResult } from "@tanstack/react-query"
 
@@ -21,17 +21,30 @@ export const useWebCOOSPostgrest = <T,>(props: IWebCOOSApiRequestParams & {
 }
 
 
-export const useWebCOOSElementInventory = (props: IWebCOOSApiRequestParams & {
+export const useWebCOOSElementInventory = ({ grouping, ...props }: IWebCOOSApiRequestParams & {
     params?: Omit<IPostgrestParams<IWebCOOSElementInventory>, 'table'>
+    grouping: 'day' | 'hour' | 'month' | 'week'
 }): UseQueryResult<IWebCOOSElementInventory[]> => {
-    return useWebCOOSPostgrest<IWebCOOSElementInventory>({
-        ...props,
-        params: {
-            ...props.params,
-            table: 'webcoos_elementinventory'
+
+    const queryResult = useQuery({
+        queryKey: [JSON.stringify(props)],
+        queryFn: async ({ signal }): Promise<IWebCOOSElementInventory[]> => {
+            const inventory = await fetchWebCOOSElementInventory({
+                ...props,
+                signal,
+                params: {
+                    ...props.params
+                },
+                grouping
+            })
+            return inventory
+
         }
+
     })
+    return queryResult
 }
+
 
 
 export const useWEBCOOSAssetElementView = (props: IWebCOOSApiRequestParams & {

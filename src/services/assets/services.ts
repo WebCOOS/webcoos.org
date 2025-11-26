@@ -309,7 +309,11 @@ export async function fetchFirstAssetMedia({
     const url = assetTimeSeriesEndpoint({
         apiUrl,
         apiVersion,
-        serviceIdentifier
+        serviceIdentifier,
+        orderBy: 'starting',
+        orderDir: 'asc',
+        count: 1,
+        page: 1
     })
 
     const response = await fetch(url.toString(), {
@@ -326,7 +330,7 @@ export async function fetchFirstAssetMedia({
 
     const r = await response.json();
     return r.results[0] as IWebCOOSElement;
-    
+
 }
 
 
@@ -448,10 +452,22 @@ export async function fetchWebCOOSElementInventory({
     source,
     token,
     signal,
-    params
+    params,
+    grouping = 'day'
 }: IWebCOOSApiRequestParams & {
-    params: IPostgrestParams<IWebCOOSElementInventory>
+    params: Omit<IPostgrestParams<IWebCOOSElementInventory>, 'table'>,
+    grouping?: 'day' | 'hour' | 'month' | 'week'
 }): Promise<IWebCOOSElementInventory[]> {
+
+    params.filters = params.filters ?? []
+    if (!params.filters.find(f => f.column === 'bucket_grouping')) {
+        params.filters.push({
+            column: 'bucket_grouping',
+            operator: 'eq',
+            value: grouping
+        })
+    }
+
 
     const results = await fetchFromWebCOOSPostgrest<IWebCOOSElementInventory>({
         apiUrl,

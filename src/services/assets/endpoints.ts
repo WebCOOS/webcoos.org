@@ -65,15 +65,15 @@ export const assetTimeSeriesEndpoint = ({
 }): string => {
     const url = new URL(`${apiUrl}/${apiVersion}/elements`)
     url.searchParams.set('service', serviceIdentifier);
-    if(start !== undefined){
+    if (start !== undefined) {
         url.searchParams.set('starting_after', start instanceof Date ? start.toISOString() : makeUTCDate(start).toISOString());
     }
-    if(end !== undefined){
+    if (end !== undefined) {
         url.searchParams.set('starting_before', end instanceof Date ? end.toISOString() : makeUTCDate(end).toISOString());
     }
     url.searchParams.set('page', page.toString());
     url.searchParams.set('page_size', count.toString());
-    url.searchParams.set('ordering', `${orderDir === 'asc' ? '-' : ''}${orderBy}`);
+    url.searchParams.set('ordering', `${orderDir === 'asc' ? '' : '-'}${orderBy}`);
     return url.toString();
 }
 
@@ -107,7 +107,7 @@ export const assetPreviousElementEndpoint = ({
     before,
     page = 1,
     count = 1
-}: Omit<IWebCOOSApiRequestParams, 'token' | 'signal' | 'order' |'orderBy'> & {
+}: Omit<IWebCOOSApiRequestParams, 'token' | 'signal' | 'order' | 'orderBy'> & {
     serviceIdentifier: string
     before: Date | string | number
     page?: number

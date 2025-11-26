@@ -7,6 +7,7 @@ import { CamerasTable } from "@/Pages/Cameras/CamerasView"
 import { makeUTCDate } from "@/services/assets/parsers"
 import { fetchWebCOOSCameraPageFiltered, type IWebCOOSCameraPageFiltered } from "@/services/assets/services"
 import type { IWebCOOSAssetSummaryView, IWebCOOSParsedGalleryService } from "@/services/assets/types"
+import { useWebCOOSElementInventory } from "@/services/assets/useWebCOOSPostgrest"
 import { useTimeSeriesAssetBrowse } from "@/services/media/useTimeSeriesAssetBrowse"
 import { useTimeSeriesAssetMedia } from "@/services/media/useTimeSeriesAssetMedia"
 import ApiContext, { useAPIContext } from "@/state/ApiContext"
@@ -178,50 +179,121 @@ const GalleryBrowse = ({ service }: { service?: IWebCOOSParsedGalleryService }):
             {
                 start !== undefined && end !== undefined && <div className='flex flex-col gap-4'>
                     <p>{startString} to {endString}</p>
-            
-                <ViewWithLoader data={data} isLoading={isLoading} isFetching={isFetching} error={error}>
+                    <div className='h-[300px] p-4 bg-slate-100 shadow-md relative'>
+                        <ViewWithLoader data={data} isLoading={isLoading} isFetching={isFetching} error={error}>
+                            {
+                                data &&
+                                <div className='flex flex-col gap-4'>
+
+                                    <p>{data[0]?.data.extents.temporal.min ?? 'NAN'}</p>
+                                </div>
+                            }
+                        </ViewWithLoader>
+                    </div>
                     {
-                        data && 
-                            <div className='flex flex-row gap-4 items-center'>
-                                <Button
-                                    type='create'
-                                    disabled={new Date(data[0].data.extents.temporal.min).getTime() === +start}
-                                    onClick={() => {
-                                        if (data.length > 0) {
-                                            setDirection('previous')
-                                            if(data[0] !== undefined){
-                                                setCurrentDate(makeUTCDate(data[0].data.extents.temporal.min))
-                                            }
+                        <div className='flex flex-row gap-4 items-center'>
+                            <Button
+                                type='create'
+                                disabled={data === undefined || data === null || new Date(data[0]?.data.extents.temporal.min).getTime() === +start}
+                                onClick={() => {
+                                    setDirection('first')
+                                    if (data !== undefined && data !== null && data.length > 0) {
+                                        if (data[0] !== undefined) {
+                                            setCurrentDate(makeUTCDate(data[0].data.extents.temporal.min))
                                         }
-                                    }}
-                                >Previous</Button>
-                                <p>{data[0]?.data.extents.temporal.min ?? 'NAN'}</p>
-                                <Button
-                                    type='create'
-                                    disabled={new Date(data[0].data.extents.temporal.min).getTime() === +end}
-                                    onClick={() => {
-                                        if (data.length > 0) {
-                                            setDirection('next')
-                                            if(data[0] !== undefined){
-                                                setCurrentDate(makeUTCDate(data[0].data.extents.temporal.min))
-                                            }
-
+                                    }
+                                }}
+                            >First</Button>
+                            <Button
+                                type='create'
+                                disabled={data === undefined || data === null || new Date(data[0]?.data.extents.temporal.min).getTime() === +start}
+                                onClick={() => {
+                                    if (data !== undefined && data !== null && data.length > 0) {
+                                        setDirection('previous')
+                                        if (data[0] !== undefined) {
+                                            setCurrentDate(makeUTCDate(data[0].data.extents.temporal.min))
                                         }
-                                    }}
-                                >Next</Button>
+                                    }
+                                }}
+                            >Previous</Button>
+                            <Button
+                                type='create'
+                                disabled={data === undefined || data === null || new Date(data[0]?.data.extents.temporal.min).getTime() === +end}
+                                onClick={() => {
+                                    if (data !== undefined && data !== null && data.length > 0) {
+                                        setDirection('next')
+                                        if (data[0] !== undefined) {
+                                            setCurrentDate(makeUTCDate(data[0].data.extents.temporal.min))
+                                        }
 
-                            </div>
+                                    }
+                                }}
+                            >Next</Button>
+                            <Button
+                                type='create'
+                                disabled={data === undefined || data === null || new Date(data[0]?.data.extents.temporal.min).getTime() === +end}
+                                onClick={() => {
+                                    setDirection('last')
+                                    if (data !== undefined && data !== null && data.length > 0) {
+                                        if (data[0] !== undefined) {
+                                            setCurrentDate(makeUTCDate(data[0].data.extents.temporal.min))
+                                        }
+                                    }
+                                }}
+                            >Last</Button>
+                        </div>
                     }
-                </ViewWithLoader>
                 </div>
             }
         </>
     )
-
-
 }
 
 
+const ServiceInventory = ({ service }: { service: IWebCOOSParsedGalleryService }): ReactElement => {
+    const apiContext = useAPIContext()
+    const { data, isLoading, isFetching, error } = useWebCOOSElementInventory({
+        ...apiContext,
+        params: {
+            filters: [
+                {
+                    column: 'service_slug',
+                    operator: 'eq',
+                    value: service.common.slug
+                }
+            ],
+            order: [
+                {
+                    column: 'time_bucket',
+                    dir: 'desc'
+                }
+            ]
+        },
+        grouping: 'day'
+
+    })
+
+    return (
+        <ViewWithLoader data={data} isLoading={isLoading} isFetching={isFetching} error={error}>
+            {
+                data && data.length > 0 &&
+                <Table
+                    columns={[
+                        {
+                            id: 'time_bucket',
+                            label: 'Date'
+                        },
+                        {
+                            id: 'bucket_count',
+                            label: 'Bucket Count'
+                        }
+                    ]}
+                    data={data}
+                />
+            }
+        </ViewWithLoader >
+    )
+}
 const groups = [
     {
         label: 'Camera lists',
@@ -432,6 +504,37 @@ const groups = [
                 id: 'gallery-browse',
                 content: ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactElement => {
                     return <ServiceSelector data={data} View={GalleryBrowse} />
+                }
+            },
+            {
+                label: 'Inventory',
+                id: 'inventory',
+                content: ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactElement => {
+                    return <CameraPicker data={data}
+                        View={
+                            ({ camera }): ReactElement => {
+                                return <CameraDetail slug={camera.asset_slug} View={({ detail }): ReactElement => {
+                                    return (
+                                        <div className='flex flex-col gap-4'>
+                                            <p className="text-xl font-bold">{
+                                                detail.dateBounds.map(d => d?.toString() ?? 'N/A').join(' to ')
+                                            }</p>
+                                            {
+                                                detail.galleryServices.length > 0
+                                                    ? detail.galleryServices.map(service => (
+                                                        <div key={service.uuid} className='border-t border-slate-300 pt-4'>
+                                                            <p>{service.common.label} ({service.uuid})</p>
+                                                            <ServiceInventory key={service.uuid} service={service} />
+                                                        </div>
+                                                    ))
+                                                    : 'N/A'
+                                            }
+                                        </div>
+                                    )
+                                }} />
+                            }
+                        }
+                    />
                 }
             }
         ]
