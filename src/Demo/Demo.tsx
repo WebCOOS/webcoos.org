@@ -17,6 +17,7 @@ import { atom, useAtom } from "jotai"
 import { Fragment, useContext, useState, type ReactElement } from "react"
 import Markdown from "react-markdown"
 import { Link, useParams } from "react-router"
+// import { Chart, EPlotTypes } from '@axdspub/axiom-charts'
 
 const urlParams = new URLSearchParams(window.location.search)
 const initialCameraSlug = urlParams.get('camera_slug') ?? undefined
@@ -277,19 +278,56 @@ const ServiceInventory = ({ service }: { service: IWebCOOSParsedGalleryService }
         <ViewWithLoader data={data} isLoading={isLoading} isFetching={isFetching} error={error}>
             {
                 data && data.length > 0 &&
-                <Table
-                    columns={[
-                        {
-                            id: 'time_bucket',
-                            label: 'Date'
-                        },
-                        {
-                            id: 'bucket_count',
-                            label: 'Bucket Count'
-                        }
-                    ]}
-                    data={data}
-                />
+                <>
+                    {/* <Chart
+                        settings={{
+                            margin: { top: 20, right: 20, bottom: 40, left: 60 },
+                            width: 'auto',
+                            height: 200,
+                            axes: {
+                                y: {
+                                    domain: [
+                                        0,
+                                        Math.max(...data.map(d => d.bucket_count)),
+                                    ]
+                                }
+                            }
+
+                        }}
+                        plots={[
+                            {
+                                id: `${service.uuid}-bucket-count`,
+                                type: EPlotTypes.bar,
+                                data: data,
+                                dimensions: {
+                                    x: {
+                                        property: 'time_bucket',
+                                        parameter: 'time_bucket'
+                                    },
+                                    y: {
+                                        property: 'bucket_count',
+                                        parameter: 'bucket_count'
+                                    }
+                                }
+
+                            }
+                        ]}
+
+                    /> */}
+                    <Table
+                        columns={[
+                            {
+                                id: 'time_bucket',
+                                label: 'Date'
+                            },
+                            {
+                                id: 'bucket_count',
+                                label: 'Bucket Count'
+                            }
+                        ]}
+                        data={data}
+                    />
+                </>
             }
         </ViewWithLoader >
     )
