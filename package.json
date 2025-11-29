@@ -10,7 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@axdspub/axiom-maps": "^1.0.5",
+    "@axdspub/axiom-charts": "^1.0.6",
+    "@axdspub/axiom-maps": "^1.0.7",
     "@axdspub/axiom-ui-utilities": "^1.0.0",
     "@heroicons/react": "^1.0.6",
     "@tailwindcss/vite": "^4.1.13",

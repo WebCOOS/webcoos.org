@@ -9,19 +9,19 @@ const Header = (): ReactElement => {
     const [isScrolled, setIsScrolled] = useState(false);
 
     useEffect(() => {
-    const handleScroll = () => {
-        if (window.scrollY > 50) { // Adjust 50px as your desired scroll threshold
-            setIsScrolled(true);
-        } else {
-            setIsScrolled(false);
-        }
-    };
+        const handleScroll = () => {
+            if (window.scrollY > 50) { // Adjust 50px as your desired scroll threshold
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
 
-    window.addEventListener('scroll', handleScroll);
+        window.addEventListener('scroll', handleScroll);
 
-    return () => {
-        window.removeEventListener('scroll', handleScroll);
-    };
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
     }, []);
 
 
@@ -29,7 +29,7 @@ const Header = (): ReactElement => {
         return (<></>)
     }
 
-    const headerClassName = 'fixed top-0 right-0 left-0 bg-white flex flex-col md:flex-row md:items-center md:justify-between border-b-4 border-[var(--color-primary)] mb-4 z-20'
+    const headerClassName = 'fixed top-0 right-0 left-0 bg-white flex flex-col md:flex-row md:items-center md:justify-between border-b-4 border-[var(--color-primary)] mb-4 z-30'
     const headerClassNameNotScrolled = 'p-4'
     const headerClassNameScrolled = 'shadow-lg transition-shadow duration-300 px-4 py-1'
 
@@ -40,17 +40,17 @@ const Header = (): ReactElement => {
 
     return (
         <header className={`${headerClassName} ${isScrolled ? headerClassNameScrolled : headerClassNameNotScrolled}`}>
-            
+
             <div className="flex justify-between">
                 <span className="flex items-center">
                     <Link to={siteContext.header.logoUrl}>
-                    <img
-                                className={`${imgClassName} ${isScrolled ? imgClassNameScrolled : imgClassNameNotScrolled}`}
-                                src={isScrolled ? siteContext.header.logoImageSmall : siteContext.header.logoImage}
-                                alt={siteContext.header.logoAltText}
-                            />
+                        <img
+                            className={`${imgClassName} ${isScrolled ? imgClassNameScrolled : imgClassNameNotScrolled}`}
+                            src={isScrolled ? siteContext.header.logoImageSmall : siteContext.header.logoImage}
+                            alt={siteContext.header.logoAltText}
+                        />
 
-                        
+
                     </Link>
                     <Link to="/" className={isScrolled ? 'text-xl' : 'text-2xl'}>{siteContext.site.title}</Link>
                 </span>
