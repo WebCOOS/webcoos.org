@@ -1,13 +1,13 @@
-import type {  Point, Polygon } from "geojson";
+import type { Point, Polygon } from "geojson";
 import { type Duration } from "date-fns";
 import type { ILayerQueryEvent, ILatLon } from "@axdspub/axiom-maps";
 
 export type IWebCOOSRawAssetServiceStream = {
-    url: string;
-    name: string;
-    port: number;
-    protocol: string;
-    provider: string;
+  url: string;
+  name: string;
+  port: number;
+  protocol: string;
+  provider: string;
 }
 
 
@@ -22,7 +22,90 @@ type IWebCOOSThumbnails = {
 }
 
 
-export type IWebCOOSRawAsset =  {
+export type IWebCOOSRawAsset = {
+  uuid: string;
+  created_at: string;
+  updated_at: string;
+  attrs: Record<string, unknown>;
+  data: {
+    kind: string;
+    type: string;
+    uuid: string;
+    common: {
+      slug: string;
+      label: string;
+      comments: string;
+      description: string;
+      access_level: string;
+      statistics_level: string;
+    };
+    system: string;
+    version: string;
+    uuid_slug: string;
+    uuid_type: string;
+    properties: {
+      group: string;
+      source: string;
+      location: Point;
+      wedge: Polygon | null;
+      timezone: string;
+      thumbnails: {
+        base: IWebCOOSThumbnails;
+      };
+    };
+  };
+  feeds: Array<{
+    uuid: string;
+    created_at: string;
+    updated_at: string;
+    attrs: Record<string, unknown>;
+    data: {
+      kind: string;
+      type: string;
+      uuid: string;
+      common: {
+        slug: string;
+        label: string;
+        comments: string;
+        description: string;
+        access_level: string;
+        statistics_level: string;
+      };
+      system: string;
+      version: string;
+      uuid_slug: string;
+      uuid_type: string;
+      properties: {
+        status: string;
+      };
+    };
+    products: Array<{
+      uuid: string;
+      created_at: string;
+      updated_at: string;
+      attrs: Record<string, unknown>;
+      data: {
+        kind: string;
+        type: string;
+        uuid: string;
+        common: {
+          slug: string;
+          label: string;
+          comments: string;
+          description: string;
+          access_level: string;
+          statistics_level: string;
+        };
+        system: string;
+        version: string;
+        uuid_slug: string;
+        uuid_type: string;
+        properties: Record<string, unknown>;
+      };
+      services: Array<IWebCOOSParsedAssetService>;
+    }>;
+  }>;
+  package: {
     uuid: string;
     created_at: string;
     updated_at: string;
@@ -47,178 +130,95 @@ export type IWebCOOSRawAsset =  {
         group: string;
         source: string;
         location: Point;
-        wedge: Polygon | null;
         timezone: string;
         thumbnails: {
-            base: IWebCOOSThumbnails;
+          base: IWebCOOSThumbnails | null;
         };
       };
     };
-    feeds: Array<{
-      uuid: string;
-      created_at: string;
-      updated_at: string;
-      attrs: Record<string, unknown>;
-      data: {
-        kind: string;
-        type: string;
-        uuid: string;
-        common: {
-          slug: string;
-          label: string;
-          comments: string;
-          description: string;
-          access_level: string;
-          statistics_level: string;
-        };
-        system: string;
-        version: string;
-        uuid_slug: string;
-        uuid_type: string;
-        properties: {
-          status: string;
-        };
-      };
-      products: Array<{
-        uuid: string;
-        created_at: string;
-        updated_at: string;
-        attrs: Record<string, unknown>;
-        data: {
-          kind: string;
-          type: string;
-          uuid: string;
-          common: {
-            slug: string;
-            label: string;
-            comments: string;
-            description: string;
-            access_level: string;
-            statistics_level: string;
-          };
-          system: string;
-          version: string;
-          uuid_slug: string;
-          uuid_type: string;
-          properties: Record<string, unknown>;
-        };
-        services: Array<IWebCOOSParsedAssetService>;
-      }>;
-    }>;
-    package: {
-      uuid: string;
-      created_at: string;
-      updated_at: string;
-      attrs: Record<string, unknown>;
-      data: {
-        kind: string;
-        type: string;
-        uuid: string;
-        common: {
-          slug: string;
-          label: string;
-          comments: string;
-          description: string;
-          access_level: string;
-          statistics_level: string;
-        };
-        system: string;
-        version: string;
-        uuid_slug: string;
-        uuid_type: string;
-        properties: {
-          group: string;
-          source: string;
-          location: Point;
-          timezone: string;
-          thumbnails: {
-            base: IWebCOOSThumbnails | null;
-          };
-        };
-      };
-    };
-    disposition: {
-      slug: string;
-      label: string;
-      description: string | null;
-    };
-    disposition_note: string;
   };
+  disposition: {
+    slug: string;
+    label: string;
+    description: string | null;
+  };
+  disposition_note: string;
+};
 
-export type IWebCOOSParsedAssetService =  {
-    uuid: string;
-    created_at: string;
-    updated_at: string;
-    attrs: Record<string, unknown>;
-    data: {
-        kind: string;
-        type: string;
-        uuid: string;
-        common: {
-            slug: string;
-            label: string;
-            comments: string;
-            description: string;
-            access_level: string;
-            statistics_level: string;
-        };
-        system: string;
-        version: string;
-        uuid_slug: string;
-        uuid_type: string;
-        properties: {
-            url?: string;
-            path?: string;
-            bucket?: string;
-            region?: string;
-            base_url?: string;
-            frequency: {
-                type: string;
-                value: string | null;
-            };
-            connections?: Array<{
-                url: string;
-                name: string;
-                port: number;
-                protocol: string;
-                provider: string;
-            }>;
-        };
-    };
-    elements: {
-        count: number;
-        size: number | null;
-        first_starting: string | null;
-        last_starting: string | null;
-        first_ending: string | null;
-        last_ending: string | null;
-    };
-  }
-
-export type IWebCOOSParsedGalleryService =  {
+export type IWebCOOSParsedAssetService = {
+  uuid: string;
+  created_at: string;
+  updated_at: string;
+  attrs: Record<string, unknown>;
+  data: {
+    kind: string;
+    type: string;
     uuid: string;
     common: {
-        slug: string;
-        label: string;
-        comments: string;
-        description: string;
-        access_level: string;
-        statistics_level: string;
+      slug: string;
+      label: string;
+      comments: string;
+      description: string;
+      access_level: string;
+      statistics_level: string;
     };
-    elements: {
-        count: number;
-        size: number | null;
-        first_starting: string | null;
-        last_starting: string | null;
-        first_ending: string | null;
-        last_ending: string | null;
-    };
-    sortOrder: number;
-    svcType: string;
-    frequency: {
+    system: string;
+    version: string;
+    uuid_slug: string;
+    uuid_type: string;
+    properties: {
+      url?: string;
+      path?: string;
+      bucket?: string;
+      region?: string;
+      base_url?: string;
+      frequency: {
         type: string;
-        period: string | Duration | null;
+        value: string | null;
+      };
+      connections?: Array<{
+        url: string;
+        name: string;
+        port: number;
+        protocol: string;
+        provider: string;
+      }>;
     };
+  };
+  elements: {
+    count: number;
+    size: number | null;
+    first_starting: string | null;
+    last_starting: string | null;
+    first_ending: string | null;
+    last_ending: string | null;
+  };
+}
+
+export type IWebCOOSParsedGalleryService = {
+  uuid: string;
+  common: {
+    slug: string;
+    label: string;
+    comments: string;
+    description: string;
+    access_level: string;
+    statistics_level: string;
+  };
+  elements: {
+    count: number;
+    size: number | null;
+    first_starting: string | null;
+    last_starting: string | null;
+    first_ending: string | null;
+    last_ending: string | null;
+  };
+  sortOrder: number;
+  svcType: string;
+  frequency: {
+    type: string;
+    period: string | Duration | null;
+  };
 }
 
 export type IWebCOOSElement = {
@@ -287,6 +287,7 @@ export type IWebCOOSParsedAsset = {
   services: IWebCOOSParsedAssetService[];
   dateBounds: (string | null)[];
   galleryServices: IWebCOOSParsedGalleryService[];
+  timeDomain?: [Date, Date];
   stillImageService: IWebCOOSParsedAssetService | null;
   wedge: Polygon | null;
   status: {
@@ -311,21 +312,21 @@ export type IWebCOOSParsedAsset = {
 
 
 export type IWebCOOSApiRequestParams = {
-    apiUrl?: string,
-    apiVersion?: string,
-    source?: string,
-    token?: string,
-    signal?: AbortSignal
+  apiUrl?: string,
+  apiVersion?: string,
+  source?: string,
+  token?: string,
+  signal?: AbortSignal
 }
 
 type IWebCOOSPoint = GeoJSON.Point & {
-    crs: {
-      type: "name";
-      properties: {
-        name: string;
-      };
+  crs: {
+    type: "name";
+    properties: {
+      name: string;
     };
-  }
+  };
+}
 
 
 export interface IWebCOOSElementInventory {
@@ -439,39 +440,39 @@ export interface IWebCOOSAssetSummaryView {
   }
 }
 
-export type IWebCOOSMapAsset = {asset_slug: string} & Pick<IWebCOOSAssetSummaryView, 'asset_location' | 'asset_wedge' | 'asset_label' | 'asset_description' | 'asset_operational_status_slug' | 'asset_operational_status_label' | 'asset_operational_status_note' | 'asset_disposition_slug' | 'asset_disposition_label' | 'asset_thumbnails'>
+export type IWebCOOSMapAsset = { asset_slug: string } & Pick<IWebCOOSAssetSummaryView, 'asset_location' | 'asset_wedge' | 'asset_label' | 'asset_description' | 'asset_operational_status_slug' | 'asset_operational_status_label' | 'asset_operational_status_note' | 'asset_disposition_slug' | 'asset_disposition_label' | 'asset_thumbnails'>
 
 export type IPostgrestParams<T> = {
-    table: string
-    limit?: number
-    offset?: number
-    order?: ({
-        column: string | keyof T
-        dir: 'asc' | 'desc'
-    })[],
-    select?: (string | {
-        column: string | keyof T
-        fn?: 'count' | 'sum' | 'avg' | 'min' | 'max'
-        as?: string
-    })[],
-    filters?: {
-        column: string | keyof T,
-        operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'ilike' | 'in' | 'is' | 'cs' | 'cd' | 'sl' | 'sr' | 'nxl' | 'nxr',
-        value: string | number | (string | number)[]
-    }[]
+  table: string
+  limit?: number
+  offset?: number
+  order?: ({
+    column: string | keyof T
+    dir: 'asc' | 'desc'
+  })[],
+  select?: (string | {
+    column: string | keyof T
+    fn?: 'count' | 'sum' | 'avg' | 'min' | 'max'
+    as?: string
+  })[],
+  filters?: {
+    column: string | keyof T,
+    operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'ilike' | 'in' | 'is' | 'cs' | 'cd' | 'sl' | 'sr' | 'nxl' | 'nxr',
+    value: string | number | (string | number)[]
+  }[]
 }
 
 
 export type IMapViewProps = {
-    data: IWebCOOSMapAsset[],
-    featureSort?: (a: IWebCOOSMapAsset, b: IWebCOOSMapAsset) => number,
-    SelectView?: React.FC<{ selectedItem: IWebCOOSMapAsset | undefined }>,
-    LegendView?: React.FC,
-    HoverView?: React.FC<{ hoverItem?: ILayerQueryEvent | undefined }>,
-    onItemSelect?: (item: IWebCOOSMapAsset | undefined) => void,
-    center?: ILatLon,
-    zoom?: number
-    selectedItemSlug?: string
-    stylePointFn?: (item: IWebCOOSMapAsset, defaultProps: Record<string, unknown>) => Record<string, unknown>,
-    styleWedgeFn?: (item: IWebCOOSMapAsset, defaultProps: Record<string, unknown>) => Record<string, unknown>
+  data: IWebCOOSMapAsset[],
+  featureSort?: (a: IWebCOOSMapAsset, b: IWebCOOSMapAsset) => number,
+  SelectView?: React.FC<{ selectedItem: IWebCOOSMapAsset | undefined }>,
+  LegendView?: React.FC,
+  HoverView?: React.FC<{ hoverItem?: ILayerQueryEvent | undefined }>,
+  onItemSelect?: (item: IWebCOOSMapAsset | undefined) => void,
+  center?: ILatLon,
+  zoom?: number
+  selectedItemSlug?: string
+  stylePointFn?: (item: IWebCOOSMapAsset, defaultProps: Record<string, unknown>) => Record<string, unknown>,
+  styleWedgeFn?: (item: IWebCOOSMapAsset, defaultProps: Record<string, unknown>) => Record<string, unknown>
 }

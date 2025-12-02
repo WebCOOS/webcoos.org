@@ -251,9 +251,9 @@ const GalleryBrowse = ({ service }: { service?: IWebCOOSParsedGalleryService }):
 }
 
 
-const InventoryPlot = ({ uuid, data }: { uuid: string, data: IWebCOOSElementInventory[] }): ReactElement => {
+const InventoryPlot = ({ data, timeDomain }: { uuid: string, data: IWebCOOSElementInventory[], timeDomain?: Date[] }): ReactElement => {
 
-const dates: Date[] = data.map(d => new Date(d.time_bucket)).sort((a,b) => a.getTime() - b.getTime())
+    const dates: Date[] = data.map(d => new Date(d.time_bucket)).sort((a, b) => a.getTime() - b.getTime())
     const segmentSize = {
         hour: 60 * 60 * 1000,
         day: 24 * 60 * 60 * 1000,
@@ -261,8 +261,8 @@ const dates: Date[] = data.map(d => new Date(d.time_bucket)).sort((a,b) => a.get
         year: 365 * 24 * 60 * 60 * 1000,
         week: 7 * 24 * 60 * 60 * 1000
     }[data[0].bucket_grouping || 'day'] ?? 0
-    const minDate = new Date(dates[0].getTime() - segmentSize)
-    const maxDate = new Date(+dates[dates.length -1].getTime() + segmentSize)
+    const minDate = new Date((timeDomain?.[0] !== undefined ? timeDomain[0].getTime() : dates[0].getTime()) - segmentSize)
+    const maxDate = new Date((timeDomain?.[1] !== undefined ? timeDomain[1].getTime() : dates[dates.length - 1].getTime()) + segmentSize)
     const max = Math.max(...data.map(d => d.bucket_count))
     const min = Math.min(...data.map(d => d.bucket_count))
     const span = max - min
@@ -270,80 +270,87 @@ const dates: Date[] = data.map(d => new Date(d.time_bucket)).sort((a,b) => a.get
     const chartMin = min - buffer < 0 ? 0 : min - buffer
     const chartMax = max + buffer
     return (
-            <>
-                <Chart
-                        settings={{
-                            margin: { top: 20, right: 20, bottom: 50, left: 20 },
-                            width: 'auto',
-                            height: 100,
-                            axes: {
-                                y: {
-                                    exclude: true,
-                                    domain: [
-                                        chartMin,
-                                        chartMax,
-                                    ]
-                                },
-                                x: {
-                                    //ticks: 10,
-                                    tickFormat: (d:Date) => {
-                                        return `${d.getUTCMonth() + 1}/${d.getUTCDate()}`
-                                    },
-                                    domain: [
-                                        minDate,
-                                        maxDate
-                                        
-                                    ]
-                                }
-                            }
+        <>
+            <Chart
+                settings={{
+                    margin: { top: 20, right: 20, bottom: 50, left: 20 },
+                    width: 'auto',
+                    height: 100,
+                    axes: {
+                        y: {
+                            exclude: true,
+                            domain: [
+                                chartMin,
+                                chartMax,
+                            ]
+                        },
+                        x: {
+                            /* ticks: 6,
+                            tickFormat: (d: Date) => {
+                                return `${String(d.getUTCFullYear()).padStart(4, '0')}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${String(d.getUTCDate()).padStart(2, '0')}`
+                            }, */
+                            domain: [
+                                minDate,
+                                maxDate
 
-                        }}
-                        plots={[
-                            {
-                                id: `webcoos-inventory`,
-                                type: EPlotTypes.bar,
-                                dataService: {
-                                    type: 'preloaded',
-                                    url: 'preloaded',
-                                    result: {
-                                        data,
-                                        parsed: {
-                                        data,
-                                        accessors: {
-                                            x: d => new Date(d.time_bucket),
-                                            y1: d => d.bucket_count,
-                                            y0: () => chartMin
-                                        },
-                                        args: {}
+                            ]
+                        }
+                    }
+
+                }}
+                plots={[
+                    {
+                        id: `webcoos-inventory`,
+                        type: EPlotTypes.bar,
+                        dataService: {
+                            type: 'preloaded',
+                            url: 'preloaded',
+                            result: {
+                                data,
+                                parsed: {
+                                    data,
+                                    accessors: {
+                                        x: d => new Date(d.time_bucket),
+                                        y: d => d.bucket_count,
+                                        y1: d => d.bucket_count,
+                                        y0: () => chartMin,
+                                        color: d => d.bucket_count > 140 ? '#d62728' : '#1f77b4',
+                                        size: function (d) {
+                                            return 5
                                         }
-                                    }
-                                },
-                                dimensions: {
-                                    x: {
-                                        property: 'time_bucket',
-                                        parameter: 'time_bucket',
-                                        accessor: (d: any) => new Date(d.time_bucket)
                                     },
-                                    y: {
-                                        property: 'bucket_count',
-                                        parameter: 'bucket_count'
-                                    }
+                                    args: {}
                                 }
-
                             }
-                        ]}
+                        },
+                        style: {
+                            fill: '#1f77b4',
+                        },
+                        dimensions: {
+                            x: {
+                                property: 'time_bucket',
+                                parameter: 'time_bucket'
+                            },
+                            y: {
+                                property: 'bucket_count',
+                                parameter: 'bucket_count'
+                            }
+                        }
 
-                    />
-            
+                    }
+                ]}
 
-                </>
+            />
+
+
+        </>
 
     )
 
 }
 
 
-const ServiceInventory = ({ service }: { service: IWebCOOSParsedGalleryService }): ReactElement => {
+const ServiceInventory = ({ service, timeDomain }: { service: IWebCOOSParsedGalleryService, timeDomain?: Date[] }): ReactElement => {
     const apiContext = useAPIContext()
     const { data, isLoading, isFetching, error } = useWebCOOSElementInventory({
         ...apiContext,
@@ -362,7 +369,7 @@ const ServiceInventory = ({ service }: { service: IWebCOOSParsedGalleryService }
                 }
             ]
         },
-        grouping: 'day'
+        grouping: 'week'
 
     })
 
@@ -371,8 +378,8 @@ const ServiceInventory = ({ service }: { service: IWebCOOSParsedGalleryService }
             {
                 data && data.length > 0 &&
                 <>
-                    <InventoryPlot uuid={service.uuid} data={data} />
-                    <Table
+                    <InventoryPlot uuid={service.uuid} data={data} timeDomain={timeDomain} />
+                    {/* <Table
                         columns={[
                             {
                                 id: 'time_bucket',
@@ -384,7 +391,7 @@ const ServiceInventory = ({ service }: { service: IWebCOOSParsedGalleryService }
                             }
                         ]}
                         data={data}
-                    />
+                    /> */}
                 </>
             }
         </ViewWithLoader >
@@ -606,6 +613,7 @@ const groups = [
                 label: 'Inventory',
                 id: 'inventory',
                 content: ({ data }: { data: IWebCOOSCameraPageFiltered }): ReactElement => {
+
                     return <CameraPicker data={data}
                         View={
                             ({ camera }): ReactElement => {
@@ -620,7 +628,7 @@ const groups = [
                                                     ? detail.galleryServices.map(service => (
                                                         <div key={service.uuid} className='border-t border-slate-300 pt-4'>
                                                             <p>{service.common.label} ({service.uuid})</p>
-                                                            <ServiceInventory key={service.uuid} service={service} />
+                                                            <ServiceInventory key={service.uuid} service={service} timeDomain={detail.timeDomain} />
                                                         </div>
                                                     ))
                                                     : 'N/A'

@@ -263,6 +263,22 @@ export function parseWebCOOSAsset(item: IWebCOOSRawAsset, statusNow = undefined)
             }).sort((a, b) => a.sortOrder - b.sortOrder)
         : [];
 
+    const times = galleryServices.map(g => {
+        const ending = g.elements.last_ending ?? g.elements.last_starting;
+        const starting = g.elements.first_starting ?? g.elements.first_ending;
+        return [
+            starting !== null ? new Date(starting) : null,
+            ending !== null ? new Date(ending) : null
+        ]
+    }).flat().filter(d => d !== null) as Date[];
+
+    const timeDomain = times.length > 1
+        ? [
+            new Date(Math.min(...times.map(d => d.getTime()))),
+            new Date(Math.max(...times.map(d => d.getTime())))
+        ] as [Date, Date]
+        : undefined;
+
     const has_archived_video = galleryServices.some(s => s.svcType === 'video');
     const has_archived_images = galleryServices.some(s => s.svcType === 'img');
 
@@ -328,6 +344,7 @@ export function parseWebCOOSAsset(item: IWebCOOSRawAsset, statusNow = undefined)
         services,
         dateBounds,
         galleryServices,
+        timeDomain,
         stillImageService,
         wedge: wedge,
         status: status,

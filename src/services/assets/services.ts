@@ -446,7 +446,7 @@ export async function fetchFromWebCOOSPostgrest<T>(
 
 
 
-export async function fetchWebCOOSElementInventory({
+export async function fetchWebCOOSElementInventoryFromPostgrest({
     apiUrl,
     apiVersion,
     source,
