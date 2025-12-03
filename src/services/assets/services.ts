@@ -36,7 +36,7 @@ export async function fetchAPIAsset({
     signal?: AbortSignal
 }): Promise<IWebCOOSRawAsset> {
     if (!token) {
-        throw new MissingTokenError("API Token not provided, pass to fetchAPIAssets or set env var NEXT_PUBLIC_WEBCOOS_API_TOKEN");
+        throw new MissingTokenError("API Token not provided, pass to fetchAPIAssets or set env var VITE_PUBLIC_WEBCOOS_API_TOKEN");
     }
 
     const parts = [
@@ -81,7 +81,7 @@ export async function fetchAPIAssets({
     signal?: AbortSignal
 } = {}): Promise<IWebCOOSRawAsset[]> {
     if (!token) {
-        throw new MissingTokenError("API Token not provided, pass to fetchAPIAssets or set env var NEXT_PUBLIC_WEBCOOS_API_TOKEN");
+        throw new MissingTokenError("API Token not provided, pass to fetchAPIAssets or set env var VITE_PUBLIC_WEBCOOS_API_TOKEN");
     }
 
     const parts = [
@@ -417,7 +417,7 @@ export async function fetchFromWebCOOSPostgrest<T>(
     }
 ): Promise<T[]> {
     if (!token) {
-        throw new MissingTokenError("API Token not provided, pass to fetchFromWebCOOSPostgrest or set env var NEXT_PUBLIC_WEBCOOS_API_TOKEN");
+        throw new MissingTokenError("API Token not provided, pass to fetchFromWebCOOSPostgrest or set env var VITE_PUBLIC_WEBCOOS_API_TOKEN");
     }
     const url = postgrestEndpoint<T>({
         apiUrl,

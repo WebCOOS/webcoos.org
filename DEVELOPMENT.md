@@ -39,21 +39,21 @@ npm start
 
 The following environment variables are configured:
 
-* `NEXT_PUBLIC_MAPBOX_TOKEN`, for Mapbox.
+* `VITE_PUBLIC_MAPBOX_TOKEN`, for Mapbox.
 
 * `STORYBOOK_MAPBOX_TOKEN`, for Storybook.
 
-* `NEXT_PUBLIC_WEBCOOS_API_TOKEN`, for accessing the WebCOOS API during build and runtime.
+* `VITE_PUBLIC_WEBCOOS_API_TOKEN`, for accessing the WebCOOS API during build and runtime.
 
 An example `.env.template` is available, with contents like the following:
 
 ```shell
 STORYBOOK_MAPBOX_TOKEN=
-NEXT_PUBLIC_MAPBOX_TOKEN=
+VITE_PUBLIC_MAPBOX_TOKEN=
 
 STORYBOOK_WEBCOOS_API_TOKEN=
-NEXT_PUBLIC_WEBCOOS_API_TOKEN=ENTER_THIS_TOKEN_TO_BE_ABLE_TO_BUILD
-NEXT_PUBLIC_WEBCOOS_API_URL=https://app.stage.webcoos.org/webcoos/api
+VITE_PUBLIC_WEBCOOS_API_TOKEN=ENTER_THIS_TOKEN_TO_BE_ABLE_TO_BUILD
+VITE_PUBLIC_WEBCOOS_API_URL=https://app.stage.webcoos.org/webcoos/api
 ```
 
 The easiest way to configure the application is to:
@@ -68,24 +68,24 @@ Alternatively, you can manually set the config items in your environment, or in
 an `.envrc` that updates your environment upon `cd`-ing into the
 `webcoos-project-site` directory.
 
-**NOTE**: Without the `NEXT_PUBLIC_WEBCOOS_API_TOKEN`, you will not be able to
+**NOTE**: Without the `VITE_PUBLIC_WEBCOOS_API_TOKEN`, you will not be able to
 build (`npm run build`) or run (`npm run dev`) the project. This is by design as
 the `webcoos-project-site` requires assets provided by the API in order to build
 camera pages ahead of deployment.
 
-If you see errors regarding the `NEXT_PUBLIC_WEBCOOS_API_TOKEN` environment
+If you see errors regarding the `VITE_PUBLIC_WEBCOOS_API_TOKEN` environment
 variable being unset, you will either need to do one of the following to
 support your application build.
 
-* Set the `NEXT_PUBLIC_WEBCOOS_API_TOKEN` in your `.env` file to a valid
+* Set the `VITE_PUBLIC_WEBCOOS_API_TOKEN` in your `.env` file to a valid
     token as provided by the targeted WebCOOS API environment (for example,
-    `NEXT_PUBLIC_WEBCOOS_API_URL=https://app.stage.webcoos.org/webcoos/api` to
+    `VITE_PUBLIC_WEBCOOS_API_URL=https://app.stage.webcoos.org/webcoos/api` to
     target the stage environment).
 
-* Set `NEXT_PUBLIC_WEBCOOS_API_TOKEN` before your call to `npm run build`
+* Set `VITE_PUBLIC_WEBCOOS_API_TOKEN` before your call to `npm run build`
 
     ```shell
-    export NEXT_PUBLIC_WEBCOOS_API_TOKEN=abc123 npm run build
+    export VITE_PUBLIC_WEBCOOS_API_TOKEN=abc123 npm run build
     ```
 
 If you are building using `docker`, and are also using `docker compose`, you can
@@ -97,20 +97,20 @@ docker compose build
 ```
 
 You'll also need a Mapbox token to see the camera map components. Export
-`NEXT_PUBLIC_MAPBOX_TOKEN` in your shell before starting the development server
+`VITE_PUBLIC_MAPBOX_TOKEN` in your shell before starting the development server
 or building the static site. Consider setting this in your `.env`.
 
 Set the same value to `STORYBOOK_MAPBOX_TOKEN` if you want to see map components
 in Storybook.
 
 You'll also need a WebCOOS API token.  Set this in
-`NEXT_PUBLIC_WEBCOOS_API_TOKEN` and `STORYBOOK_WEBCOOS_API_TOKEN`.
+`VITE_PUBLIC_WEBCOOS_API_TOKEN` and `STORYBOOK_WEBCOOS_API_TOKEN`.
 
 These values for these can be found in the CI secrets or by asking an existing developer.
 
 ### Optional: Google Analytics
 
-The build process by default sets `NEXT_PUBLIC_GOOGLE_ANALYTICS_MEASUREMENT_ID`
+The build process by default sets `VITE_PUBLIC_GOOGLE_ANALYTICS_MEASUREMENT_ID`
 during build and deploy.
 
 You likely will not need to set this locally.  The script tags are emitted when
