@@ -1,0 +1,72 @@
+stages:
+  - build
+  - test
+  - push
+  - clean
+  # - deploy
+
+build_image:
+  stage: build
+  script:
+  - docker build -f Dockerfile -t $CI_PROJECT_NAME:$CI_PIPELINE_ID .
+
+test:
+  stage: test
+  image: $CI_PROJECT_NAME:$CI_PIPELINE_ID
+  script:
+    - test -e /usr/share/nginx/html/index.html
+    - test -e /usr/share/nginx/html/asset-manifest.json
+
+push_latest:
+  stage: push
+  only:
+    - main
+  script:
+    - docker tag $CI_PROJECT_NAME:$CI_PIPELINE_ID registry.axiom/$CI_PROJECT_NAME:latest
+    - docker push registry.axiom/$CI_PROJECT_NAME:latest
+
+push_tag_backend:
+  stage: push
+  only:
+    - tags
+  script:
+    - docker tag $BACKEND:$CI_PIPELINE_ID registry.axiom/$CI_PROJECT_NAME:$CI_COMMIT_TAG
+    - docker push registry.axiom/$CI_PROJECT_NAME:$CI_COMMIT_TAG
+
+clean_main:
+  stage: clean
+  only:
+    - main
+  script:
+    - docker rmi --no-prune $CI_PROJECT_NAME:$CI_PIPELINE_ID
+    - docker rmi --no-prune registry.axiom/$CI_PROJECT_NAME:latest
+
+clean_tags:
+  stage: clean
+  only:
+    - tags
+  script:
+    - docker rmi --no-prune $CI_PROJECT_NAME:$CI_PIPELINE_ID
+    - docker rmi --no-prune registry.axiom/$CI_PROJECT_NAME:CI_COMMIT_TAG
+
+clean_staging:
+  stage: clean
+  except:
+    - main
+  script:
+    - docker rmi --no-prune $CI_PROJECT_NAME:$CI_PIPELINE_ID
+    - docker rmi --no-prune registry.axiom/$CI_PROJECT_NAME:latest
+
+# deploy_staging:
+#   stage: deploy
+#   only:
+#     - main
+#   script:
+#     - aps apps-stage webcoos-ui
+
+# deploy_prod:
+#   stage: deploy
+#   only:
+#     - tags
+#   script:
+#     - aps apps-prod webcoos-ui -e webcoos_ui_version=$CI_COMMIT_TAG
