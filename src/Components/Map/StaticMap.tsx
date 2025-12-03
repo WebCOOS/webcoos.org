@@ -2,6 +2,7 @@ import type { Feature, Polygon } from 'geojson';
 import { useMemo } from 'react';
 import { circle, union, featureCollection, polygon as turfPolygon } from "@turf/turf";
 import { utils } from '@axdspub/axiom-ui-utilities';
+import { APP_MAPBOX_TOKEN } from '@/config';
 
 //import classNames from 'classnames';
 
@@ -16,7 +17,7 @@ function StaticMap({
     height = 400,
     zoom = 10,
     style = 'mapbox/light-v10',
-    mapboxAccessToken = import.meta.env.VITE_APP_MAPBOX_TOKEN,
+    mapboxAccessToken = APP_MAPBOX_TOKEN,
     markerSymbol = undefined,
     color,
     extraClasses,
@@ -151,13 +152,13 @@ function StaticMap({
     return (
         <div
             className={utils.makeClassName({
-                defaultClassName: 'bg-white border border-gray-200 relative', 
+                defaultClassName: 'bg-white border border-gray-200 relative',
                 className: extraClasses
             })}
-            style={{ 
-                width: `${width}px`, 
-                height: `${height}px`, 
-                ...extraStyle 
+            style={{
+                width: `${width}px`,
+                height: `${height}px`,
+                ...extraStyle
             }}
         >
             <img src={imgSrc} alt={`Map showing ${lonDisp} ${latDisp}`} width={width} height={height} />

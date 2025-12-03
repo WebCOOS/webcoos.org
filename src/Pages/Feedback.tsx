@@ -4,9 +4,10 @@ import SectionHeader from "@Components/Section/SectionHeader"
 import Section from "@Components/Section/Section"
 import { Loader } from "@axdspub/axiom-ui-utilities"
 import PageTitle from "@/Components/PageTitle"
+import { FEEDBACK_URL } from "@/config"
 
 const Feedback = (): ReactElement => {
-    const feedbackURL = import.meta.env.VITE_PUBLIC_FEEDBACK_URL
+    const feedbackURL = FEEDBACK_URL
     if(feedbackURL === undefined) {
         throw new Error("Feedback URL is not defined")
     }

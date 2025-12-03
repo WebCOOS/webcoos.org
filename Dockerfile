@@ -16,11 +16,6 @@ COPY src  src
 COPY eslint.config.js vite.config.ts tsconfig.json tsconfig.app.json tsconfig.node.json ./
 COPY --from=deps /app/node_modules ./node_modules
 
-# build-time config values
-ARG VITE_PUBLIC_WEBCOOS_API_TOKEN
-ARG VITE_PUBLIC_WEBCOOS_API_URL
-ARG VITE_PUBLIC_FEEDBACK_URL
-
 RUN npm run build
 
 # Production image, copy all the files and run vite
@@ -32,5 +27,10 @@ ENV NODE_ENV production
 COPY --from=builder /app/dist/ /usr/share/nginx/html
 
 COPY ./docker/nginx/conf.d/* /etc/nginx/conf.d/
+
+# Adds the runtime envsubstr on /usr/share/nginx/html to update env vars
+# passed to the container (instead of building them into the image)
+COPY ./docker/nginx/env.sh /docker-entrypoint.d/env.sh
+RUN chmod u+x /docker-entrypoint.d/env.sh
 
 EXPOSE 80

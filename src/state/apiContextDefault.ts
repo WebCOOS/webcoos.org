@@ -1,8 +1,10 @@
+import { WEBCOOS_API_URL, WEBCOOS_API_TOKEN } from "@/config";
+
 const apiContextDefault = {
-    apiUrl: import.meta.env.VITE_PUBLIC_WEBCOOS_API_URL,
+    apiUrl: WEBCOOS_API_URL,
     apiVersion: 'v1',
     source: 'webcoos',
-    token: import.meta.env.VITE_PUBLIC_WEBCOOS_API_TOKEN,
+    token: WEBCOOS_API_TOKEN,
 }
 
 export default apiContextDefault;
