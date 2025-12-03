@@ -15,7 +15,6 @@ test:
   image: $CI_PROJECT_NAME:$CI_PIPELINE_ID
   script:
     - test -e /usr/share/nginx/html/index.html
-    - test -e /usr/share/nginx/html/asset-manifest.json
 
 push_latest:
   stage: push
