@@ -1,0 +1,5 @@
+name: webcoos-org-ui
+channels:
+  - conda-forge
+dependencies:
+  - nodejs>=24.0.0
