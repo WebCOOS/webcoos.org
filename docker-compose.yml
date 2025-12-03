@@ -1,7 +1,7 @@
 services:
 
   app:
-    image: "webcoos-project-site:latest"
+    image: "webcoos-ui:latest"
     build:
       context:    .
       dockerfile: Dockerfile
