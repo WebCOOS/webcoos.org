@@ -54,7 +54,6 @@ clean_staging:
     - main
   script:
     - docker rmi --no-prune $CI_PROJECT_NAME:$CI_PIPELINE_ID
-    - docker rmi --no-prune registry.axiom/$CI_PROJECT_NAME:latest
 
 # deploy_staging:
 #   stage: deploy
