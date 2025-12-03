@@ -15,6 +15,12 @@ COPY index.html index.html
 COPY src  src
 COPY eslint.config.js vite.config.ts tsconfig.json tsconfig.app.json tsconfig.node.json ./
 COPY --from=deps /app/node_modules ./node_modules
+
+# build-time config values
+ARG VITE_PUBLIC_WEBCOOS_API_TOKEN
+ARG VITE_PUBLIC_WEBCOOS_API_URL
+ARG VITE_PUBLIC_FEEDBACK_URL
+
 RUN npm run build
 
 # Production image, copy all the files and run vite
