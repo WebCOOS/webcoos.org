@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import ShakaPlayer from 'shaka-player'
+// import ShakaPlayer from 'shaka-player'
 import 'shaka-player-react/dist/controls.css'
 
 
@@ -16,13 +16,10 @@ type IStreamingPlayerProps = {
 
 
 
-const StreamingVideoPlayer = (props: IStreamingPlayerProps): ReactElement => {
+const StreamingVideoPlayer = (_props: IStreamingPlayerProps): ReactElement => {
 
     return (
-        <ShakaPlayer 
-            {...props}
-            
-            />
+        <></>
     )
 }
 

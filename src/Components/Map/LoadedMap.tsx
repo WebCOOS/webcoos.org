@@ -118,7 +118,6 @@ const SelectView = ({
             detail,
             summary,
             stillImageService,
-            liveStream,
             isLive
         }): ReactElement => {
             return (<>
@@ -215,11 +214,11 @@ const LoadedMap = ({
     center,
     zoom,
     selectedItemSlug,
-    stylePointFn = (asset: IWebCOOSMapAsset, defaultProps: Record<string, unknown>) => {
+    stylePointFn = (_asset: IWebCOOSMapAsset, defaultProps: Record<string, unknown>) => {
         return defaultProps
 
     },
-    styleWedgeFn = (asset: IWebCOOSMapAsset, defaultProps: Record<string, unknown>) => {
+    styleWedgeFn = (_asset: IWebCOOSMapAsset, defaultProps: Record<string, unknown>) => {
         return defaultProps
     }
 }: IMapViewProps): ReactElement => {

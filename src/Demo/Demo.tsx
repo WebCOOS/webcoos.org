@@ -315,7 +315,7 @@ const InventoryPlot = ({ data, timeDomain }: { uuid: string, data: IWebCOOSEleme
                                         y1: d => d.bucket_count,
                                         y0: () => chartMin,
                                         color: d => d.bucket_count > 140 ? '#d62728' : '#1f77b4',
-                                        size: function (d) {
+                                        size: function () {
                                             return 5
                                         }
                                     },

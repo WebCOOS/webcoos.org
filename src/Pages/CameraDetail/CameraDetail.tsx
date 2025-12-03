@@ -72,8 +72,7 @@ const MediaGalleries = ({
 }
 
 const Gallery = ({
-    service,
-    assetSlug
+    service
 }: {
     service: IWebCOOSParsedGalleryService | null,
     assetSlug: string
