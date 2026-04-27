@@ -34,20 +34,18 @@ This approach is based on training an ML model to recognize rip currents. Thus f
 
 ## Why this Matters
 
-Real-time detection of rip currents can help inform public safety personnel of potential hazardous conditions, and be used by the National Weather Service when issuing rip current forecasts. Records of rip current occurrence will also support improving the NOAA National Rip Current Model and enable more accurate rip current predictions.
+Rip current detection can help inform public safety personnel of potential hazardous conditions, and be used by the National Weather Service when issuing rip current forecasts. Records of rip current occurrence will also support improving the NOAA National Rip Current Model and enable more accurate rip current predictions.
 
 ## Products
 
 ### Product Types
 
-* **Livestream** with visual overlay of either bounding box(es) or region(s) highlighting location(s) of detected rip currents.
-* **Summary image**:  Each 10 minute video will be represented by a summary image showing the time averaged locations of detected rip currents.
 * **Time-series of rip detection**: A yes/no if a rip current is detected for each 10 minute video clip.  Users can sign up for notification (text/email) if one or more rip is detected in a clip for a specified camera.
 * **Trend Analysis**: after a year of collecting data, trends will be assessed at each camera location to provide the number of rips, duration, month with most rips, etc.
 
 ### How should I use these products?
 
-These products can help inform analysis of past conditions and be used by partners to provide insight into real-time conditions. These products should not be used to make decisions whether or not it is safe to swim or enter the water at a particular location.
+These products can help inform analysis of past conditions and be used by partners to provide insight into conditions. These products should not be used to make decisions whether or not it is safe to swim or enter the water at a particular location.
 
 ### What are the limitations?
 
